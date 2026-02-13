@@ -49,8 +49,7 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 
 ## Screenshots
 
-*(Coming soon)*
-
+![Game Vision](docs/screenshots/ss1.png)
 ---
 
 ## Sprint 1
