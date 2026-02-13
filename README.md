@@ -26,16 +26,7 @@ The core objective is competitive collection:
 
 The game also includes temporary **boost items (spells)** that enhance abilities such as stamina, speed, and jump height, adding strategic depth to exploration and competition.
 
----
-
-## Technologies Used
-
-- **Godot Engine** – Rendering, physics, scene management, and cross-platform support.
-- **C# (Client)** – Gameplay logic, input handling, UI, client-side prediction and interpolation.
-- **C (Dedicated Server)** – Authoritative server handling networking, simulation ticks, session management, and state synchronization.
-- **SQLite** – Embedded database for storing player accounts, statistics, progression, and leaderboard data.
-
----
+--- 
 
 ## Features
 
@@ -44,8 +35,17 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 - Item system with rarity tiers and score values  
 - Timed competitive matches  
 - End-of-match scoreboard with score calculation  
-- Temporary boost items affecting player abilities  
+- Temporary boost items affecting player abilities 
 
+---
+
+## Technologies Used
+
+- **Godot Engine** – Rendering, physics, scene management, and cross-platform support.
+- **C# (Client)** – Gameplay logic, input handling, UI, client-side prediction and interpolation.
+- **C (Dedicated Server)** – Authoritative server handling networking, simulation ticks, session management, and state synchronization.
+- **SQLite** – Embedded database for storing player accounts, statistics, progression, and leaderboard data.
+ 
 ---
 
 ## Screenshots (Initial Vision)
