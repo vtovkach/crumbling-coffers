@@ -30,9 +30,10 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 
 ## Technologies Used
 
-- TBD  
-- TBD  
-- TBD  
+- **Godot Engine** – Rendering, physics, scene management, and cross-platform support.
+- **C# (Client)** – Gameplay logic, input handling, UI, client-side prediction and interpolation.
+- **C (Dedicated Server)** – Authoritative server handling networking, simulation ticks, session management, and state synchronization.
+- **SQLite** – Embedded database for storing player accounts, statistics, progression, and leaderboard data.
 
 ---
 
