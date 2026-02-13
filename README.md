@@ -1,14 +1,23 @@
 # Crumbling Coffers  
-A competitive multiplayer Metroidvania-style platformer centered around nonlinear exploration, strategic item collection, and time-based scoring. Players navigate interconnected levels filled with movement challenges, hidden paths, and unlockable abilities that expand traversal options as the match progresses. Each session emphasizes speed, routing efficiency, and smart decision-making, rewarding players not just for collecting items, but for optimizing their path and adapting to opponents in real time. The result is a fast-paced experience that blends precision platforming with competitive depth and replayability.
 
 ---
 
 ## Table of Contents
+* [Description](#description)
 * [General Info](#general-information)
 * [Technologies Used](#technologies-used)
 * [Features](#features)
 * [Screenshots](#screenshots)
 * [Sprint 1](#sprint-1)
+
+---
+
+## Description
+
+**Team:** Aurora Blakely, Andrea Gomez, Daniel Pelley, Nicholas Krustchinsky, Vadym Tovkach
+**Concept:** A competitive multiplayer Metroidvania-style platformer centered around nonlinear exploration, strategic item collection, and time-based scoring. Players navigate interconnected levels filled with movement challenges, hidden paths, and unlockable abilities that expand traversal options as the match progresses. Each session emphasizes speed, routing efficiency, and smart decision-making, rewarding players not just for collecting items, but for optimizing their path and adapting to opponents in real time. The result is a fast-paced experience that blends precision platforming with competitive depth and replayability.
+**Audience:** Fans of metroidvania platformers and pixel art who enjoy 
+**Purpose:** To create a competitive and visually engaging game for friends
 
 ---
 
@@ -19,7 +28,7 @@ A competitive multiplayer Metroidvania-style platformer centered around nonlinea
 The game features a large vertically explorable map filled with caves and interconnected areas. Players can traverse upward and downward freely, discovering items scattered across the environment.
 
 The core objective is competitive collection:
-- Up to **6 active players** compete within the same map.
+- Up to **4 active players** compete within the same map.
 - Items have different **rarity tiers** and **score values**.
 - Matches are **time-based**.
 - After time expires, a **scoreboard** displays all collected items and calculates each player's total score.
@@ -31,18 +40,31 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 ## Features
 
 - Large vertically and horizontally explorable map  
-- Multiplayer support (planned: 6 players per match)  
+- Multiplayer support (planned: 4 players per match)  
 - Item system with rarity tiers and score values  
 - Timed competitive matches  
 - End-of-match scoreboard with score calculation  
 - Temporary boost items affecting player abilities 
+
+**User Stories:**
+- Andrea: Learning Godot Engine (navigating the engine & using assets)
+- Daniel: Learning GDScript (learn technologies needed such as GDScript, C, SQLite)
+- Aurora: Map Design & Interactivity (creating platforms & interactable surfaces)
+- Nicholas: Player character movement (player character design & mechanics, player movement, navigating the map)
+- Daniel: Adding and Implementing Ability Items (item design & interactivity, player picking up & using items)
+- Andrea: Asset creations (custom map tiles, character, and items)
+- Vadym: Server foundation creation (foundational asynchronous UDP networking layer)
+- Vadym: Create the foundation for the client networking module (UDP send/receive + protocol parsing, main menu before the match starts waiting on other players)
+- Score screen after match ends (compare scores & announce winner)
+- Aurora: Match Timer (start match from menu, end matches, navigate to score screen)
+- Nicholas: Off-screen visual hints (Off screen direction, reveal other players and rare items)
 
 ---
 
 ## Technologies Used
 
 - **Godot Engine** – Rendering, physics, scene management, and cross-platform support.
-- **C# (Client)** – Gameplay logic, input handling, UI, client-side prediction and interpolation.
+- **GDScript (Client)** – Gameplay logic, input handling, UI, client-side prediction and interpolation.
 - **C (Dedicated Server)** – Authoritative server handling networking, simulation ticks, session management, and state synchronization.
 - **SQLite** – Embedded database for storing player accounts, statistics, progression, and leaderboard data.
  
@@ -58,4 +80,7 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 
 ## Sprint 1
 
-TBD
+- Learning Godot Engine
+- Leaning GDScript
+- Map Design & Interactivity
+- Player Character Movement
