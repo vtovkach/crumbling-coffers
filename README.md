@@ -49,7 +49,9 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 
 ## Screenshots
 
-<img src="docs/screenshots/ss1.png" width="400">
+<img src="docs/screenshots/ss1.png" width="600">
+<img src="docs/screenshots/ss2.png" width="600">
+<img src="docs/screenshots/ss3.png" width="600">
 
 ---
 
