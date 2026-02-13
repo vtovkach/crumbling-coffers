@@ -1,5 +1,5 @@
 # Crumbling Coffers  
-> A competitive multiplayer Metroidvania-style platformer focused on exploration, item collection, and time-based scoring.
+A competitive multiplayer Metroidvania-style platformer centered around nonlinear exploration, strategic item collection, and time-based scoring. Players navigate interconnected levels filled with movement challenges, hidden paths, and unlockable abilities that expand traversal options as the match progresses. Each session emphasizes speed, routing efficiency, and smart decision-making, rewarding players not just for collecting items, but for optimizing their path and adapting to opponents in real time. The result is a fast-paced experience that blends precision platforming with competitive depth and replayability.
 
 ---
 
