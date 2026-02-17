@@ -102,7 +102,20 @@ while (!stop)
 
 ### Buffering Structures 
 
-TODO:
+For the event-reliable packets: SPSC Ring Buffer Data structure will be used.
+
+- Keep atomic indices 
+
+
+For the regular packets: 
+
+Each packet will have a header that will be a header layer specifically for the Net Thread that will contain the sequence number and the player number. 
+
+There will be an array with sequence numbers, where the index represents the current player. The latest sequence number will be kept in this array. 
+
+There will be a shared packet per player where the Net Thread will update it with mutexes. 
+
+The Net Thread will take the sequence number and check if this packet is the latest. If so, it will update the sequence number in the Net Thread array and also update the packet accessible by the Game Thread. The shared array will have a mutex.
 
 
 ## Game Simulation Thread 
