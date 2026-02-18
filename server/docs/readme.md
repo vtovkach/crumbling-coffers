@@ -9,7 +9,7 @@ The server architecture consists of two main entities:
 
 <img src="diagrams/gen-serv-arch.png" width="1100" height="650">
 
----
+--- 
 
 # Session Orchestrator Process
 
@@ -33,56 +33,21 @@ Once a game is created:
 
 ---
 
-## I/O Model
+# Game Server Process
 
-The orchestrator uses **epoll** to efficiently monitor and retrieve client input over TCP connections.
+The Game Server Process contains 2 concurrent threads.
 
----
+## Net Thread
 
-## Client Connection Flow
-
-1. A client connects to the server via TCP.
-2. The server:
-   - Opens a new socket for the connection
-   - Adds the socket to `epoll` monitoring
-   - Creates a `Client` structure
-   - Stores it in a hashmap:  
-     `fd -> Client Structure`
-3. The client sends an initialization message indicating readiness.
-4. The client is added to the matchmaking queue (FIFO).
-5. Once enough players are available:
-   - The game is created 
-   - A Child Game Process is spawned
-   - An available port is assigned
-   - The port is sent to all players
-6. The orchestrator closes the TCP connection.
-7. Clients communicate directly with the Child Game Process over UDP.
+- Continuously waits for and receives client UDP packets  
+- Buffers packets into a shared data structure  
+- Never touches or modifies game state  
 
 ---
 
-## Managing Available Ports
+## Game Simulation Thread
 
-Port management is handled through a ring-implemented queue.
-
-- The orchestrator maintains a queue of **N available ports**
-- Each new game consumes one port from the queue
-- The maximum number of concurrent games is limited to N
-- If no ports are available:
-  - The orchestrator enters a waiting state
-  - It resumes once a child process terminates and returns its port
-- When a child process exits:
-  - The freed port is pushed back into the queue
-  - It becomes available for a new game session
-
----
-
-## Summary
-
-The orchestrator acts as:
-
-- A TCP entry point
-- A matchmaking coordinator
-- A controlled game process spawner
-- A resource manager (ports + process limit)
-
-All real-time gameplay is handled exclusively by isolated Child Game Processes over UDP.
+- Reads buffered UDP packets from clients  
+- Uses those packets to update the authoritative server game simulation  
+- Serializes data and sends game state snapshots to clients  
+- The only thread allowed to modify `Game` state
