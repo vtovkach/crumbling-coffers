@@ -100,25 +100,86 @@ while (!stop)
 
 ------------------------------------------------------------------------
 
-### Buffering Structures 
+### Buffering Specification
 
-For the event-reliable packets: SPSC Ring Buffer Data structure will be used.
+#### Overview
 
-- Keep atomic indices 
+This document defines how incoming UDP packets are buffered and managed
+between the Net Thread and the Game Simulation Thread.
 
+The buffering design distinguishes between:
 
-For the regular packets: 
+-   Event-reliable packets
+-   Regular packets
 
-Each packet will have a header that will be a header layer specifically for the Net Thread that will contain the sequence number and the player number. 
+Each category uses a separate buffering strategy.
 
-There will be an array with sequence numbers, where the index represents the current player. The latest sequence number will be kept in this array. 
+------------------------------------------------------------------------
 
-There will be a shared packet per player where the Net Thread will update it with mutexes. 
+#### Event-Reliable Packets
 
-The Net Thread will take the sequence number and check if this packet is the latest. If so, it will update the sequence number in the Net Thread array and also update the packet accessible by the Game Thread. The shared array will have a mutex.
+Event-reliable packets use a Single Producer Single Consumer (SPSC) Ring
+Buffer data structure.
 
+#### Design
 
-## Game Simulation Thread 
+-   The Net Thread acts as the producer.
+-   The Game Simulation Thread acts as the consumer.
+-   A dedicated SPSC ring buffer is used for a specific player.
+-   The array containing packets is fixed-size, since the number of
+    players in a game is fixed.
+-   Each write and read operation is protected by a mutex.
+-   memcpy is used to copy received bytes into the target array
+    accessible by the Game Simulation Thread.
 
-## Matchmaking Thread 
+------------------------------------------------------------------------
+
+#### Regular Packets
+
+##### Packet Structure
+
+Each regular packet contains a header layer intended exclusively for the
+Net Thread.
+
+The header includes:
+
+-   Sequence number
+-   Player ID
+
+The remaining portion of the packet is the body intended for the Game
+Simulation Thread.
+
+The Net Thread removes the header layer before passing the body to the
+Game Simulation Thread.
+
+------------------------------------------------------------------------
+
+#### Sequence Tracking
+
+An array of sequence numbers is maintained:
+
+-   The index represents the current player.
+-   The latest sequence number per player is stored in this array.
+
+When a packet is received:
+
+1.  The Net Thread extracts the sequence number.
+2.  It checks whether the packet is the latest for the corresponding
+    player.
+3.  If it is the latest:
+    -   The sequence number in the Net Thread array is updated.
+    -   The shared packet accessible by the Game Simulation Thread is
+        updated.
+
+------------------------------------------------------------------------
+
+#### Shared Packet Storage
+
+For each player:
+
+-   A shared packet structure exists.
+-   The Net Thread updates this shared packet using a mutex.
+-   The shared array holding these packets is protected by a mutex.
+-   memcpy is used to copy the received packet body into the shared
+    structure accessible by the Game Simulation Thread.
 
