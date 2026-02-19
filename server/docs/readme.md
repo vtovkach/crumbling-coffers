@@ -11,7 +11,7 @@ The server architecture consists of two main entities:
 
 --- 
 
-# Session Orchestrator Process
+# [Session Orchestrator Process](ORCHESTRATOR.md)
 
 The Session Orchestrator is a single parent process responsible for coordinating game sessions.
 
@@ -33,7 +33,7 @@ Once a game is created:
 
 ---
 
-# Game Server Process
+# [Game Server Process](GAME_PROCESS.md)
 
 The Game Server Process contains 2 concurrent threads.
 
