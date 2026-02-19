@@ -170,4 +170,43 @@ For each player:
 
 ## Game Simulation Thread
 
-TODO
+The Game Simulation Thread owns and maintains the authoritative `Game` structure.
+
+- The `Game` structure represents the complete authoritative snapshot of the game state.
+- The simulation updates at a fixed rate of **20 Hz (every 50 ms)**.
+- On each tick, the simulation updates the game state using the most recent validated client inputs.
+- The Game Simulation Thread is the only thread permitted to modify the `Game` structure.
+
+---
+
+### Player Structures
+
+- Players are stored in a fixed-size array.
+- The player number corresponds directly to the index within the array.
+- Each player entry contains a dedicated **latest-input mailbox**.
+
+---
+
+### Input Mailbox Design
+
+Each player has a single input mailbox (latest-input slot):
+
+- The mailbox stores the most recent validated input packet received from that player.
+- A simple mutex protects each mailbox to prevent race conditions between the Net Thread and the Game Simulation Thread.
+- The mailbox always contains the latest input only; older inputs are overwritten.
+
+---
+
+### Simulation Tick Processing
+
+At the beginning of each 50 ms tick:
+
+1. For each player:
+   - Acquire the mailbox mutex.
+   - Copy the latest input into a local simulation buffer.
+   - Release the mutex.
+2. Execute authoritative game logic using the locally copied inputs.
+3. Update the `Game` structure.
+4. Produce and transmit the authoritative snapshot.
+
+Mutexes are held only during mailbox copy operations and are never held during simulation logic.
