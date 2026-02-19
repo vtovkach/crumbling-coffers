@@ -1,0 +1,13 @@
+ If you have research/training tasks, you will be required to create a "research" or "training" folder on the repository and 
+ place the following documentation in there for each research or training task:
+
+Title: Level Architecture & Collision Design
+Purpose: Design and initial setup; result of PROJ-28
+
+Draft the layout of the initial non-linear "hub" and its branching paths. In Godot, set up a base Node2D scene with multiple 
+TileMapLayer nodes.
+
+Action: Define a 2D grid where paths lead in all four cardinal directions (spanning "all playable directions").
+
+Implementation: Configure a Physics Layer within the TileSet. Ensure the "Ground" layer has collision shapes, while the 
+"Background" layer does not, preventing the player from getting stuck on visual fluff.
