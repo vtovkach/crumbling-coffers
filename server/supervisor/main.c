@@ -8,7 +8,7 @@
 
 #include "../include/common/util.h"
 
-#define LOG_FILE "log/log.txt"
+#define LOG_FILE "log/error.txt"
 
 int main(void)
 {  
