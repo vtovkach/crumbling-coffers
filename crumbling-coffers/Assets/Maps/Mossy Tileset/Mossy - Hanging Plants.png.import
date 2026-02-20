@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cb1qcasevopdm"
-path="res://.godot/imported/Mossy - Decorations&Hazards.png-ff3f3774b1ec54fac6b89f26ae7e2c99.ctex"
+uid="uid://b82pk0umdqf7x"
+path="res://.godot/imported/Mossy - Hanging Plants.png-cc074456d5380ef2026aa9e6e948e7b2.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/Mossy Tileset/Mossy - Decorations&Hazards.png"
-dest_files=["res://.godot/imported/Mossy - Decorations&Hazards.png-ff3f3774b1ec54fac6b89f26ae7e2c99.ctex"]
+source_file="res://Assets/Maps/Mossy Tileset/Mossy - Hanging Plants.png"
+dest_files=["res://.godot/imported/Mossy - Hanging Plants.png-cc074456d5380ef2026aa9e6e948e7b2.ctex"]
 
 [params]
 
