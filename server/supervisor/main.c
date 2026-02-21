@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <stdlib.h>
 #include <errno.h>
@@ -8,15 +9,29 @@
 
 #include "../include/common/util.h"
 
-#define LOG_FILE "log/error.txt"
+// Logging CONSTANTS  
+#define LOG_DIR "log/"
+#define LOG_ACTIVITY "log/supervisor"
+
+// Path to orchestrator process executable 
+#define ORCHESTRATOR_PROCESS "bin/orchestrator/orchestrator"
 
 int main(void)
-{  
-    if(redirect_stderr(LOG_FILE) < 0)
+{
+    // Create log directory if it already does not exist 
+    if(mkdir(LOG_DIR, 0755) == -1)
     {
-        char time[TIME_BUFFER_SIZE];
-        getTime(time, TIME_BUFFER_SIZE);
-        fprintf(stderr, "%s 'redirect_stderr' failed: %s\n", time, strerror(errno));
+        if(errno != EEXIST)
+        {
+            perror("mkdir");
+            return -1;
+        }
+    }
+
+    FILE *log_activity = fopen(LOG_ACTIVITY, "a");
+    if(!log_activity)
+    {
+        perror("fopen");
         return -1;
     }
 
