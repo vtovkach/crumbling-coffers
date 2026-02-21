@@ -19,9 +19,6 @@ int main(void)
         perror("signal");
         return 1;
     }
-    
-
-    int counter = 0;
 
     for(;;)
     {
@@ -33,9 +30,7 @@ int main(void)
         }
 
         sleep(2);
-        printf("Tick: %d\n", counter++);
-        fflush(stdout);
     }
-    
+
     return 0;
 }
