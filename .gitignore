@@ -48,7 +48,6 @@ Thumbs.db
 *.wmv
 
 # Server Ignore Files 
-server/log/activity
-server/log/error
+server/log/*
 server/obj
 server/bin
