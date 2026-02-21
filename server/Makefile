@@ -44,7 +44,10 @@ $(GAME_BIN): $(OBJS)
 	@mkdir -p $(dir $@)
 	$(CC) $(GAME_OBJS) $(COMMON_OBJS) -o $@
 
+run: all
+	./bin/supervisor/supervisor
+
 clean:
 	rm -rf $(OBJDIR) $(BINDIR)
 
-.PHONY: all clean
+.PHONY: all clean run 
