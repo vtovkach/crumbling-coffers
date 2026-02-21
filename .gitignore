@@ -50,3 +50,5 @@ Thumbs.db
 # Server Ignore Files 
 server/log/activity
 server/log/error
+server/obj
+server/bin
