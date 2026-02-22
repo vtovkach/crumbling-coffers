@@ -2,5 +2,11 @@
 
 [ext_resource type="Script" uid="uid://cq0yb3sxdjx10" path="res://Scenes/Player/player.gd" id="1_uvnfx"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uvnfx"]
+size = Vector2(100, 100)
+
 [node name="Player" type="CharacterBody2D" unique_id=719838145]
 script = ExtResource("1_uvnfx")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=978850304]
+shape = SubResource("RectangleShape2D_uvnfx")
