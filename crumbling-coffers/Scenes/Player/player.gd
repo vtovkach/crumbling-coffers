@@ -6,7 +6,7 @@ extends CharacterBody2D
 
 # Most of these values are placeholder.
 const MAX_SPEED = 1000.0
-const MAX_RUNSPEED = 300.0
+const MAX_RUNSPEED = 600.0
 
 const decel = 500
 const accel = 1000
@@ -38,7 +38,7 @@ func move(direction: float, delta: float) -> void:
 # When acceleration direction is against current velocity
 # May prefer a state to handle this, especially if custom animation
 func brake(delta: float) -> void:
-	move_toward(velocity.x, 0, braking_decel * delta)
+	velocity.x = move_toward(velocity.x, 0, braking_decel * delta)
 	
 		
 # Push this character in a direction, may exceed their max runspeed (but not their max speed)
