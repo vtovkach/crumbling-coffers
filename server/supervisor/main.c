@@ -16,49 +16,70 @@
 #define LOG_ACTIVITY "log/supervisor"
 
 // Path to orchestrator process executable 
-#define ORCHESTRATOR_PROCESS "bin/orchestrator/orchestrator"
+#define ORCHESTRATOR_PROCESS "./bin/orchestrator/orchestrator"
+
+volatile sig_atomic_t child_failure = 0;
+
+void child_sig(int sig)
+{
+    (void)sig;
+    child_failure = 1;
+}
 
 int main(void)
 {
+    if(signal(SIGUSR2, child_sig) == SIG_ERR)
+    {
+        perror("signal (supervisor)");
+        return 1;
+    }
+
     // Create log directory if it already does not exist 
     if(mkdir(LOG_DIR, 0755) == -1)
     {
         if(errno != EEXIST)
         {
-            perror("mkdir");
-            return -1;
+            perror("mkdir (supervisor)");
+            return 1;
         }
     }
 
     FILE *log_activity = fopen(LOG_ACTIVITY, "a");
     if(!log_activity)
     {
-        perror("fopen");
-        return -1;
+        perror("fopen (supervisor)");
+        return 1;
     }
 
-    // Create Orchestrator Process 
-    pid_t orchestrator_process = fork(); 
+    // Get parent pid which will be passed to orchestrator  
+    pid_t p_pid = getpid(); 
+    
+    // Create Orchestrator Process and save child pid 
+    pid_t c_pid = fork(); 
     
     // Check if fork failed 
-    if(orchestrator_process < 0)
+    if(c_pid < 0)
     {
-        perror("fork");
-        return -1;
+        perror("fork (supervisor)");
+        return 1;
     }
     
     // Here goes the child process 
-    if(orchestrator_process == 0)
+    if(c_pid == 0)
     {
         // Make argument list to orchestrator process
-        // Will additional necessary arguments later  
-        char *argv[] = {ORCHESTRATOR_PROCESS, NULL};
+        // Will additional necessary arguments later 
+
+        char string_p_pid[32];
+        snprintf(string_p_pid, sizeof(string_p_pid), "%d", p_pid);
+        
+        char *argv[] = {ORCHESTRATOR_PROCESS, string_p_pid, NULL};
 
         // Execute process 
         execv(ORCHESTRATOR_PROCESS, argv);
 
         // Runs only if execv fails 
-        perror("execv");
+        perror("execv (supervisor)");
 
         // Report error in a log file 
         char time[TIME_BUFFER_SIZE];
