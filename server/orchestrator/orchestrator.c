@@ -2,6 +2,23 @@
 #include <time.h>
 #include <unistd.h>
 #include <signal.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <errno.h>
+#include <stdlib.h>
+
+#define LOG_FILE "../log/orchestrator"
+
+struct Client
+{
+    int fd;
+    struct sockaddr_in addr;
+    
+    // Define other necessary fields later 
+};
 
 volatile sig_atomic_t terminate = 0;
 
