@@ -5,8 +5,9 @@
 extends CharacterBody2D
 
 # Most of these values are placeholder.
-@export var max_speed: float = 1000.0
+@export var max_speed: float = 10000.0
 @export var max_runspeed: float = 600.0
+@export var max_fallingspeed: float = 10000.0
 
 @export var accel: float = 1000.0
 @export var decel: float = 500.0
@@ -18,7 +19,7 @@ func _physics_process(delta: float) -> void:
 
 	# Update up/down velocity
 	if not is_on_floor():
-		velocity += get_gravity() * delta
+		velocity.y = move_toward(velocity.y, max_fallingspeed, get_gravity().y * delta)
 	
 #	if (jumping):
 #		jump()
@@ -57,5 +58,6 @@ func brake(direction:float, delta: float) -> void:
 # Push this character in a direction, may exceed their max runspeed (but not their max speed)
 # Adds to initial velocity
 # Consider for external force pushing character
-func push(direction: float, pushStrength: float) -> void:
-	velocity.x = move_toward(velocity.x, direction * max_speed, pushStrength);
+func push(direction: Vector2, pushStrength: float) -> void:
+	velocity.x = move_toward(velocity.x, direction.x * max_speed, pushStrength);
+	velocity.y = move_toward(velocity.y, direction.y * max_speed, pushStrength);
