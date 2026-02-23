@@ -203,22 +203,12 @@ int main(int argc, char *argv[])
                     // Socket is writable 
                     // TODO 
                 }
-                
-                if(cur_event.events & EPOLLERR)
-                {
-                    // TODO
-                }
 
-                if(cur_event.events & EPOLLHUP)
+                if(cur_event.events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
                 {
+                    // Disconnected 
                     // TODO 
                 }
-
-                if(cur_event.events & EPOLLRDHUP)
-                {
-                    // TODO
-                }
-
             }
         }
     }
