@@ -21,8 +21,8 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y = move_toward(velocity.y, max_fallingspeed, get_gravity().y * delta)
 	
-#	if (jumping, given by player input):
-#		jump()
+	if (Input.is_action_pressed("jump")):
+		jump()
 	
 	# Update left/right velocity
 	var direction = Input.get_axis("left", "right")
