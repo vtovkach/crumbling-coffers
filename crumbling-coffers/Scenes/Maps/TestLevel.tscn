@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://b7wt1e8dxpe3"]
+
+[ext_resource type="PackedScene" uid="uid://xbf2l3fnxo71" path="res://Scenes/Maps/HUD.tscn" id="1_dqvua"]
+
+[node name="TestLevel" type="Node2D" unique_id=311415213]
+
+[node name="HUD" parent="." unique_id=265116575 instance=ExtResource("1_dqvua")]
+position = Vector2(-34, 1)

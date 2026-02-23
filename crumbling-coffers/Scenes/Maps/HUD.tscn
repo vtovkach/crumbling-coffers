@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://xbf2l3fnxo71"]
+
+[ext_resource type="Script" uid="uid://boqmq6t5xucsj" path="res://Scripts/hud.gd" id="1_s1siy"]
+
+[node name="HUD" type="Node2D" unique_id=265116575]
+script = ExtResource("1_s1siy")
+
+[node name="ScoreLabel" type="Label" parent="." unique_id=1908600866]
+offset_left = 51.0
+offset_top = 163.0
+offset_right = 196.0
+offset_bottom = 303.0
