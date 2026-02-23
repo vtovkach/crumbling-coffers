@@ -59,5 +59,7 @@ func brake(direction:float, delta: float) -> void:
 # Adds to initial velocity
 # Consider for external force pushing character
 func push(direction: Vector2, pushStrength: float) -> void:
-	velocity.x = move_toward(velocity.x, direction.x * max_speed, pushStrength);
-	velocity.y = move_toward(velocity.y, direction.y * max_speed, pushStrength);
+	if direction.x:
+		velocity.x = move_toward(velocity.x, direction.x * max_speed, pushStrength);
+	if direction.y:
+		velocity.y = move_toward(velocity.y, direction.y * max_speed, pushStrength);
