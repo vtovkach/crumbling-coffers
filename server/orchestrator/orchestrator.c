@@ -175,10 +175,21 @@ int main(int argc, char *argv[])
 
                 if(cur_event.data.fd & listen_fd)
                 {
+                    int accepted = acceptConnections(log_file, listen_fd, epoll_fd, active_clients);
 
-                    // Accept new connection 
-                    // TODO
+                    if(accepted == -1)
+                    {
+                        // Critical Server Error 
+                        // Do Graceful Shutdown 
+                        // TODO 
+                        // ... 
+                        printf("shutdown: Critical Error in [acceptConnections]\n");
+                        break; 
+                    }
 
+                    printf("Accepted: %d\n", accepted);
+
+                    continue;
                 }
 
                 if(cur_event.events & EPOLLIN)
