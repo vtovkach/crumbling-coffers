@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 
     if(getaddrinfo(NULL, SERVER_TCP_PORT, &hint, &listen_ai) != 0)
     {
-        perror("getaddrinfo (orchestrator)");
+        printf("getaddrinfo failed (orchestrator)");
         kill(p_pid, SIGUSR2);
         return 1; 
     }
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
         goto error; 
     
     int fl = fcntl(listen_fd, F_GETFL, 0);
-    if(fl < 0 || fcntl(listen_fd, F_SETFL, fl | O_NONBLOCK))
+    if(fl < 0 || fcntl(listen_fd, F_SETFL, fl | O_NONBLOCK) < 0)
         goto error; 
 
     // Set up epoll to monitor and react to events
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
             close(epoll_fd);
             close(listen_fd);
             freeaddrinfo(listen_ai);
-            
+
             break;
         }
 
