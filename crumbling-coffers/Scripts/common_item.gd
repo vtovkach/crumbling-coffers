@@ -1,11 +1,10 @@
 extends Area2D
 
+var value := 5
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	print("This is a basic item.")
+func _on_area_2d_body_entered(body: Node2D) -> void:
+	print("Common Item Collected.")
+	#update score +5 points
+	queue_free()
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+	
