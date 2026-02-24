@@ -26,10 +26,6 @@
 
 #define MAX_EPOLL_EVENTS 512
 
-// FUNCTION PROTOTYPES 
-int acceptConnections(FILE *const log_file, const int listen_fd, const int epoll_fd, struct HashTable *const active_clients);
-
-
 unsigned int hash(const void *, unsigned int)
 {
     // TODO 
@@ -50,6 +46,91 @@ void set_terminate(int sig)
 {
     (void)sig; // silences the compiler warning  
     terminate = 1;
+}
+
+int acceptConnections(FILE *const log_file, int listen_fd, const int epoll_fd, struct HashTable *const active_clients)
+{
+    int accepted = 0;
+
+    // Accept all pending connections 
+    while(true)
+    {
+        struct Client new_client;
+        struct sockaddr_in c_addr;
+        socklen_t ca_len = sizeof(c_addr);
+        int conn_fd = accept4(listen_fd, (struct sockaddr *)&c_addr, &ca_len, SOCK_NONBLOCK | SOCK_CLOEXEC);
+
+        if(conn_fd < 0)
+        {
+            if(errno == EAGAIN || errno == EWOULDBLOCK)
+                // no more pending connections in line 
+                break; 
+
+            log_error(log_file, "[accept_connections] accept error", errno);
+
+            continue;
+        }
+
+        new_client.fd = conn_fd;
+        new_client.addr = c_addr;
+
+        // Add connection to the hash map 
+        if(ht__insert_internal(active_clients, &conn_fd, &new_client) < 0)
+        {
+            // hash table failed adding a new key value pair 
+
+            log_error(log_file, "[accept_connections] ht__insert_internal failed", 0);
+
+            close(conn_fd);
+            continue;
+        }
+
+        // Add connection fd to epoll 
+        struct epoll_event ev = {.data.fd = conn_fd, .events = EPOLLIN | EPOLLRDHUP | EPOLLHUP | EPOLLERR}; 
+        if(epoll_ctl(epoll_fd, EPOLL_CTL_ADD, conn_fd, &ev) == -1)
+        {
+            int saved_errno = errno; 
+
+            if(ht__remove_internal(active_clients, &conn_fd) != 1)
+            {
+                close(conn_fd);
+                log_error(log_file, "[accept_connections] CRITICAL — unable to remove client from active_clients (state corruption possible)\n", saved_errno);
+                accepted = -1;
+                break;
+            }
+            
+            close(conn_fd);
+
+            log_error_fd(log_file, "[accept_connections] epoll_ctl error", conn_fd, saved_errno);
+
+            continue;
+        }
+
+        // Log connected Client 
+        char time[TIME_BUFFER_SIZE];
+        getTime(time, TIME_BUFFER_SIZE);
+
+        // Retrieve IP Address and Source Port 
+        char ip_str[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &c_addr.sin_addr, ip_str, sizeof(ip_str));
+        uint16_t c_port = ntohs(c_addr.sin_port);
+
+        fprintf(log_file, "%s [accept_connections] CONNECT %s:%u fd=%d\n", time, ip_str, c_port, conn_fd);
+        accepted++;
+    }
+
+    return accepted;
+}
+
+int closeConnection(FILE *const log_file, int epoll_fd, int target_fd, struct HashTable *const active_clients)
+{
+
+    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, cur_event.data.fd, NULL);
+    ht__remove_internal(active_clients, &cur_event.data.fd);
+    close(cur_event.data.fd);
+    fprintf(stdout, "Connection Closed fd: %d \n", cur_event.data.fd);
+
+    return 0;
 }
 
 int main(int argc, char *argv[])
@@ -173,7 +254,7 @@ int main(int argc, char *argv[])
 
                 struct epoll_event cur_event = eventQueue[i];
 
-                if(cur_event.data.fd & listen_fd)
+                if(cur_event.data.fd == listen_fd)
                 {
                     int accepted = acceptConnections(log_file, listen_fd, epoll_fd, active_clients);
 
@@ -208,6 +289,7 @@ int main(int argc, char *argv[])
                 {
                     // Disconnected 
                     // TODO 
+                    
                 }
             }
         }
@@ -220,78 +302,4 @@ error:
     kill(p_pid, SIGUSR2);
     freeaddrinfo(listen_ai);
     return 1;
-}
-
-int acceptConnections(FILE *const log_file, const int listen_fd, const int epoll_fd, struct HashTable *const active_clients)
-{
-    int accepted = 0;
-
-    // Accept all pending connections 
-    while(true)
-    {
-        struct Client new_client;
-        struct sockaddr_in c_addr;
-        socklen_t ca_len = sizeof(c_addr);
-        int conn_fd = accept4(listen_fd, (struct sockaddr *)&c_addr, &ca_len, SOCK_NONBLOCK | SOCK_CLOEXEC);
-
-        if(conn_fd < 0)
-        {
-            if(errno == EAGAIN || errno == EWOULDBLOCK)
-                // no more pending connections in line 
-                break; 
-
-            log_error(log_file, "[accept_connections] accept error", errno);
-
-            continue;
-        }
-
-        new_client.fd = conn_fd;
-        new_client.addr = c_addr;
-
-        // Add connection to the hash map 
-        if(ht__insert_internal(active_clients, &conn_fd, &new_client) < 0)
-        {
-            // hash table failed adding a new key value pair 
-
-            log_error(log_file, "[accept_connections] ht__insert_internal failed", 0);
-
-            close(conn_fd);
-            continue;
-        }
-
-        // Add connection fd to epoll 
-        struct epoll_event ev = {.data.fd = conn_fd, .events = EPOLLIN | EPOLLRDHUP | EPOLLHUP | EPOLLERR}; 
-        if(epoll_ctl(epoll_fd, EPOLL_CTL_ADD, conn_fd, &ev) == -1)
-        {
-            int saved_errno = errno; 
-
-            if(ht__remove_internal(active_clients, &conn_fd) != 1)
-            {
-                close(conn_fd);
-                log_error(log_file, "[accept_connections] CRITICAL — unable to remove client from active_clients (state corruption possible)\n", saved_errno);
-                accepted = -1;
-                break;
-            }
-            
-            close(conn_fd);
-
-            log_error_fd(log_file, "[accept_connections] epoll_ctl error", conn_fd, saved_errno);
-
-            continue;
-        }
-
-        // Log connected Client 
-        char time[TIME_BUFFER_SIZE];
-        getTime(time, TIME_BUFFER_SIZE);
-
-        // Retrieve IP Address and Source Port 
-        char ip_str[INET_ADDRSTRLEN];
-        inet_ntop(AF_INET, &c_addr.sin_addr, ip_str, sizeof(ip_str));
-        uint16_t c_port = ntohs(c_addr.sin_port);
-
-        fprintf(log_file, "%s [accept_connections] CONNECT %s:%u fd=%d\n", time, ip_str, c_port, conn_fd);
-        accepted++;
-    }
-
-    return accepted;
 }
