@@ -11,11 +11,31 @@
 #ifndef _HASHTABLE_
 #define _HASHTABLE_
 
+typedef unsigned int (*hsh_func)(const void *, unsigned int);
+
+typedef struct Node
+{
+    void  *value;
+    void  *key;
+    struct Node  *nextNode;
+} Node;
+
+typedef struct HashTable
+{
+    size_t          value_size;         // Size of a single data block for the value (in bytes)
+    size_t          key_size;           // Size of a single data block for the key (in bytes)
+    size_t          value_blocks;       // Number of blocks that make up the value
+    size_t          key_blocks;         // Number of blocks that make up the key
+    Node            **hash_table;       // Array with Nodes 
+    unsigned int    num_elements;       // Current number of elements in the hash table 
+    unsigned int    hash_table_size;    // Maximum number of elements in a hash_table 
+    double          load_factor;
+    hsh_func        hash_function;      // User-implemented hash function 
+} HashTable;
+
 // C23 typeof 
 
 typedef struct HashTable HashTable;
-
-typedef unsigned int (*hsh_func)(const void *, unsigned int);
 
 HashTable *ht_create(size_t key_size, size_t key_blocks, size_t data_size, size_t data_blocks, hsh_func hash_func_ptr, unsigned int init_size);
 
