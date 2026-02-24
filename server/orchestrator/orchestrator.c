@@ -69,6 +69,55 @@ void set_terminate(int sig)
     terminate = 1;
 }
 
+int setupListenSocket(void)
+{
+    // Establish and bind listening socket to designated PORT 
+    
+    int listen_fd; 
+    struct addrinfo *listen_ai = NULL;
+    struct addrinfo hint;  
+
+    memset(&hint, 0, sizeof(hint));
+    hint.ai_family = AF_INET;
+    hint.ai_socktype = SOCK_STREAM;
+    hint.ai_protocol = 0; 
+    hint.ai_flags = AI_PASSIVE;
+
+    if(getaddrinfo(NULL, SERVER_TCP_PORT, &hint, &listen_ai) != 0)
+    {
+        printf("[setupListenSocket] getaddrinfo failed (orchestrator)");
+        freeaddrinfo(listen_ai);
+        return -1; 
+    }
+
+    listen_fd = socket(listen_ai->ai_family, listen_ai->ai_socktype, listen_ai->ai_protocol);
+    if(listen_fd < 0)
+        goto error; 
+
+    int opt = 1; 
+    // Tell kernel to make the port immediately reusable after listening socket is closed 
+    if(setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+        goto error; 
+
+    if(bind(listen_fd, listen_ai->ai_addr, listen_ai->ai_addrlen) == -1)
+        goto error;
+
+    if(listen(listen_fd, MAX_TCP_QUEUE) == -1)
+        goto error; 
+    
+    int fl = fcntl(listen_fd, F_GETFL, 0);
+    if(fl < 0 || fcntl(listen_fd, F_SETFL, fl | O_NONBLOCK) < 0)
+        goto error; 
+
+    freeaddrinfo(listen_ai);
+    return listen_fd;
+
+error:
+    perror("socket/bind/listen/fcntl failed (orchestrator)");
+    freeaddrinfo(listen_ai);
+    return -1;
+}
+
 int acceptConnections(FILE *const log_file, int listen_fd, const int epoll_fd, struct HashTable *const active_clients)
 {
     int accepted = 0;
@@ -212,49 +261,20 @@ int main(int argc, char *argv[])
 
     struct HashTable *active_clients = ht_create(sizeof(int), 1, sizeof(struct Client), 1, hash, HASH_TABLE_SIZE); 
     if(!active_clients)
-        goto error;
-
-
-    // Establish and bind listening socket to designated PORT 
-    
-    int listen_fd; 
-    struct addrinfo *listen_ai = NULL;
-    struct addrinfo hint;  
-
-    memset(&hint, 0, sizeof(hint));
-    hint.ai_family = AF_INET;
-    hint.ai_socktype = SOCK_STREAM;
-    hint.ai_protocol = 0; 
-    hint.ai_flags = AI_PASSIVE;
-
-    if(getaddrinfo(NULL, SERVER_TCP_PORT, &hint, &listen_ai) != 0)
     {
-        printf("getaddrinfo failed (orchestrator)");
+        printf("HashTable init failed.\n");
         kill(p_pid, SIGUSR2);
-        return 1; 
+        return 1;
     }
 
-    listen_fd = socket(listen_ai->ai_family, listen_ai->ai_socktype, listen_ai->ai_protocol);
+    // Establish and bind listening socket to designated PORT 
+    int listen_fd; 
+    listen_fd = setupListenSocket();
     if(listen_fd < 0)
         goto error; 
 
-    int opt = 1; 
-    // Tell kernel to make the port immediately reusable after listening socket is closed 
-    if(setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
-        goto error; 
-
-    if(bind(listen_fd, listen_ai->ai_addr, listen_ai->ai_addrlen) == -1)
-        goto error;
-
-    if(listen(listen_fd, MAX_TCP_QUEUE) == -1)
-        goto error; 
-    
-    int fl = fcntl(listen_fd, F_GETFL, 0);
-    if(fl < 0 || fcntl(listen_fd, F_SETFL, fl | O_NONBLOCK) < 0)
-        goto error; 
 
     // Set up epoll to monitor and react to events
-
     int epoll_fd;
 
     // Event Queue will contain epoll_events that have certain actions on them  
@@ -280,7 +300,6 @@ int main(int argc, char *argv[])
 
             close(epoll_fd);
             close(listen_fd);
-            freeaddrinfo(listen_ai);
 
             break;
         }
@@ -352,8 +371,7 @@ int main(int argc, char *argv[])
     return 0;
 
 error:
-    perror("socket/bind/listen/fcntl/epoll_create failed (orchestrator)");
+    printf("[Orchestrator] critical error occurred while setting up orchestrator process.\n");
     kill(p_pid, SIGUSR2);
-    freeaddrinfo(listen_ai);
-    return 1;
+    return 1; 
 }
