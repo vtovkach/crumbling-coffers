@@ -145,7 +145,7 @@ int setupListenSocket(void)
     return listen_fd;
 
 error:
-    perror("socket/bind/listen/fcntl failed (orchestrator)");
+    perror("[setupListenSocket] socket/bind/listen/fcntl failed");
     freeaddrinfo(listen_ai);
     return -1;
 }
@@ -260,6 +260,31 @@ int closeConnection(FILE *const log_file, int epoll_fd, int target_fd, struct Ha
     fflush(log_file);
 
     return 0;
+}
+
+int receiveData()
+{
+    // TODO 
+}
+
+int sendData()
+{
+    // TODO 
+}
+
+void shutdownServer(int listen_fd, int epoll_fd, struct HashTable *clients)
+{
+    // Close socket for every active connection 
+    ht_close_all_sockets(clients);
+
+    ht_destroy(clients);
+
+    // Later I will have 2 more data structure that I will need to free  
+    // TODO
+    // ... 
+
+    close(epoll_fd);
+    close(listen_fd); 
 }
 
 int main(int argc, char *argv[])
