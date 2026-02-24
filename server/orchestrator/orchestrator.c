@@ -16,6 +16,7 @@
 #include <netinet/tcp.h>
 #include <fcntl.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #include "../include/common/hashmap.h"
 #include "../include/common/util.h"
@@ -46,8 +47,18 @@ struct Client
 {
     int fd;
     struct sockaddr_in addr;
-    
-    // Define other necessary fields later 
+
+    // Input Data 
+    void *input_buffer;
+    size_t i_buf_size;   // 150 bytes 
+    size_t received_bytes; 
+    bool is_fully_received; 
+
+    // Output Data 
+    void *output_buffer; // 150 bytes  
+    size_t o_buf_size;
+    size_t sent_bytes; 
+    bool is_fully_sent;  
 };
 
 volatile sig_atomic_t terminate = 0;
