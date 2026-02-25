@@ -455,11 +455,8 @@ int main(int argc, char *argv[])
         // Check if parent wants to terminate the process 
         if(terminate)
         {
-            // Later gracefully terminate this process 
-
-            close(epoll_fd);
-            close(listen_fd);
-
+            // Gracefully terminate this process by invoking shutdownServer function   
+            shutdownServer(listen_fd, epoll_fd, active_clients);
             break;
         }
 
@@ -472,9 +469,7 @@ int main(int argc, char *argv[])
         {
             for(int i = 0; i < events_ready; i++)
             {
-
                 // Check each epoll_event 
-                // TODO 
 
                 struct epoll_event cur_event = eventQueue[i];
 
@@ -486,23 +481,25 @@ int main(int argc, char *argv[])
                     {
                         // Critical Server Error 
                         // Do Graceful Shutdown 
-                        // TODO 
-                        // ... 
+                        
+                        shutdownServer(listen_fd, epoll_fd, active_clients);
                         printf("shutdown: Critical Error in [acceptConnections]\n");
-                        break; 
+                        goto exit; 
                     }
-
-                    printf("Accepted: %d\n", accepted);
 
                     continue;
                 }
 
                 if(cur_event.events & EPOLLIN)
                 {
-                    // Read received data 
-                    // TODO 
+                    // Read data sent by the client 
 
-                    receiveData(epoll_fd, cur_event.data.fd, active_clients, log_file);
+                    if(receiveData(epoll_fd, cur_event.data.fd, active_clients, log_file) < 0)
+                    {
+                        shutdownServer(listen_fd, epoll_fd, active_clients);
+                        printf("shutdown: Critical Error in [receiveData]\n");
+                        goto exit;    
+                    }
                 }
 
                 if(cur_event.events & EPOLLOUT)
@@ -519,16 +516,15 @@ int main(int argc, char *argv[])
                     if(closeConnection(log_file, epoll_fd, cur_event.data.fd, active_clients) < 0)
                     {
                         // Critical Error happened shutdown server 
-                        // TODO 
-                        // ...
+                        shutdownServer(listen_fd, epoll_fd, active_clients);
                         printf("shutdown: Critical Error in [closeConnection]\n");
-                        break; 
+                        goto exit; 
                     }
                 }
             }
         }
     }
-
+exit:
     return 0;
 
 error:
