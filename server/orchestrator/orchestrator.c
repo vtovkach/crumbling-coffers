@@ -372,15 +372,6 @@ int receiveData(int epoll_fd, int target_fd, HashTable *const clients, FILE *con
         memcpy(client->buffer, (uint8_t *)ack_msg, TCP_SEGMENT_SIZE);
     }
 
-    // The following lines are only for testing purposes (it will be removed soon) 
-    for(int i = 0; i < bytes; i++)
-    {
-        putchar((char)temp_buf[i]);
-    }
-    putchar('\n');
-    fflush(stdout);
-    // ------------------------------------------------
-
     return 0;
 }
 
