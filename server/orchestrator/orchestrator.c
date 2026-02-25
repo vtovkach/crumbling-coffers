@@ -109,6 +109,21 @@ int ht_close_all_sockets(HashTable *hash)
     return closed_count;
 }
 
+void shutdownServer(int listen_fd, int epoll_fd, struct HashTable *clients)
+{
+    // Close socket for every active connection 
+    ht_close_all_sockets(clients);
+
+    ht_destroy(clients);
+
+    // Later I will have 2 more data structure that I will need to free  
+    // TODO
+    // ... 
+
+    close(epoll_fd);
+    close(listen_fd); 
+}
+
 int setupListenSocket(void)
 {
     // Establish and bind listening socket to designated PORT 
