@@ -185,7 +185,8 @@ int acceptConnections(FILE *const log_file, int listen_fd, const int epoll_fd, s
         new_client.buf_size = TCP_SEGMENT_SIZE;
         new_client.cur_size = 0;
         new_client.is_received = false; 
-        new_client.is_sent = false;
+        new_client.ACK_sent = false;
+        new_client.game_info_sent = false;
 
         struct sockaddr_in c_addr;
         socklen_t ca_len = sizeof(c_addr);
