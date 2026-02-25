@@ -51,11 +51,13 @@ struct Client
     struct sockaddr_in addr;
 
     uint8_t buffer[TCP_SEGMENT_SIZE];
+    uint8_t game_queue_info[TCP_SEGMENT_SIZE];
     size_t buf_size;
     size_t cur_size; 
     
-    bool is_received; // specifies if the client's game request message was received and processed
-    bool is_sent;     // specifies if the server's output message to the client is fully sent  
+    bool is_received;  // specifies if the client's game request message was received and processed
+    bool ACK_sent;     // specifies if the server's output message to the client is fully sent  
+    bool game_info_sent;
 };
 
 volatile sig_atomic_t terminate = 0;
