@@ -68,6 +68,15 @@ void set_terminate(int sig)
     terminate = 1;
 }
 
+
+int addClientToQueue()
+{
+    // Just a place holder for now
+    // TODO 
+    
+    return 0;
+}
+
 int ht_close_all_sockets(HashTable *hash)
 {
     if(!hash)
