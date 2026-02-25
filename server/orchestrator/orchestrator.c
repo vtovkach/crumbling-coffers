@@ -495,13 +495,15 @@ int main(int argc, char *argv[])
                     // Read received data 
                     // TODO 
 
-                    receiveData(epoll_fd, cur_event.data.fd, active_clients);
+                    receiveData(epoll_fd, cur_event.data.fd, active_clients, log_file);
                 }
 
                 if(cur_event.events & EPOLLOUT)
                 {
                     // Socket is writable 
                     // TODO 
+
+                    sendData();
                 }
 
                 if(cur_event.events & (EPOLLERR | EPOLLHUP | EPOLLRDHUP))
