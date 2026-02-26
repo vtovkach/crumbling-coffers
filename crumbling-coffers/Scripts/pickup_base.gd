@@ -2,16 +2,13 @@ extends Area2D
 
 @export var points: int = 1
 
+func _ready() -> void:
+	body_entered.connect(_on_body_entered)
+
 func _on_body_entered(body: Node) -> void:
-	if body.has_method("add_score"):
-		body.add_score(points)
-		on_collected(body)
-		collect()
-
-func collect():
+	on_collected(body)
 	queue_free()
-		
-
 
 func on_collected(body: Node) -> void:
+	# meant to be overridden
 	pass
