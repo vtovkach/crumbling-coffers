@@ -2,11 +2,11 @@
 
 [ext_resource type="Script" uid="uid://boqmq6t5xucsj" path="res://Scripts/hud.gd" id="1_s1siy"]
 
-[node name="HUD" type="CanvasLayer" unique_id=666970565]
+[node name="HUD" type="CanvasLayer" unique_id=2070564899]
 script = ExtResource("1_s1siy")
 
-[node name="ScoreLabel" type="Label" parent="." unique_id=1908600866]
-offset_left = 51.0
-offset_top = 163.0
-offset_right = 196.0
-offset_bottom = 303.0
+[node name="ScoreLabel" type="Label" parent="." unique_id=1960863938]
+offset_left = 16.0
+offset_top = 14.0
+offset_right = 56.0
+offset_bottom = 37.0
