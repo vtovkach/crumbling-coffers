@@ -1,35 +1,19 @@
 [gd_scene format=3 uid="uid://dgg4u7btgypj7"]
 
-[ext_resource type="Texture2D" uid="uid://eaa073nl8fyl" path="res://Assets/Items/PNG/shiny/1.png" id="1_3plsd"]
+[ext_resource type="Texture2D" uid="uid://bkc2xl3a4kdas" path="res://Assets/Items/PNG/shiny/19.png" id="1_3plsd"]
 [ext_resource type="Script" uid="uid://ckv0h27o375n8" path="res://Scripts/common_item.gd" id="1_ldn3d"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ldn3d"]
-radius = 21.0
+radius = 65.37584
 
-<<<<<<< HEAD
-[node name="CommonItem" type="Area2D" unique_id=1079901730]
+[node name="CommonItem" type="Area2D" unique_id=438378661]
 script = ExtResource("1_ldn3d")
 
-[node name="Sprite2D" type="Sprite2D" parent="." unique_id=334813739]
-=======
-[node name="CommonItem" type="Node2D" unique_id=1971463656]
-script = ExtResource("1_ldn3d")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=570691080]
+position = Vector2(1, -13)
+shape = SubResource("CircleShape2D_ldn3d")
 
-[node name="Area2D" type="Area2D" parent="." unique_id=1132832047]
-
-[node name="Sprite2D" type="Sprite2D" parent="Area2D" unique_id=334813739]
->>>>>>> origin/PROJ-21-design-ability-item-system-spec
-position = Vector2(2.3841858e-07, -6)
-scale = Vector2(0.2671875, 0.27083337)
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=47869958]
+position = Vector2(3, -8)
+scale = Vector2(0.5708333, 0.5177083)
 texture = ExtResource("1_3plsd")
-
-<<<<<<< HEAD
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=882587048]
-position = Vector2(0, 3)
-shape = SubResource("CircleShape2D_ldn3d")
-debug_color = Color(0.36694196, 0.5042123, 0.92686874, 0.41960785)
-=======
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=882587048]
-position = Vector2(1, 5)
-shape = SubResource("CircleShape2D_ldn3d")
->>>>>>> origin/PROJ-21-design-ability-item-system-spec
