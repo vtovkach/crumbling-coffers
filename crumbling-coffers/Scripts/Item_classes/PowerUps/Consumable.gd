@@ -1,4 +1,5 @@
 extends PickupItems
+class_name Consumables
 
 # This subclass will act as a parent class for "consumable" items that will affect the player and no one else.
 	# example (and potential) consumable items - potions, food (?), wearable/handheld items.

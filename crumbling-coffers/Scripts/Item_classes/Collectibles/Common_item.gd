@@ -1,4 +1,5 @@
 extends PickupItems
+class_name Common
 
 var rarity_type = "common"
 var item_type = "collectible"

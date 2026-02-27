@@ -1,4 +1,5 @@
 extends PickupItems
+class_name Debuffs
 
 # This subclass will act as a parent class for "debuff" items that will be seen by other players and 
 # placed into the environment. 
