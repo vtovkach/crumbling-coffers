@@ -387,7 +387,8 @@ int receiveData(int epoll_fd, int target_fd, HashTable *const clients, FILE *con
         char ack_msg[TCP_SEGMENT_SIZE];
         memset(ack_msg, 0, TCP_SEGMENT_SIZE);
         memcpy(ack_msg, "ACK", 3);
-        
+
+        client->cur_size = 0;
         // Copy ACK message into the client's buffer 
         memcpy(client->buffer, (uint8_t *)ack_msg, TCP_SEGMENT_SIZE);
     }
@@ -434,7 +435,7 @@ int sendData(FILE *const log_file, int epoll_fd, int target_fd, HashTable *const
     {
         ssize_t bytes = send(target_fd, client->buffer + client->cur_size, client->buf_size - client->cur_size, MSG_NOSIGNAL);
         if(bytes < 0)
-        { 
+        {
             // Handle error exit code 
             if(errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) { return 0; } // Not critical 
 
@@ -457,7 +458,7 @@ int sendData(FILE *const log_file, int epoll_fd, int target_fd, HashTable *const
             }
         }
     }
-
+    
     return 0;
 }
 
