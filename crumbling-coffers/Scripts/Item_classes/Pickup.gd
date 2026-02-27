@@ -16,8 +16,8 @@ class_name PickupItems	# Class name.
 # ##########################################
 
 var itemType : String
-@export var rarity : String	# rarity can be assigned outside of the script in "Inspector" by using @export.
-var ability = false	# default. 
+var rarity : String
+var ability = false
 @export var score : int
 
 
@@ -43,9 +43,13 @@ func _get_ability(a : bool):
 	
 func _on_item_collected():
 	print("I've been picked up!")
+	queue_free() # frees up the scene and stops painting it to the current scene.
+	# !! MAY REWRITE "queue_free()" to be specified in specific functions if bugs come up.
 # More sophisticated function will be implemented in future tasks. Placeholder in order to test functions work
 	# and collision signals are being received.
 
-func abilityCheck():
-	pass #implement test where when item is collided with, it will ask if an ability item.
-		 # check if condition and print corresponding message.
+func abilityCheck(a : bool):
+	if a == true:
+		print("I am a special ability item!")
+	else:
+		print("I am NOT an ability item.")
