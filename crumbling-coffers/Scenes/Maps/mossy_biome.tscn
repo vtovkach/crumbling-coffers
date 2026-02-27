@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://cnc5w71sw0ku8" path="res://Scenes/Player/player.tscn" id="3_gyh6a"]
 [ext_resource type="PackedScene" uid="uid://dgg4u7btgypj7" path="res://Scenes/items/Common Item.tscn" id="4_ycfoj"]
 [ext_resource type="PackedScene" uid="uid://xbf2l3fnxo71" path="res://Scenes/Maps/HUD.tscn" id="5_cvff3"]
+[ext_resource type="PackedScene" uid="uid://b1685e8yqvhki" path="res://Scenes/items/test_item.tscn" id="7_i3aph"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_y41hj"]
 texture = ExtResource("2_rpucx")
@@ -274,3 +275,23 @@ tile_set = SubResource("TileSet_gyh6a")
 
 [node name="Player" parent="." unique_id=719838145 instance=ExtResource("3_gyh6a")]
 position = Vector2(-5, -111)
+
+[node name="HUD" parent="." unique_id=401163621 instance=ExtResource("5_cvff3")]
+
+[node name="CommonItem" parent="." unique_id=438378661 instance=ExtResource("4_ycfoj")]
+position = Vector2(440, -37)
+
+[node name="CommonItem2" parent="." unique_id=1924998974 instance=ExtResource("4_ycfoj")]
+position = Vector2(1759, -560)
+
+[node name="CommonItem3" parent="." unique_id=309620172 instance=ExtResource("4_ycfoj")]
+position = Vector2(-835, -556)
+
+[node name="test-item" parent="." unique_id=643455879 instance=ExtResource("7_i3aph")]
+position = Vector2(1247, 1510)
+
+[node name="test-item2" parent="." unique_id=1032219937 instance=ExtResource("7_i3aph")]
+position = Vector2(-827, 1485)
+
+[node name="test-item3" parent="." unique_id=46343357 instance=ExtResource("7_i3aph")]
+position = Vector2(2894, 1468)
