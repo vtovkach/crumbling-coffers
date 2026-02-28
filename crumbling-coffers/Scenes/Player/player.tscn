@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cq0yb3sxdjx10" path="res://Scenes/Player/player.gd" id="1_uvnfx"]
 [ext_resource type="Texture2D" uid="uid://b662g1htkpbv6" path="res://Assets/Players/BlueWizard/2BlueWizardIdle/Chara - BlueIdle00000.png" id="2_h8ma5"]
+[ext_resource type="Resource" uid="uid://bw50gq41hhdr" path="res://Inventory/playerInventory.tres" id="2_jincj"]
 [ext_resource type="Texture2D" uid="uid://b4e2bx5p6jjid" path="res://Assets/Players/BlueWizard/2BlueWizardIdle/Chara - BlueIdle00001.png" id="3_eksi1"]
 [ext_resource type="Texture2D" uid="uid://ow58ux06geqx" path="res://Assets/Players/BlueWizard/2BlueWizardIdle/Chara - BlueIdle00002.png" id="4_jincj"]
 [ext_resource type="Texture2D" uid="uid://cgfvybgr1do3a" path="res://Assets/Players/BlueWizard/2BlueWizardIdle/Chara - BlueIdle00003.png" id="5_rqdc0"]
@@ -21,6 +22,7 @@
 [ext_resource type="Texture2D" uid="uid://62px3dfjwj6y" path="res://Assets/Players/BlueWizard/2BlueWizardIdle/Chara - BlueIdle00017.png" id="19_m6ahd"]
 [ext_resource type="Texture2D" uid="uid://duct1f2gfpnvw" path="res://Assets/Players/BlueWizard/2BlueWizardIdle/Chara - BlueIdle00018.png" id="20_ogmfp"]
 [ext_resource type="Texture2D" uid="uid://bce4pmfs0mpx6" path="res://Assets/Players/BlueWizard/2BlueWizardIdle/Chara - BlueIdle00019.png" id="21_ixrbb"]
+[ext_resource type="PackedScene" uid="uid://d1nf7qbl005j0" path="res://Inventory/inv_ui.tscn" id="23_rqdc0"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_ei2r2"]
 animations = [{
@@ -97,6 +99,7 @@ height = 382.0
 [node name="Player" type="CharacterBody2D" unique_id=719838145]
 z_index = 1
 script = ExtResource("1_uvnfx")
+inv = ExtResource("2_jincj")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1767801801]
 scale = Vector2(1.5, 1.5)
@@ -110,3 +113,9 @@ shape = SubResource("CapsuleShape2D_h8ma5")
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=1999409388]
 zoom = Vector2(0.2, 0.2)
+
+[node name="Inv_Ui" parent="." unique_id=664736319 instance=ExtResource("23_rqdc0")]
+offset_left = -914.0
+offset_top = -1564.0
+offset_right = -297.0
+offset_bottom = -846.0

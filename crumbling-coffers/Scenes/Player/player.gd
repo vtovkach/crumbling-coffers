@@ -15,6 +15,8 @@ extends CharacterBody2D
 
 @export var jump_velocity: float = -1000.0
 
+@export var inv: Inv
+
 #Daniel - adding a score to the character for when they pick up the items.
 
 signal score_changed(new_score: int)
