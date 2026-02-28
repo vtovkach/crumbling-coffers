@@ -293,13 +293,13 @@ position = Vector2(-768, -512)
 collision_layer = 4
 
 [node name="test-item" parent="." unique_id=643455879 instance=ExtResource("7_i3aph")]
-position = Vector2(1024, 1468)
+position = Vector2(1024, 1536)
 collision_layer = 4
 
 [node name="test-item2" parent="." unique_id=1032219937 instance=ExtResource("7_i3aph")]
-position = Vector2(-1024, 1468)
+position = Vector2(-1024, 1536)
 collision_layer = 4
 
 [node name="test-item3" parent="." unique_id=46343357 instance=ExtResource("7_i3aph")]
-position = Vector2(2816, 1468)
+position = Vector2(2816, 1536)
 collision_layer = 4
