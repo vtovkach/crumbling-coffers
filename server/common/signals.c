@@ -11,9 +11,9 @@ static void handle_terminate(int sig)
     g_terminate = 1;
 }
 
-int signals_install(void)
+int signals_install(int sig)
 {
-    if (signal(SIGUSR1, handle_terminate) == SIG_ERR)
+    if (signal(sig, handle_terminate) == SIG_ERR)
     {
         perror("signal");
         return -1;
