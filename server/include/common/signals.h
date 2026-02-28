@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-int  signals_install(void);          
+int  signals_install(int sig);          
 bool signals_should_terminate(void); 
 
 #endif
