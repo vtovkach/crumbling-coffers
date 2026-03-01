@@ -12,6 +12,7 @@
 #include "net/io.h"
 #include "threads/net_thread.h"
 #include "server-config.h"
+#include "threads/game.h"
 
 extern _Atomic bool net_dead; 
 _Atomic bool stop_net = false;
@@ -21,12 +22,15 @@ int runGame(uint16_t port)
     // Setup UDP Networking Thread 
     pthread_t net_thread; 
 
-    uint16_t *port_arg = malloc(sizeof(*port_arg));     
-    if(!port)
+    // Create args structure for the network thread 
+    struct NetThreadArgs *net_thread_args = malloc(sizeof(*net_thread_args));
+    if(!net_thread_args)
     {
-        perror("[game] malloc");
+        perror("[game process/runGame] malloc");
         return -1;
     }
+
+    net_thread_args->udp_port = port;
 
     if(pthread_create(&net_thread, NULL, netThread, port_arg) != 0)
     {
@@ -38,7 +42,6 @@ int runGame(uint16_t port)
     // TODO ...
 
     int tick = 0;
-
     for(;;)
     {
         if(net_dead)
