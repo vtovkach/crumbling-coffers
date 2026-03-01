@@ -1,6 +1,6 @@
 #include <stdio.h>                          
 #include "orchestrator/state/client.h"      
-#include "orchestrator/config.h"            
+#include "server-config.h"            
 
 int addClientToQueue(struct Client *client)
 {

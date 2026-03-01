@@ -1,6 +1,7 @@
 #ifndef __GAME_H
 #define __GAME_H
+#include <stdint.h>
 
-int runGame(void);
+int runGame(uint16_t game_port);
 
 #endif

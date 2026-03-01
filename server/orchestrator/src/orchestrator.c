@@ -12,7 +12,7 @@
 #include "orchestrator/net/conn.h"
 #include "orchestrator/net/io.h"
 #include "orchestrator/net/listen_socket.h"
-#include "orchestrator/config.h"
+#include "server-config.h"
 #include "common/hashmap.h"
 #include "common/signals.h"
 

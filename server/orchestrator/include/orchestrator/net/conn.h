@@ -4,7 +4,7 @@
 #include <stdio.h>              
 #include "common/hashmap.h"     
 #include "orchestrator/state/client.h"
-#include "orchestrator/config.h"
+#include "server-config.h" 
 
 int closeConnection(FILE *log_file, int epoll_fd, int target_fd, struct HashTable *active_clients);
 
