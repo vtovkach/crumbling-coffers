@@ -65,7 +65,7 @@ int orchestrator_run(pid_t parent_pid)
     // ...
 
     // Setup EPOLL 
-    struct epoll_event eventQueue[MAX_EPOLL_EVENTS];
+    struct epoll_event eventQueue[ORCH_MAX_EPOLL_EVENTS];
     orch.epoll_fd = epoll_create1(0);
     if(orch.epoll_fd < 0)
     {
@@ -97,7 +97,7 @@ int orchestrator_run(pid_t parent_pid)
             break;
         }
 
-        int events_ready = epoll_wait(orch.epoll_fd, eventQueue, MAX_EPOLL_EVENTS, 2000);
+        int events_ready = epoll_wait(orch.epoll_fd, eventQueue, ORCH_MAX_EPOLL_EVENTS, 2000);
 
         if(events_ready < 0)
         {
