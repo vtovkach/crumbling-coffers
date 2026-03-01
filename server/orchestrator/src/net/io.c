@@ -6,9 +6,9 @@
 #include <unistd.h>            
 #include <sys/types.h>         
 #include <sys/socket.h>        
-#include <sys/epoll.h>         
-
-#include "orchestrator/config.h"            
+#include <sys/epoll.h>     
+    
+#include "server-config.h"          
 #include "orchestrator/state/client.h"      
 #include "common/hashmap.h"                 
 #include "common/util.h"                    

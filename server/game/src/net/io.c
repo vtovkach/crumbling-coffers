@@ -3,7 +3,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-#define UDP_DATAGRAM_SIZE 20
+#include "server-config.h" 
 
 ssize_t udp_read(int target_fd)
 {

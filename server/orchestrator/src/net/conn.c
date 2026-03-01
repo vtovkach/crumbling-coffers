@@ -10,7 +10,7 @@
 
 #include "common/hashmap.h"
 #include "common/util.h"
-#include "orchestrator/config.h"
+#include "server-config.h" 
 #include "orchestrator/state/client.h"
 
 int closeConnection(FILE *const log_file, int epoll_fd, int target_fd, struct HashTable *const active_clients)

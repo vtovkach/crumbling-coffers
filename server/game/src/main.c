@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#include "game.h"
+#include "threads/game.h"
 
 
 /**
@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
     uint16_t game_port = (uint16_t) atoi(argv[2]);
     int pipe_fd = atoi(argv[3]);
     
-    int status = runGame();
+    int status = runGame(game_port);
 
     return status;
 }

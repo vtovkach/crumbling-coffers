@@ -6,7 +6,7 @@
 #include <stdbool.h>       
 #include <netinet/in.h>    
 
-#include "orchestrator/config.h"  
+#include "server-config.h" 
 
 struct Client
 {
