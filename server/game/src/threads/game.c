@@ -32,7 +32,7 @@ int runGame(uint16_t port)
 
     net_thread_args->udp_port = port;
 
-    if(pthread_create(&net_thread, NULL, netThread, port_arg) != 0)
+    if(pthread_create(&net_thread, NULL, netThread, net_thread_args) != 0)
     {
         perror("[game] pthread_create");
         return -1;
