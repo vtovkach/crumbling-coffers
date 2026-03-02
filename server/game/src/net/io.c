@@ -13,7 +13,7 @@ ssize_t udp_read(int target_fd)
     if (bytes <= 0)
         return bytes;
 
-    fwrite(temp_buf, 1, bytes, stdout);
+    printf("%s\n", (char *) temp_buf);
     fflush(stdout);
 
     return bytes;

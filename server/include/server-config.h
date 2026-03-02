@@ -9,9 +9,9 @@
 #define TCP_SEGMENT_SIZE        20
 
 // UDP GAME PROCESS 
-#define UDP_GAME_PROCESS_PORT "10001"
-#define GAME_PROCESS "./bin/game/game"
-#define GM_MAX_EPOLL_EVENTS     100 // will change this constant later 
-#define UDP_DATAGRAM_SIZE 20
+#define UDP_GAME_PROCESS_PORT   "10001"
+#define GAME_PROCESS            "./bin/game/game"
+#define GM_MAX_EPOLL_EVENTS     64  
+#define UDP_DATAGRAM_SIZE       20
 
 #endif
