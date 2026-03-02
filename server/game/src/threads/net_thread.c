@@ -25,12 +25,12 @@ void *netThread(void *arg)
     
     // Detach from the parent 
     pthread_detach(pthread_self());
-
+    
     listen_fd = make_udp_server_socket(args.udp_port);
     if(listen_fd == -1)
     {
         // Something is wrong
-        printf("[netThread] make_udp_server_socket failed.\n");
+        printf("[net thread] make_udp_server_socket failed.\n");
         goto exit;
     }
 
@@ -38,7 +38,7 @@ void *netThread(void *arg)
     if(epoll_fd == 0)
     {
         // Epoll initialization failed  
-        perror("[netThread] epoll_create");
+        perror("[net thread] epoll_create");
         goto exit; 
     }
 
@@ -51,7 +51,7 @@ void *netThread(void *arg)
     if(epoll_ctl(epoll_fd, EPOLL_CTL_ADD, listen_fd, &ev) < 0)
     {
         // Failed registering listen_fd with epoll 
-        perror("[netThread] epoll_ctl (listen_fd)");
+        perror("[net thread] epoll_ctl (listen_fd)");
         goto exit;
     }
 
@@ -60,21 +60,24 @@ void *netThread(void *arg)
     {
         if(stop_net)
         {
-            printf("[netThread] parent requests thread termination.\n");
+            printf("[net thread] parent requests termination.\n");
             goto exit;  
         }
 
-        int events_ready = epoll_wait(epoll_fd, eventsQueue, GM_MAX_EPOLL_EVENTS, 2000);
+        int events_ready = epoll_wait(epoll_fd, eventsQueue, GM_MAX_EPOLL_EVENTS, 1);
         if(events_ready < 0)
         {
-            // Error 
-            // TODO 
+            if(errno == EINTR) {continue; } // Safe to continue 
+
+            perror("[net thread] epoll_wait");
+            goto exit; 
         }
 
-        for(int i = 0; i < events_ready; i++)
+        // I have only one listening file descriptor 
+        // No need for the loop 
+        if(events_ready > 0)
         {
-            struct epoll_event cur_event = eventsQueue[i];
-
+            struct epoll_event cur_event = eventsQueue[0];
             udp_read(listen_fd);
         }
         
