@@ -21,6 +21,8 @@
  */
 int main(int argc, char *argv[])
 {
+    (void) argc; // Silence compiler warning 
+
     pid_t p_pid = (pid_t) atoi(argv[1]); 
     uint16_t game_port = (uint16_t) atoi(argv[2]);
     int pipe_fd = atoi(argv[3]);
@@ -29,3 +31,6 @@ int main(int argc, char *argv[])
 
     return status;
 }
+
+// Use waitpid(... WNOHANG) from orchestrator to track when game processes terminated 
+// Use signal to notify child to finish 
