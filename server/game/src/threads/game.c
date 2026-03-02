@@ -35,6 +35,7 @@ int runGame(uint16_t port)
     if(pthread_create(&net_thread, NULL, netThread, net_thread_args) != 0)
     {
         perror("[game] pthread_create");
+        free(net_thread_args);
         return -1;
     }
     
@@ -45,10 +46,12 @@ int runGame(uint16_t port)
     for(;;)
     {
         if(net_dead)
-            break; 
-
+        {
+            free(net_thread_args);
+            break;
+        }
+        
         printf("[game] Tick: %d\n", tick++);
-
         sleep(2);
     }
 
