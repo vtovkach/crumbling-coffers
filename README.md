@@ -7,8 +7,9 @@
 * [General Info](#general-information)
 * [Technologies Used](#technologies-used)
 * [Features](#features)
-* [Screenshots](#screenshots)
 * [Sprint 1](#sprint-1)
+* [Upcoming](#upcoming)
+* [Screenshots](#screenshots)
 
 ---
 
@@ -40,14 +41,24 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 
 --- 
 
-## Features
+<h3> Features
 
-- Large vertically and horizontally explorable map  
-- Multiplayer support (planned: 4 players per match)  
+## Sprint 1
+- Learning Godot Engine  
+- Leaning GDScript  
+- Map Design & Interactivity  
+- Player Character Movement  
+- Large vertically and horizontally explorable map   
 - Item system with rarity tiers and score values  
+
+## Upcoming
+- Temporary boost items affecting player abilities 
 - Timed competitive matches  
 - End-of-match scoreboard with score calculation  
-- Temporary boost items affecting player abilities 
+- Multiplayer support (planned: 4 players per match)
+
+&nbsp;
+---
 
 **User Stories:**
 
@@ -86,10 +97,3 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 <img src="docs/screenshots/ss3.png" width="600">
 
 ---
-
-## Sprint 1
-
-- Learning Godot Engine  
-- Leaning GDScript  
-- Map Design & Interactivity  
-- Player Character Movement  
