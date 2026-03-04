@@ -41,17 +41,32 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 
 --- 
 
-<h3> Features
+## Features
 
-## Sprint 1
+### Sprint 1
+
+**Nicholas**: added a player-character that users can move with keyboard input, and related tests.
+- Jira Task: learn godot movement + collision ideas
+    - [PROJ-66](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-66), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/%7Bced1f902-e50a-4f0b-8f64-5d31e5447f90%7D/branch/PROJ-66-learn-godot-movement-collision-i)
+- Jira Task: Player horizontal movement rules
+    - [PROJ-51](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-51), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/%7Bced1f902-e50a-4f0b-8f64-5d31e5447f90%7D/branch/feature/PROJ-51-player-horizontal-movement-rules)
+- Jira Task: Player vertical movement rules
+    - [PROJ-55](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-55), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/%7Bced1f902-e50a-4f0b-8f64-5d31e5447f90%7D/branch/feature/PROJ-55-player-vertical-movement-rules)
+- Jira Task: Player moves with keypresses
+    - [PROJ-63](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-63), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/%7Bced1f902-e50a-4f0b-8f64-5d31e5447f90%7D/branch/feature/PROJ-63-player-moves-with-keypresses)
+- Jira Task: Testing Movement System
+    - [PROJ-64](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-64), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/%7Bced1f902-e50a-4f0b-8f64-5d31e5447f90%7D/branch/PROJ-64-testing-movement-system)  
+
+
+
+[Rest of stuff copied from previous readme. remove as you add linked up version i guess.]
 - Learning Godot Engine  
 - Leaning GDScript  
 - Map Design & Interactivity  
-- Player Character Movement  
 - Large vertically and horizontally explorable map   
 - Item system with rarity tiers and score values  
 
-## Upcoming
+### Upcoming
 - Temporary boost items affecting player abilities 
 - Timed competitive matches  
 - End-of-match scoreboard with score calculation  
