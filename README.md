@@ -19,7 +19,7 @@
 
 **Concept:** A competitive multiplayer Metroidvania-style platformer centered around nonlinear exploration, strategic item collection, and time-based scoring. Players navigate interconnected levels filled with movement challenges, hidden paths, and unlockable abilities that expand traversal options as the match progresses. Each session emphasizes speed, routing efficiency, and smart decision-making, rewarding players not just for collecting items, but for optimizing their path and adapting to opponents in real time. The result is a fast-paced experience that blends precision platforming with competitive depth and replayability.  
 
-**Audience:** Fans of metroidvania platformers and pixel art who enjoy  
+**Audience:** Fans of metroidvania platformers and pixel art who enjoy competitive and fun video games.  
 
 **Purpose:** To create a competitive and visually engaging game for friends  
 
@@ -160,9 +160,7 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 
 - Design and implement a network module on the client side.
 
-[information below was from original README for features.]
-&nbsp;
----
+#### Completed Features (in Sprint 1)
 - Learning Godot Engine  
 - Leaning GDScript  
 - Map Design & Interactivity  
