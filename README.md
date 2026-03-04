@@ -136,8 +136,12 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 - [Plans for next steps here]
 
 **Vadym:**
+- For the server, the next goal is to implement matchmaking and meaningful communication between the client and the server.
+    - Finish the orchestrator process.
+    - Add a game loop to the game processes.
+    - Implement port management on the orchestrator side.
 
-- [Plans for next steps here]
+- Design and implement a network module on the client side.
 
 [information below was from original README for features.]
 &nbsp;
