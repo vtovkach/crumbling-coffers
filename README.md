@@ -133,7 +133,9 @@ The game also includes temporary **boost items (spells)** that enhance abilities
  
 **Nicholas:**
 
-- [Plans for next steps here]
+- Make player-character movement feel more satisfying with multiple iterations of refinement.
+- Add visual hints at the edge of the player's screen to inform them of items barely out of view.
+- Refine some of my older code for scalability, IF we decide it's needed for certain features to exist.
 
 **Vadym:**
 
