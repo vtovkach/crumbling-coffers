@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-#include "common/hashmap.h"
+#include "ds/hashmap.h"
 
 struct Orchestrator 
 {

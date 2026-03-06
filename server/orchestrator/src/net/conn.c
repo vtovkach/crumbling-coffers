@@ -8,8 +8,8 @@
 #include <arpa/inet.h>      
 #include <stdint.h>         
 
-#include "common/hashmap.h"
-#include "common/util.h"
+#include "ds/hashmap.h"
+#include "util.h"
 #include "server-config.h" 
 #include "orchestrator/state/client.h"
 

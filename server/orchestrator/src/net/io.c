@@ -10,8 +10,8 @@
     
 #include "server-config.h"          
 #include "orchestrator/state/client.h"      
-#include "common/hashmap.h"                 
-#include "common/util.h"                    
+#include "ds/hashmap.h"                 
+#include "util.h"                    
 #include "orchestrator/net/conn.h"          
 #include "orchestrator/queue/game_queue.h"  
 

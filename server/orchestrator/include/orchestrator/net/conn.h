@@ -2,7 +2,7 @@
 #define CONN_H
 
 #include <stdio.h>              
-#include "common/hashmap.h"     
+#include "ds/hashmap.h"     
 #include "orchestrator/state/client.h"
 #include "server-config.h" 
 

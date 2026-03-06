@@ -13,7 +13,7 @@
 #include <string.h>
 #include <stddef.h>
 
-#include "../include/common/hashmap.h"
+#include "ds/hashmap.h"
 
 typedef struct Node
 {

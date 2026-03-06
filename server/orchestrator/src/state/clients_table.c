@@ -2,7 +2,7 @@
 #include <unistd.h>        
 #include <string.h>        
 #include <stdint.h>
-#include "common/hashmap.h" 
+#include "ds/hashmap.h" 
 
 unsigned int hash(const void *key, unsigned int table_size)
 {

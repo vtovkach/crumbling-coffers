@@ -13,8 +13,8 @@
 #include "orchestrator/net/io.h"
 #include "orchestrator/net/listen_socket.h"
 #include "server-config.h"
-#include "common/hashmap.h"
-#include "common/signals.h"
+#include "ds/hashmap.h"
+#include "signals.h"
 
 static void shutdownServer(int listen_fd, int epoll_fd, struct HashTable *clients, FILE *log_file)
 {

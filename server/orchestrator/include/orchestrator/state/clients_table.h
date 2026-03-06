@@ -1,7 +1,7 @@
 #ifndef CLIENTS_TABLE_H
 #define CLIENTS_TABLE_H
 
-#include "common/hashmap.h" 
+#include "ds/hashmap.h" 
 
 unsigned int hash(const void *key, unsigned int table_size);
 
