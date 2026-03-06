@@ -10,13 +10,11 @@
 #include <sys/poll.h>
 
 #include "util.h"
+#include "server-config.h"
 
 // Logging CONSTANTS  
 #define LOG_DIR "log/"
 #define LOG_ACTIVITY "log/supervisor"
-
-// Path to orchestrator process executable 
-#define ORCHESTRATOR_PROCESS "./bin/orchestrator/orchestrator"
 
 volatile sig_atomic_t child_failure = 0;
 
