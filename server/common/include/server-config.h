@@ -1,6 +1,8 @@
 #ifndef _CONFIG_H
 #define _CONFIG_H
 
+// Orchestrator Process 
+#define ORCHESTRATOR_PROCESS    "./bin/orch"
 #define ORCH_LOG_PATH           "log/orchestrator"
 #define SERVER_TCP_PORT         "10000"
 #define MAX_TCP_QUEUE           128
