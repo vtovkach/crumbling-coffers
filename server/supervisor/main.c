@@ -16,22 +16,8 @@
 #define LOG_DIR "log/"
 #define LOG_ACTIVITY "log/supervisor"
 
-volatile sig_atomic_t child_failure = 0;
-
-void child_sig(int sig)
-{
-    (void)sig;
-    child_failure = 1;
-}
-
 int main(void)
 {
-    if(signal(SIGUSR2, child_sig) == SIG_ERR)
-    {
-        perror("signal (supervisor)");
-        return 1;
-    }
-
     // Create log directory if it already does not exist 
     if(mkdir(LOG_DIR, 0755) == -1)
     {
@@ -99,8 +85,10 @@ int main(void)
 
         if(rc == 0)
         {
-            // Timeout 
-            // Something TODO here periodically 
+            // Poll timeout 
+            int s = waitpid(c_pid, NULL, WNOHANG);
+
+            if(s > 0) break; 
 
             continue;
         }
@@ -128,7 +116,7 @@ int main(void)
             break;
         }
     }
-
+    
     free(userInput);
     waitpid(c_pid, NULL, 0);
 
