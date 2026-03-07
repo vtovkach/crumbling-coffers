@@ -18,8 +18,5 @@ int main(int argc, char *argv[])
 
     int status = orchestrator_run(p_pid);
 
-    // Let parent know that child terminated 
-    kill(p_pid, SIGUSR2);
-
     return status; 
 }
