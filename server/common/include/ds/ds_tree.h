@@ -24,6 +24,7 @@ void *find_min(AVL_Tree *);
 
 void *find_max(AVL_Tree *);
 
+unsigned int avl__getSize(AVL_Tree *);
 
 // ==================== Internal Functions ======================
 

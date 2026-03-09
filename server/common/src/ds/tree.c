@@ -427,3 +427,12 @@ void *find_min(AVL_Tree *tree)
 
     return minimum(tree->root);
 }
+
+// ================================= Retrieve Current Size ==========================================
+
+unsigned int avl__getSize(AVL_Tree *tree)
+{
+    if(!tree || !tree->root) return 0; 
+
+    return tree->num_elements;
+}
