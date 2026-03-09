@@ -17,6 +17,8 @@
 #include "ds/hashmap.h"
 #include "signals.h"
 
+static uint64_t id_counter = 0;
+
 static void shutdownServer(int listen_fd, int epoll_fd, struct HashTable *clients, FILE *log_file)
 {
     // Close socket for every active connection 
@@ -126,7 +128,7 @@ int orchestrator_run(pid_t parent_pid)
             // Check if it is listening file descriptor 
             if(cur_event.data.fd == orch.listen_fd)
             {
-                int accepted = acceptConnections(orch.log_file, orch.listen_fd, orch.epoll_fd, orch.clients);
+                int accepted = acceptConnections(orch.log_file, orch.listen_fd, orch.epoll_fd, id_counter++, orch.clients);
 
                 if(accepted == -1)
                 {
