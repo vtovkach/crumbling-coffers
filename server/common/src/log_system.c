@@ -14,10 +14,10 @@ void log_message(FILE *const log_file, const char *msg)
 
 void log_net_data(FILE *const log_file, char *const buf, size_t buf_size)
 {
-    (void) log_file;
+    char time[TIME_BUFFER_SIZE];
+    getTime(time, TIME_BUFFER_SIZE);
 
-    /*
-    fprintf(log_file, "Received data: ");
+    fprintf(log_file, "%s Received Data: ", time);
 
     for(size_t i = 0; i < buf_size; i++)
     {
@@ -30,11 +30,8 @@ void log_net_data(FILE *const log_file, char *const buf, size_t buf_size)
     }
     fputc('\n', log_file);
 
-    printf("I am here!");
-
     // Remove fflush later can hurt performance if called often 
     fflush(log_file);
-    */
 }
 
 
