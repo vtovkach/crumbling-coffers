@@ -7,6 +7,7 @@
 #include <netinet/in.h>     
 #include <arpa/inet.h>      
 #include <stdint.h>         
+#include <time.h>
 
 #include "ds/hashmap.h"
 #include "util.h"
@@ -66,6 +67,7 @@ int acceptConnections(FILE *const log_file, int listen_fd, const int epoll_fd, s
         new_client.ACK_sent = false;
         new_client.game_info_sent = false;
         new_client.game_q_ready = false;
+        clock_gettime(CLOCK_MONOTONIC, &new_client.ts);
 
         struct sockaddr_in c_addr;
         socklen_t ca_len = sizeof(c_addr);
