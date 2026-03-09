@@ -62,3 +62,18 @@ int addClientToQueue(struct GameQueue *const gq, struct Client *const client)
     
     return 0;
 }
+
+int removeClientFromQueue(struct GameQueue *const gq, struct Client *const client)
+{
+    if (gq->gameQueue->num_elements == 0)
+        return 0;
+
+    avl__remove_internal(gq->gameQueue, client);
+
+    return 0;
+}
+
+struct Client *retrieveClientFromQueue(struct GameQueue *const gq)
+{
+
+}
