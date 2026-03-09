@@ -152,7 +152,7 @@ int orchestrator_run(pid_t parent_pid)
             if(cur_event.events & EPOLLIN)
             {
                 // Read data sent by the client 
-                if(receiveData(orch.epoll_fd, cur_event.data.fd, orch.clients, orch.log_file) < 0)
+                if(receiveData(orch.epoll_fd, cur_event.data.fd, orch.clients, orch.gq, orch.log_file) < 0)
                 {
                     printf("[orchestrator] receiveData failed.\n");
                     goto fail;  
