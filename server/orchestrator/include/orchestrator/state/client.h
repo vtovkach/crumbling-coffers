@@ -11,6 +11,8 @@
 
 struct Client
 {
+    uint64_t client_id; 
+
     int fd;
     struct sockaddr_in addr;
 
