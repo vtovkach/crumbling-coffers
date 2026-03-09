@@ -50,7 +50,7 @@ int closeConnection(FILE *const log_file, int epoll_fd, int target_fd, struct Ha
     return 0;
 }
 
-int acceptConnections(FILE *const log_file, int listen_fd, const int epoll_fd, struct HashTable *const active_clients)
+int acceptConnections(FILE *const log_file, int listen_fd, int epoll_fd, uint64_t new_id, struct HashTable *const active_clients)
 {
     int accepted = 0;
 
@@ -59,6 +59,7 @@ int acceptConnections(FILE *const log_file, int listen_fd, const int epoll_fd, s
     {
         // Initialize Client Structure
         struct Client new_client;
+        new_client.client_id = new_id;
         new_client.buf_size = TCP_SEGMENT_SIZE;
         new_client.cur_size = 0;
         new_client.game_q_size = TCP_SEGMENT_SIZE;
