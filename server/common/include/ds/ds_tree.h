@@ -13,24 +13,8 @@ typedef enum
     TRAVERSE_POSTORDER
 } Traverse_Type;
 
-typedef struct Node
-{
-    struct Node    *left;        // Pointer to first child 
-    struct Node    *right;       // Pointer to second child 
-    void           *data;        // Generic pointer to the data stored in this node
-    int             height;         
-} Node;
+typedef struct AVL_Tree AVL_Tree;
 
-typedef struct AVL_Tree
-{
-    Node            *root;              //
-    unsigned int     num_elements;      // Keeps how many elements are in the tree  
-    Compare_Func     compare;           // User-defined compare function 
-
-    size_t           data_size;
-    size_t           data_blocks; 
-
-} AVL_Tree;
 
 AVL_Tree *avl_create(size_t data_size, size_t data_blocks, Compare_Func);
 

@@ -4,6 +4,26 @@
 
 #include "ds/ds_tree.h"
 
+typedef struct Node
+{
+    struct Node    *left;        // Pointer to first child 
+    struct Node    *right;       // Pointer to second child 
+    void           *data;        // Generic pointer to the data stored in this node
+    int             height;         
+} Node;
+
+typedef struct AVL_Tree
+{
+    Node            *root;              //
+    unsigned int     num_elements;      // Keeps how many elements are in the tree  
+    Compare_Func     compare;           // User-defined compare function 
+
+    size_t           data_size;
+    size_t           data_blocks; 
+
+} AVL_Tree;
+
+
 #define max(a, b) ((a) > (b)) ? (a) : (b)
 
 // ======================= Helper Functions ==========================
