@@ -46,9 +46,7 @@ void freeGameQueue(struct GameQueue *gq)
 
 int addClientToQueue(struct GameQueue *const gq, struct Client *const client)
 {
-    size_t cur_queue_size = gq->gameQueue->num_elements; 
-
-    if(cur_queue_size == gq->max_capacity)
+    if(gq->gameQueue->num_elements == gq->max_capacity)
     {
         // Log error queue is full 
         return -1;
@@ -75,5 +73,13 @@ int removeClientFromQueue(struct GameQueue *const gq, struct Client *const clien
 
 struct Client *retrieveClientFromQueue(struct GameQueue *const gq)
 {
+    if(gq->gameQueue->num_elements == 0)
+        return NULL;
 
+    struct Client **client = (struct Client **)find_min(gq->gameQueue);
+    if(!client)
+        return NULL;
+
+    // Retrieve the client with lowest admission id 
+    return *client;
 }
