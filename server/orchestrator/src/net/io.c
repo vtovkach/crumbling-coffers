@@ -87,7 +87,7 @@ int receiveData(int epoll_fd, int target_fd, HashTable *const clients, struct Ga
         log_net_data(log_file, (char *) client->buffer, client->buf_size);
 
         // Add client to the game queue 
-        addClientToQueue(gq, client);
+        addClientToQueue(gq, client, log_file);
 
         // Prepare ACK message into client's buffer
         char ack_msg[TCP_SEGMENT_SIZE];
