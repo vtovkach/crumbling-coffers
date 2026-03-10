@@ -13,7 +13,7 @@ extends CharacterBody2D
 @export var decel: float = 2000.0
 @export var braking_decel: float = 4000.0
 
-@export var jump_velocity: float = -1000.0
+@export var jump_velocity: float = -2000.0
 
 @export var inv: Inv
 
