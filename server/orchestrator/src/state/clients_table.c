@@ -2,6 +2,7 @@
 #include <unistd.h>        
 #include <string.h>        
 #include <stdint.h>
+#include <sys/epoll.h>
 #include "ds/hashmap.h" 
 
 unsigned int hash(const void *key, unsigned int table_size)
@@ -19,7 +20,7 @@ unsigned int hash(const void *key, unsigned int table_size)
     return x & (table_size - 1);  // table_size must be power of 2
 }
 
-int ht_close_all_sockets(HashTable *hash)
+int ht_close_all_sockets(HashTable *hash, int epoll_fd)
 {
     if(!hash)
         return -1;
@@ -39,6 +40,7 @@ int ht_close_all_sockets(HashTable *hash)
 
                 if(fd >= 0)
                 {
+                    epoll_ctl(epoll_fd, EPOLL_CTL_DEL, fd, NULL);
                     if(close(fd) == 0)
                         closed_count++;
                 }
