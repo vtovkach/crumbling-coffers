@@ -53,7 +53,7 @@ int addClientToQueue(struct GameQueue *const gq, struct Client *const client, FI
         return -1;
     }
     
-    if(avl__insert_internal(gq->gameQueue, &client) < 0)
+    if(avl__insert_internal(gq->gameQueue, (void *)&client) < 0)
     {
         // Log error 
         log_error(log_file, "[addClientToQueue] failed inserting element into game queue.", 0);
