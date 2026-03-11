@@ -85,3 +85,11 @@ struct Client *retrieveClientFromQueue(struct GameQueue *const gq)
     // Retrieve the client with lowest admission id 
     return *client;
 }
+
+bool gq_ready(struct GameQueue *const gq, unsigned int clients)
+{
+    unsigned int queue_size = avl__getSize(gq->gameQueue);
+
+    // Returns true when the game queue contains the required number of clients
+    return queue_size == clients;
+}
