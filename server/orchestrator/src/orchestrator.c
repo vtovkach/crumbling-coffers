@@ -114,7 +114,7 @@ int orchestrator_run(pid_t parent_pid)
         if(signals_should_terminate())
         {
             // Gracefully terminate this process by invoking shutdownServer function   
-            shutdownServer(orch.listen_fd, orch.epoll_fd, orch.clients, orch.log_file);
+            shutdownServer(orch.listen_fd, orch.epoll_fd, orch.clients, orch.log_file, orch.gq);
             break;
         }
 
@@ -185,7 +185,7 @@ int orchestrator_run(pid_t parent_pid)
     return 0;
 
 fail:
-    shutdownServer(orch.listen_fd, orch.epoll_fd, orch.clients, orch.log_file);
+    shutdownServer(orch.listen_fd, orch.epoll_fd, orch.clients, orch.log_file, orch.gq);
     return -1;
 
 boot_fail:
