@@ -93,3 +93,11 @@ bool gq_ready(struct GameQueue *const gq, unsigned int clients)
     // Returns true when the game queue contains the required number of clients
     return queue_size == clients;
 }
+
+int formSession(FILE *const log_file, struct GameQueue *const gq)
+{
+    
+    log_message(log_file, "Session is created!\n");
+
+    return 0;
+}
