@@ -14,8 +14,9 @@
 #include "log_system.h"
 #include "server-config.h" 
 #include "orchestrator/state/client.h"
+#include "orchestrator/queue/game_queue.h"
 
-int closeConnection(FILE *const log_file, int epoll_fd, int target_fd, struct HashTable *const active_clients)
+int closeConnection(FILE *const log_file, int epoll_fd, int target_fd, struct HashTable *const active_clients, struct GameQueue *gq)
 {    
     if(epoll_ctl(epoll_fd, EPOLL_CTL_DEL, target_fd, NULL) == -1)
     {
