@@ -24,10 +24,10 @@ struct Client
     size_t game_q_size;
     size_t game_q_cur_size;
 
-    bool game_q_ready;
-    bool is_received;
-    bool ACK_sent;
-    bool game_info_sent;
+    bool game_q_ready;   // Indicates whether the buffer containing game connection information is ready to be sent
+    bool is_received;    // Indicates whether the client has sent all initialization data
+    bool ACK_sent;       // Indicates whether the acknowledgment message was sent to the client 
+    bool game_info_sent; // Indicates whether game information was sent to the client
 
     struct timespec ts;
 };
