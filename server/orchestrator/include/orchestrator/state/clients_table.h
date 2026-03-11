@@ -5,6 +5,6 @@
 
 unsigned int hash(const void *key, unsigned int table_size);
 
-int ht_close_all_sockets(HashTable *clients);
+int ht_close_all_sockets(HashTable *clients, int epoll_fd);
 
 #endif
