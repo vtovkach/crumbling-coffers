@@ -18,6 +18,22 @@
 
 int closeConnection(FILE *const log_file, int epoll_fd, int target_fd, struct HashTable *const active_clients, struct GameQueue *gq)
 {    
+    // Retrieve client to remove from game queue 
+    struct Client *client = ht__get_internal(active_clients, &target_fd, sizeof(int));
+    if(!client)
+    {
+        epoll_ctl(epoll_fd, EPOLL_CTL_DEL, target_fd, NULL);
+        ht__remove_internal(active_clients, &target_fd);
+        close(target_fd);
+
+        log_error_fd(log_file, "ht__get_internal did not find target (critical error)", target_fd, 0);
+
+        return -1; // Indicate critical error 
+    }
+
+    // Remove client from the game queue 
+    if(client->is_received) {avl__remove_internal(gq->gameQueue, &client); }
+
     if(epoll_ctl(epoll_fd, EPOLL_CTL_DEL, target_fd, NULL) == -1)
     {
         // epoll_ctl failed  
