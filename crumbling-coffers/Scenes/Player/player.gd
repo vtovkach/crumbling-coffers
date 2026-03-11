@@ -7,7 +7,7 @@ extends CharacterBody2D
 # Most of these values are placeholder.
 @export var max_speed: float = 10000.0
 @export var max_runspeed: float = 1600.0
-@export var max_fallingspeed: float = 10000.0
+@export var max_fallingspeed: float = 5600.0
 
 @export var accel: float = 8000.0
 @export var decel: float = 8000.0
