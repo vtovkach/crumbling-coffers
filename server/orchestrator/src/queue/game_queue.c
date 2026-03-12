@@ -20,6 +20,14 @@ struct __attribute__((packed)) TCP_Game_Packet
     uint8_t  player_id[PLAYER_ID_SIZE];
 };
 
+struct ClientSessionInfo
+{
+    char ip[INET_ADDRSTRLEN];
+    uint16_t port; 
+    int fd; 
+    uint8_t player_id[PLAYER_ID_SIZE];
+};
+
 static int compare_func(void *left, void *right)
 {
     struct Client *left_c = *(struct Client **)left;
