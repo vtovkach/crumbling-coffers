@@ -40,13 +40,17 @@ func test_boundary_stops_player():
 	# Set player position @ x=50
 	player.global_position = Vector2(50, 0)
 	
-	# Press the move key and wait for physics engine to calculate collision
-	Input.action_press("left")
-	await wait_frames(25)
-	Input.action_release("left")
+	# Teleport the player into the wall @ x = -10 (which is inside/past the wall)
+	# No floor in unit test causes issues; player.set_physics_process(false) at start
+	# of test ensures is_on_floor() is true
+	player.global_position = Vector2(-10, 0)
 	
-	# Player should be blocked @ x=0
-	assert_gt(player.global_position.x, -1.0, "Player should be stopped by the WorldBoundary @ x=0.")
+	# Wait 2 frames for physics engine to notice overlap
+	await wait_frames(2)
+	
+	# Test for assert less than (assert_lt) caused issues due to gravity
+	# **edited from assert_gt in favor of assert_true which is safer with floating point math**
+	assert_true(player.global_position.x >= 0.0, "Player should be stopped by the WorldBoundary @ x=0.")
 	
 # Test for speed causing boundary glitch
 func test_high_speed_boundary_glitch():
