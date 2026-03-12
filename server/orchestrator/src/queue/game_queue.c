@@ -43,25 +43,34 @@ static void logSessionCreated(FILE *log_file,
                               const struct ClientSessionInfo *clients,
                               size_t count)
 {
-    fprintf(log_file, "Game session created with game_id: ");
+    char msg[2048];
+    size_t offset = 0;
+
+    offset += snprintf(msg + offset, sizeof(msg) - offset,
+                       "Game session created with game_id: ");
 
     for (size_t i = 0; i < GAME_ID_SIZE; i++)
-        fprintf(log_file, "%02x", game_id[i]);
+        offset += snprintf(msg + offset, sizeof(msg) - offset,
+                           "%02x", game_id[i]);
 
-    fprintf(log_file, "\n");
+    offset += snprintf(msg + offset, sizeof(msg) - offset, "\n");
 
     for (size_t i = 0; i < count; i++) {
-        fprintf(log_file,
-                "    -- fd=%d ip=%s port=%u player_id=",
-                clients[i].fd,
-                clients[i].ip,
-                clients[i].port);
+        offset += snprintf(msg + offset, sizeof(msg) - offset,
+                           "    -- Player #%d : fd=%d ip=%s port=%u player_id=",
+                           (int )i + 1,
+                           clients[i].fd,
+                           clients[i].ip,
+                           clients[i].port);
 
         for (size_t j = 0; j < PLAYER_ID_SIZE; j++)
-            fprintf(log_file, "%02x", clients[i].player_id[j]);
+            offset += snprintf(msg + offset, sizeof(msg) - offset,
+                               "%02x", clients[i].player_id[j]);
 
-        fprintf(log_file, "\n");
+        offset += snprintf(msg + offset, sizeof(msg) - offset, "\n");
     }
+
+    log_message(log_file, msg);
 }
 
 struct GameQueue *createGameQueue()
