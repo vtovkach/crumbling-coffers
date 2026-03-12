@@ -18,8 +18,6 @@ bool secure_random_bytes(void *target, size_t nbytes)
         {
             if (errno == EINTR)
                 continue;
-
-            perror("getrandom");
             return false;
         }
 
