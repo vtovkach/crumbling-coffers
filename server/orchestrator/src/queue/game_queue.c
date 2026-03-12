@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/epoll.h>
+#include <arpa/inet.h>
 
 #include "orchestrator/state/client.h"
 #include "server-config.h"            
@@ -125,6 +126,8 @@ int formSession(FILE *const log_file, struct GameQueue *const gq, int epoll_fd,
     if (!secure_random_bytes(game_id, GAME_ID_SIZE))
         return -1;
 
+    struct ClientSessionInfo clients_info[PLAYERS_PER_MATCH];
+
     for (int i = 0; i < PLAYERS_PER_MATCH; i++)
     {
         struct Client *cur_client = retrieveClientFromQueue(gq);
@@ -164,7 +167,14 @@ int formSession(FILE *const log_file, struct GameQueue *const gq, int epoll_fd,
         if(epoll_ctl(epoll_fd, EPOLL_CTL_MOD, cur_client->fd, &ev) < 0)
             return -1;
         
+        // Save clients info for future logging 
+        clients_info[i].fd = cur_client->fd;
+        inet_ntop(AF_INET, &cur_client->addr.sin_addr, clients_info[i].ip, INET_ADDRSTRLEN); // Retrieve string ip  
+        clients_info[i].port = ntohs(cur_client->addr.sin_port); 
+        memcpy(clients_info[i].player_id, player_id, PLAYER_ID_SIZE);
     }
+
+    logSessionCreated(log_file, game_id, clients_info, PLAYERS_PER_MATCH);
 
     return 0;
 }
