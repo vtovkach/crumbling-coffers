@@ -94,9 +94,12 @@ bool gq_ready(struct GameQueue *const gq, unsigned int clients)
     return queue_size == clients;
 }
 
-int formSession(FILE *const log_file, struct GameQueue *const gq)
+int formSession(FILE *const log_file, struct GameQueue *const gq, int available_port)
 {
     
+    
+
+
     log_message(log_file, "Session is created!\n");
 
     return 0;
