@@ -3,6 +3,7 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/epoll.h>
 
 #include "orchestrator/state/client.h"
 #include "server-config.h"            
@@ -133,7 +134,23 @@ int formSession(FILE *const log_file, struct GameQueue *const gq, int epoll_fd,
             memset(cur_client->game_queue_info + sizeof(packet), 0, remaining_bytes);
 
         cur_client->game_q_ready = true;
+
+        // Add file descriptor to epoll monitoring 
+        struct epoll_event ev = {
+        .data.fd = cur_client->fd,
+        .events =
+              EPOLLOUT
+            | EPOLLHUP
+            | EPOLLERR
+            | EPOLLRDHUP,
+        };
+
+        if(epoll_ctl(epoll_fd, EPOLL_CTL_MOD, cur_client->fd, &ev) < 0)
+        {
+            // Critical Error 
+            return -1;
+        }
     }
-    
+
     return 0;
 }
