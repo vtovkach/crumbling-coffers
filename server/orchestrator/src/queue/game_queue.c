@@ -38,6 +38,32 @@ static int compare_func(void *left, void *right)
            (left_c->client_id < right_c->client_id);
 }
 
+static void logSessionCreated(FILE *log_file,
+                              const uint8_t *game_id,
+                              const struct ClientSessionInfo *clients,
+                              size_t count)
+{
+    fprintf(log_file, "Game session created with game_id: ");
+
+    for (size_t i = 0; i < GAME_ID_SIZE; i++)
+        fprintf(log_file, "%02x", game_id[i]);
+
+    fprintf(log_file, "\n");
+
+    for (size_t i = 0; i < count; i++) {
+        fprintf(log_file,
+                "    -- fd=%d ip=%s port=%u player_id=",
+                clients[i].fd,
+                clients[i].ip,
+                clients[i].port);
+
+        for (size_t j = 0; j < PLAYER_ID_SIZE; j++)
+            fprintf(log_file, "%02x", clients[i].player_id[j]);
+
+        fprintf(log_file, "\n");
+    }
+}
+
 struct GameQueue *createGameQueue()
 {   
     struct GameQueue *gq = malloc(sizeof(*gq));
