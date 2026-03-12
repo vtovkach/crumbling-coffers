@@ -52,7 +52,7 @@ static int spawnGameProcess(FILE *const log_file, int port)
     // ... 
 
     char log_msg[100];
-    snprintf(log_msg, sizeof(log_msg), "Game process was spawned. Port: %d", port);
+    snprintf(log_msg, sizeof(log_msg), "Game process was spawned. Port: %d\n", port);
     log_message(log_file, log_msg);
 
     return 0;
@@ -151,7 +151,7 @@ int orchestrator_run(pid_t parent_pid)
                 goto fail; 
             }
 
-            if(spawnGameProcess(orch.log_file, av_port - 1) == -1)
+            if(spawnGameProcess(orch.log_file, av_port) == -1)
             {
                 // Critical Error 
                 printf("[spawnGameProcess] critical error.\n");
