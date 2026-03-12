@@ -142,7 +142,7 @@ int orchestrator_run(pid_t parent_pid)
             // to get real available port
             uint16_t av_port = 10001 + port_counter++;
 
-            if(formSession(orch.log_file, orch.gq, av_port, server_ip) == -1)
+            if(formSession(orch.log_file, orch.gq, orch.epoll_fd, av_port, server_ip) == -1)
             {
                 // Critical Error happened 
                 // TODO 
