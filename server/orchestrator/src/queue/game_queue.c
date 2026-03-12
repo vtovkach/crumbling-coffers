@@ -126,14 +126,16 @@ struct Client *retrieveClientFromQueue(struct GameQueue *const gq)
     if((size_t)avl__get_size(gq->gameQueue) == 0)
         return NULL;
 
-    struct Client **client = (struct Client **)find_min(gq->gameQueue);
-    if(!client)
+    struct Client **avl_client_entry = (struct Client **)find_min(gq->gameQueue);
+    if(!avl_client_entry)
         return NULL;
+        
+    struct Client *client = *avl_client_entry;
 
-    avl__remove_internal(gq->gameQueue, (void *)client);
+    avl__remove_internal(gq->gameQueue, (void *)avl_client_entry);
 
     // Retrieve the client with lowest admission id 
-    return *client;
+    return client;
 }
 
 bool gq_ready(struct GameQueue *const gq, unsigned int clients)
