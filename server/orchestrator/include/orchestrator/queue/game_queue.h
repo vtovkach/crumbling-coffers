@@ -16,14 +16,6 @@ struct GameQueue
     size_t max_capacity;
 };
 
-struct __attribute__((packed)) TCP_Game_Packet
-{
-    uint32_t ip;
-    uint16_t port;
-    uint8_t  game_id[GAME_ID_SIZE];
-    uint8_t  player_id[PLAYER_ID_SIZE];
-};
-
 struct GameQueue *createGameQueue();
 
 void freeGameQueue(struct GameQueue *gq);

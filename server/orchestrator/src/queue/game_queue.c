@@ -12,6 +12,14 @@
 #include "log_system.h"
 #include "random.h"
 
+struct __attribute__((packed)) TCP_Game_Packet
+{
+    uint32_t ip;
+    uint16_t port;
+    uint8_t  game_id[GAME_ID_SIZE];
+    uint8_t  player_id[PLAYER_ID_SIZE];
+};
+
 static int compare_func(void *left, void *right)
 {
     struct Client *left_c = *(struct Client **)left;
