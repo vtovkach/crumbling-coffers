@@ -2,12 +2,14 @@
 #include <unistd.h>      
 #include <sys/types.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "orchestrator/state/client.h"
 #include "server-config.h"            
 #include "ds/ds_tree.h"
 #include "orchestrator/queue/game_queue.h"
 #include "log_system.h"
+#include "random.h"
 
 static int compare_func(void *left, void *right)
 {
@@ -44,7 +46,8 @@ void freeGameQueue(struct GameQueue *gq)
     free(gq);
 }
 
-int addClientToQueue(struct GameQueue *const gq, struct Client *const client, FILE *const log_file)
+int addClientToQueue(struct GameQueue *const gq, struct Client *const client,
+                     FILE *const log_file)
 {
     if((size_t)avl__get_size(gq->gameQueue) == gq->max_capacity)
     {
@@ -56,7 +59,8 @@ int addClientToQueue(struct GameQueue *const gq, struct Client *const client, FI
     if(avl__insert_internal(gq->gameQueue, (void *)&client) < 0)
     {
         // Log error 
-        log_error(log_file, "[addClientToQueue] failed inserting element into game queue.", 0);
+        log_error(log_file, "[addClientToQueue] failed inserting element \
+                             into game queue.", 0);
         return -1; 
     }
 
@@ -81,6 +85,8 @@ struct Client *retrieveClientFromQueue(struct GameQueue *const gq)
     struct Client **client = (struct Client **)find_min(gq->gameQueue);
     if(!client)
         return NULL;
+
+    avl__remove_internal(gq->gameQueue, (void *)client);
 
     // Retrieve the client with lowest admission id 
     return *client;
