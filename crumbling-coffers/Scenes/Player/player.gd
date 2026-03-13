@@ -5,26 +5,26 @@
 extends CharacterBody2D
 
 # Most of these values are placeholder.
-const DEFAULT_MAX_SPEED: float = 10000.0
-const DEFAULT_MAX_RUNSPEED: float = 1600.0
-const DEFAULT_MAX_FALLINGSPEED: float = 5600.0
+const BASE_MAX_SPEED: float = 10000.0
+const BASE_MAX_RUNSPEED: float = 1600.0
+const BASE_MAX_FALLINGSPEED: float = 5600.0
 
-const DEFAULT_ACCEL: float = 8000.0
-const DEFAULT_DECEL: float = 8000.0
-const DEFAULT_BRAKING_DECEL: float = 16000.0
+const BASE_ACCEL: float = 8000.0
+const BASE_DECEL: float = 8000.0
+const BASE_BRAKING_DECEL: float = 16000.0
 
-const DEFAULT_JUMP_VELOCITY: float = -3000.0
+const BASE_JUMP_VELOCITY: float = -3000.0
 
 
-@export var max_speed: float = DEFAULT_MAX_SPEED
-@export var max_runspeed: float = DEFAULT_MAX_RUNSPEED
-@export var max_fallingspeed: float = DEFAULT_MAX_FALLINGSPEED
+@export var max_speed: float = BASE_MAX_SPEED
+@export var max_runspeed: float = BASE_MAX_RUNSPEED
+@export var max_fallingspeed: float = BASE_MAX_FALLINGSPEED
 
-@export var accel: float = DEFAULT_ACCEL
-@export var decel: float = DEFAULT_DECEL
-@export var braking_decel: float = DEFAULT_BRAKING_DECEL
+@export var accel: float = BASE_ACCEL
+@export var decel: float = BASE_DECEL
+@export var braking_decel: float = BASE_BRAKING_DECEL
 
-@export var jump_velocity: float = DEFAULT_JUMP_VELOCITY
+@export var jump_velocity: float = BASE_JUMP_VELOCITY
 
 @export var inv: Inv
 
