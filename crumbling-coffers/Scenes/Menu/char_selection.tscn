@@ -1,14 +1,16 @@
 [gd_scene format=3 uid="uid://mmtyafpepn4d"]
 
+[ext_resource type="Script" uid="uid://ns47c71u7dcr" path="res://Scripts/MainMenu/char_selection.gd" id="1_3567h"]
 [ext_resource type="Texture2D" uid="uid://b662g1htkpbv6" path="res://Assets/Players/BlueWizard/2BlueWizardIdle/Chara - BlueIdle00000.png" id="1_emndy"]
 
 [node name="CharSelection" type="Node2D" unique_id=517563277]
+script = ExtResource("1_3567h")
 
 [node name="Label" type="Label" parent="." unique_id=1310236115]
-offset_left = 73.0
-offset_top = 19.0
-offset_right = 308.0
-offset_bottom = 161.0
+offset_left = 85.0
+offset_top = 41.0
+offset_right = 404.0
+offset_bottom = 183.0
 text = "Character Selection Page (PLACEHOLDER)"
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=901467443]
@@ -20,3 +22,13 @@ offset_bottom = 564.0
 [node name="TextureRect" type="TextureRect" parent="CenterContainer" unique_id=1394959048]
 layout_mode = 2
 texture = ExtResource("1_emndy")
+
+[node name="back button" type="Button" parent="." unique_id=1561491954]
+offset_left = 13.0
+offset_top = 11.0
+offset_right = 129.0
+offset_bottom = 42.0
+size_flags_horizontal = 0
+text = "< Back Button"
+
+[connection signal="pressed" from="back button" to="." method="_on_back_button_pressed"]
