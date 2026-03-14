@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cwhksgbynlqro"]
+
+[ext_resource type="Script" uid="uid://uaygmvk2rrwp" path="res://Scenes/ItemSpawnManager/item_spawn_manager.gd" id="1_pibty"]
+
+[node name="ItemSpawnManager" type="Node2D" unique_id=899288004]
+script = ExtResource("1_pibty")
