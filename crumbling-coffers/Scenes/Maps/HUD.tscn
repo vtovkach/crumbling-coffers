@@ -42,6 +42,5 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 40
 
 [node name="GameTimer" type="Timer" parent="." unique_id=1535482286]
-autostart = true
 
 [connection signal="timeout" from="GameTimer" to="." method="_on_game_timer_timeout"]

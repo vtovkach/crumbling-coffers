@@ -20,6 +20,19 @@ func bind_to_player(player) -> void:
 	player.score_changed.connect(_on_player_score_changed)
 	_on_player_score_changed(player.score)
 
+func update_countdown_text(text: String) -> void:
+	countdown_label.show()
+	countdown_label.text = text
+
+func hide_countdown() -> void:
+	countdown_label.hide()
+	
+func start_game_timer() -> void:
+	$GameTimer.start()
+
+func update_game_timer(seconds: int) -> void:
+	game_timer_label.text = str(seconds)
+
 func _on_game_timer_timeout() -> void:
 	if time_left > 0:
 		time_left -= 1
@@ -28,10 +41,3 @@ func _on_game_timer_timeout() -> void:
 		# Stop the timer when we hit 0
 		$GameTimer.stop()
 		print("Game Over!")
-
-func hide_countdown() -> void:
-	countdown_label.hide()
-	
-func update_game_timer(seconds: int) -> void:
-	game_timer_label.text = str(seconds)
-	
