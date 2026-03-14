@@ -9,3 +9,34 @@ script = ExtResource("1_s1siy")
 custom_minimum_size = Vector2(10, 10)
 offset_right = 275.0
 offset_bottom = 118.0
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=823944240]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -68.5
+offset_right = 20.0
+offset_bottom = 68.5
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="CountdownLabel" type="Label" parent="CenterContainer" unique_id=1976958921]
+layout_mode = 2
+theme_override_font_sizes/font_size = 100
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=531782437]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -20.0
+offset_right = 20.0
+offset_bottom = 55.0
+grow_horizontal = 2
+theme_override_constants/margin_top = 20
+
+[node name="GameTimerLabel" type="Label" parent="MarginContainer" unique_id=288034157]
+layout_mode = 2
+theme_override_font_sizes/font_size = 40
