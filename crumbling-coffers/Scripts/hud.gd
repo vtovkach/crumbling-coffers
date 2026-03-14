@@ -4,12 +4,14 @@ extends CanvasLayer
 # Mapped to countdown and game timer labels in scene
 @onready var countdown_label: Label = $CenterContainer/CountdownLabel
 @onready var game_timer_label: Label = $MarginContainer/GameTimerLabel
+# Variable to track seconds
+var time_left: int = 60
 
 func _ready() -> void:
 	# Hide the countdown by default
 	hide_countdown()
 	# Set initial text for game clock
-	update_game_timer(60)
+	update_game_timer(time_left)
 
 func _on_player_score_changed(new_score: int) -> void:
 	score_label.text = "Score: %d" % new_score
@@ -17,6 +19,15 @@ func _on_player_score_changed(new_score: int) -> void:
 func bind_to_player(player) -> void:
 	player.score_changed.connect(_on_player_score_changed)
 	_on_player_score_changed(player.score)
+
+func _on_game_timer_timeout() -> void:
+	if time_left > 0:
+		time_left -= 1
+		update_game_timer(time_left)
+	else:
+		# Stop the timer when we hit 0
+		$GameTimer.stop()
+		print("Game Over!")
 
 func hide_countdown() -> void:
 	countdown_label.hide()
