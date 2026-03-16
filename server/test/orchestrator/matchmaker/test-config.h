@@ -21,6 +21,8 @@
 /* Directory where per-client logs are stored */
 #define TEST_LOG_DIR           "./logs"
 
+#define TEST_CLIENT_TIMEOUT_SECONDS 5
+
 /*
  * Fixed TCP segment size for:
  *   1) client join message
