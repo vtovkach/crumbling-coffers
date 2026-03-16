@@ -9,7 +9,7 @@ void log_message(FILE *const log_file, const char *msg)
     char time[TIME_BUFFER_SIZE];
     getTime(time, TIME_BUFFER_SIZE);
 
-    fprintf(log_file, "%s %s", time, msg);
+    fprintf(log_file, "%s %s\n", time, msg);
 }
 
 void log_net_data(FILE *const log_file, char *const buf, size_t buf_size)
