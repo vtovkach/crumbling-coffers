@@ -16,7 +16,8 @@
 #include "orchestrator/state/client.h"
 #include "orchestrator/queue/game_queue.h"
 
-int closeConnection(FILE *const log_file, int epoll_fd, int target_fd, struct HashTable *const active_clients, struct GameQueue *gq)
+int closeConnection(FILE *const log_file, int epoll_fd, int target_fd, 
+                    struct HashTable *const active_clients, struct GameQueue *gq)
 {    
     // Retrieve client to remove from game queue 
     struct Client *client = ht__get_internal(active_clients, &target_fd, sizeof(int));
@@ -26,7 +27,8 @@ int closeConnection(FILE *const log_file, int epoll_fd, int target_fd, struct Ha
         ht__remove_internal(active_clients, &target_fd);
         close(target_fd);
 
-        log_error_fd(log_file, "ht__get_internal did not find target (critical error)", target_fd, 0);
+        log_error_fd(log_file, "ht__get_internal did not find target \
+                                (critical error)", target_fd, 0);
 
         return -1; // Indicate critical error 
     }
@@ -47,14 +49,15 @@ int closeConnection(FILE *const log_file, int epoll_fd, int target_fd, struct Ha
 
         return -1; // Indicate critical error  
     }
-
+    
     if(ht__remove_internal(active_clients, &target_fd) <= 0)
     {
         // Hash Table error or element not found 
 
         close(target_fd);
 
-        log_error_fd(log_file, "Hash table removal failed or element not found (possible memory leak)", target_fd, 0);
+        log_error_fd(log_file, "Hash table removal failed or element not found \
+                                (possible memory leak)", target_fd, 0);
 
         return 1; // Indicate potential memory leak 
     }
@@ -67,7 +70,8 @@ int closeConnection(FILE *const log_file, int epoll_fd, int target_fd, struct Ha
     return 0;
 }
 
-int acceptConnections(FILE *const log_file, int listen_fd, int epoll_fd, uint64_t new_id, struct HashTable *const active_clients)
+int acceptConnections(FILE *const log_file, int listen_fd, int epoll_fd, 
+                      uint64_t new_id, struct HashTable *const active_clients)
 {
     int accepted = 0;
 
