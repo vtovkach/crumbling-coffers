@@ -23,7 +23,7 @@ void freeGameQueue(struct GameQueue *gq);
 
 int addClientToQueue(struct GameQueue *const gq, struct Client *const client, FILE *const log_file);
 
-struct Client *retrieveClientFromQueue(struct GameQueue *const gq);
+struct Client *retrieveClientFromQueue(struct GameQueue *const gq, FILE *const log_file);
 
 int removeClientFromQueue(struct GameQueue *const gq, struct Client *const client);
 
