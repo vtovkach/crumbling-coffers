@@ -4,6 +4,8 @@ SUPERVISOR_BIN := bin/supervisor
 GAME_BIN       := bin/game
 ORCH_BIN       := bin/orch
 
+TEST_DIR := test/orchestrator/matchmaker
+
 all: modules $(GAME_BIN) $(SUPERVISOR_BIN) $(ORCH_BIN)
 
 modules:
@@ -41,6 +43,17 @@ clean:
 	$(MAKE) -C game clean
 	$(MAKE) -C orchestrator clean
 	$(MAKE) -C supervisor clean
+	$(MAKE) -C $(TEST_DIR) clean
 	rm -rf bin
 
-.PHONY: all modules clean
+# Tests
+test:
+	$(MAKE) -C $(TEST_DIR)
+
+test-clean:
+	$(MAKE) -C $(TEST_DIR) clean
+
+test-run: test
+	$(MAKE) -C $(TEST_DIR) run
+
+.PHONY: test test-clean test-run
