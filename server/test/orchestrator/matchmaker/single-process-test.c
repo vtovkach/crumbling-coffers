@@ -214,7 +214,7 @@ int main(void)
         snprintf(ip_str, sizeof(ip_str), "INVALID_IP");
     }
 
-    uint16_t host_port = ntohs(packet.port);
+    uint16_t host_port = packet.port;
 
     char game_id_hex[(GAME_ID_SIZE * 2) + 1];
     char player_id_hex[(PLAYER_ID_SIZE * 2) + 1];
