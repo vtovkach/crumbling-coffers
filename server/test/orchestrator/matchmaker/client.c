@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <netinet/in.h>
+#include <poll.h>
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -36,16 +37,124 @@ static void log_line(FILE *logf, const char *fmt, ...)
     fflush(logf);
 }
 
-static ssize_t send_all(int fd, const void *buf, size_t len)
+static int deadline_expired(const struct timespec *deadline)
+{
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+
+    if (now.tv_sec > deadline->tv_sec) {
+        return 1;
+    }
+
+    if (now.tv_sec == deadline->tv_sec && now.tv_nsec >= deadline->tv_nsec) {
+        return 1;
+    }
+
+    return 0;
+}
+
+static int ms_until_deadline(const struct timespec *deadline)
+{
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+
+    time_t sec_diff = deadline->tv_sec - now.tv_sec;
+    long nsec_diff = deadline->tv_nsec - now.tv_nsec;
+
+    if (nsec_diff < 0) {
+        sec_diff--;
+        nsec_diff += 1000000000L;
+    }
+
+    if (sec_diff < 0) {
+        return 0;
+    }
+
+    long total_ms = (long)(sec_diff * 1000L) + (nsec_diff / 1000000L);
+
+    if (total_ms <= 0) {
+        return 0;
+    }
+
+    return (int)total_ms;
+}
+
+static int should_abort_io(const struct timespec *deadline)
+{
+    if (getppid() == 1) {
+        errno = EPIPE;
+        return 1;
+    }
+
+    if (deadline_expired(deadline)) {
+        errno = ETIMEDOUT;
+        return 1;
+    }
+
+    return 0;
+}
+
+static int wait_for_fd_ready(int fd, short events, const struct timespec *deadline)
+{
+    struct pollfd pfd;
+    pfd.fd = fd;
+    pfd.events = events;
+    pfd.revents = 0;
+
+    while (1) {
+        if (should_abort_io(deadline)) {
+            return -1;
+        }
+
+        int remaining_ms = ms_until_deadline(deadline);
+        int slice_ms = remaining_ms > 200 ? 200 : remaining_ms;
+
+        if (slice_ms <= 0) {
+            errno = ETIMEDOUT;
+            return -1;
+        }
+
+        int rc = poll(&pfd, 1, slice_ms);
+
+        if (rc < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
+            return -1;
+        }
+
+        if (rc == 0) {
+            continue;
+        }
+
+        if (pfd.revents & (POLLERR | POLLHUP | POLLNVAL)) {
+            errno = ECONNRESET;
+            return -1;
+        }
+
+        if (pfd.revents & events) {
+            return 0;
+        }
+    }
+}
+
+static ssize_t send_all(int fd, const void *buf, size_t len, const struct timespec *deadline)
 {
     const uint8_t *p = (const uint8_t *)buf;
     size_t total = 0;
 
     while (total < len) {
+        if (wait_for_fd_ready(fd, POLLOUT, deadline) < 0) {
+            return -1;
+        }
+
         ssize_t sent = send(fd, p + total, len - total, 0);
 
         if (sent < 0) {
             if (errno == EINTR) {
+                continue;
+            }
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 continue;
             }
             return -1;
@@ -61,16 +170,23 @@ static ssize_t send_all(int fd, const void *buf, size_t len)
     return (ssize_t)total;
 }
 
-static ssize_t recv_all(int fd, void *buf, size_t len)
+static ssize_t recv_all(int fd, void *buf, size_t len, const struct timespec *deadline)
 {
     uint8_t *p = (uint8_t *)buf;
     size_t total = 0;
 
     while (total < len) {
+        if (wait_for_fd_ready(fd, POLLIN, deadline) < 0) {
+            return -1;
+        }
+
         ssize_t recvd = recv(fd, p + total, len - total, 0);
 
         if (recvd < 0) {
             if (errno == EINTR) {
+                continue;
+            }
+            if (errno == EAGAIN || errno == EWOULDBLOCK) {
                 continue;
             }
             return -1;
@@ -179,10 +295,15 @@ int run_test_client(int client_index)
         return TEST_CLIENT_FAILURE;
     }
 
+    struct timespec deadline;
+    clock_gettime(CLOCK_MONOTONIC, &deadline);
+    deadline.tv_sec += TEST_CLIENT_TIMEOUT_SECONDS;
+
     log_line(logf, "Client started");
     log_line(logf, "PID: %ld", (long)getpid());
     log_line(logf, "Client index: %d", client_index);
     log_line(logf, "Log file: %s", log_path);
+    log_line(logf, "Timeout: %d seconds", TEST_CLIENT_TIMEOUT_SECONDS);
 
     int sockfd = connect_to_server(logf);
     if (sockfd < 0) {
@@ -206,7 +327,7 @@ int run_test_client(int client_index)
     log_line(logf, "Sending %zu bytes to server", sizeof(send_buf));
     log_line(logf, "Join message text: \"%s\"", TEST_JOIN_MESSAGE);
 
-    ssize_t sent = send_all(sockfd, send_buf, sizeof(send_buf));
+    ssize_t sent = send_all(sockfd, send_buf, sizeof(send_buf), &deadline);
     if (sent < 0 || (size_t)sent != sizeof(send_buf)) {
         log_line(logf, "ERROR: send_all() failed. sent=%zd errno=%s", sent, strerror(errno));
         close(sockfd);
@@ -219,7 +340,7 @@ int run_test_client(int client_index)
     uint8_t ack_buf[TEST_PACKET_SIZE];
     memset(ack_buf, 0, sizeof(ack_buf));
 
-    ssize_t recvd = recv_all(sockfd, ack_buf, sizeof(ack_buf));
+    ssize_t recvd = recv_all(sockfd, ack_buf, sizeof(ack_buf), &deadline);
     if (recvd < 0) {
         log_line(logf, "ERROR: recv_all() for ACK failed: %s", strerror(errno));
         close(sockfd);
@@ -258,7 +379,7 @@ int run_test_client(int client_index)
     TCP_Game_Packet packet;
     memset(&packet, 0, sizeof(packet));
 
-    recvd = recv_all(sockfd, &packet, sizeof(packet));
+    recvd = recv_all(sockfd, &packet, sizeof(packet), &deadline);
     if (recvd < 0) {
         log_line(logf, "ERROR: recv_all() for TCP_Game_Packet failed: %s", strerror(errno));
         close(sockfd);
