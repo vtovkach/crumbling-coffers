@@ -134,15 +134,24 @@ int removeClientFromQueue(struct GameQueue *const gq, struct Client *const clien
     return 0;
 }
 
-struct Client *retrieveClientFromQueue(struct GameQueue *const gq)
+struct Client *retrieveClientFromQueue(struct GameQueue *const gq, FILE *const log_file)
 {
-    if((size_t)avl__get_size(gq->gameQueue) == 0)
+    if(gq->cur_size == 0)
+    {
+        log_message(log_file, "[retrieveClientFromQueue] game queue --> 0");
         return NULL;
+    }
 
     struct Client **avl_client_entry = (struct Client **)find_min(gq->gameQueue);
     if(!avl_client_entry)
+    {
+        char msg[128];
+        snprintf(msg, 128, "[retrieveClientFromQueue] find_min --> NULL \
+            | cur_size = %lu", gq->cur_size);
+        log_message(log_file, msg);
         return NULL;
-        
+    }
+    
     struct Client *client = *avl_client_entry;
 
     avl__remove_internal(gq->gameQueue, (void *)avl_client_entry);
@@ -170,13 +179,19 @@ int formSession(FILE *const log_file, struct GameQueue *const gq, int epoll_fd,
 
     for (int i = 0; i < PLAYERS_PER_MATCH; i++)
     {
-        struct Client *cur_client = retrieveClientFromQueue(gq);
+        struct Client *cur_client = retrieveClientFromQueue(gq, log_file);
         if (!cur_client)
+        {
+            log_message(log_file, "Error: [formSession] retrieveClientFromQueue failed.");
             return -1;
+        }
 
         uint8_t player_id[PLAYER_ID_SIZE] = {0};
         if (!secure_random_bytes(player_id, PLAYER_ID_SIZE))
+        {
+            log_message(log_file, "Error: [formSession] random generator failed.");
             return -1;
+        }
 
         struct TCP_Game_Packet packet = {
             .ip   = ip,
@@ -205,8 +220,11 @@ int formSession(FILE *const log_file, struct GameQueue *const gq, int epoll_fd,
         };
 
         if(epoll_ctl(epoll_fd, EPOLL_CTL_MOD, cur_client->fd, &ev) < 0)
+        {
+            log_message(log_file, "Error: [formSession] epoll_ctl failed.");
             return -1;
-        
+        }
+
         // Save clients info for future logging 
         clients_info[i].fd = cur_client->fd;
         inet_ntop(AF_INET, &cur_client->addr.sin_addr, clients_info[i].ip, INET_ADDRSTRLEN); // Retrieve string ip  
