@@ -14,6 +14,7 @@
 #include "orchestrator/net/listen_socket.h"
 #include "orchestrator/matchmaker/game_queue.h"
 #include "orchestrator/matchmaker/port_manager.h"
+#include "orchestrator/matchmaker/matchmaker.h"
 #include "server-config.h"
 #include "ds/hashmap.h"
 #include "signals.h"
@@ -126,7 +127,7 @@ int orchestrator_run(pid_t parent_pid)
         }
 
         // Later also check if there is available port 
-        if(gq_ready(orch.gq, PLAYERS_PER_MATCH))
+        if(gq_ready(orch.gq, PLAYERS_PER_MATCH) && pm_ready(orch.pm, orch.log_file))
         {
             uint16_t av_port = getPort(orch.pm, orch.log_file);
             if(av_port == INVALID_PORT)
@@ -134,7 +135,7 @@ int orchestrator_run(pid_t parent_pid)
                 printf("[formSession] critical error.\n");
                 goto fail; 
             }
-            
+
             if(formSession(orch.log_file, orch.gq, orch.epoll_fd, av_port, server_ip) == -1)
             {
                 // Critical Error happened 
@@ -142,7 +143,7 @@ int orchestrator_run(pid_t parent_pid)
                 goto fail; 
             }
 
-            if(spawnGameProcess(orch.log_file, av_port) == -1)
+            if(spawnGameProcess(orch.pm, orch.log_file, av_port) == -1)
             {
                 // Critical Error 
                 printf("[spawnGameProcess] critical error.\n");
