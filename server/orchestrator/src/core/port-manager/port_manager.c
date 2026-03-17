@@ -77,11 +77,68 @@ static void *reaper_thread(void *args)
 {
     struct ReaperArgs *r_args = (struct ReaperArgs *)args;
 
+    sigset_t set; 
+    sigemptyset(&set);
+    sigaddset(&set, SIGCHLD);
+
+    struct timespec ts; 
+    ts.tv_sec = 1; 
+    ts.tv_nsec = 0;
+
     while(!r_args->pm->reaper_thread_stop)
     {
-        sleep(5);
+        int sig = sigtimedwait(&set, NULL, &ts);    
+        if(sig == SIGCHLD)
+        {
+            for(;;)
+            {
+                pid_t pid = waitpid(-1, NULL, WNOHANG);
+                if(pid == 0) break;
+
+                if(pid < 0)
+                {
+                    if(errno ==  ECHILD) break;
+
+                    log_message(r_args->log_file, "[reaper_thread] waitpid failed.");
+                    r_args->pm->reaper_thread_active = false;
+                    r_args->pm->reaper_exit_status = EXIT_FAILURE;
+                    free(args);
+                    return NULL;                   
+                } 
+                
+                uint16_t port = ht_retrieve_port(r_args->pm, pid, r_args->log_file);
+                if(port == INVALID_PORT)
+                {
+                    log_message(r_args->log_file, "[reaper_thread] ht_get_port failed.");
+                    r_args->pm->reaper_thread_active = false; 
+                    r_args->pm->reaper_exit_status = EXIT_FAILURE;
+                    free(args);
+                    return NULL;
+                }
+
+                if(push_queue(r_args->pm, port, r_args->log_file) < 0)
+                {
+                    log_message(r_args->log_file, "[reaper_thread] push_queue failed.");
+                    r_args->pm->reaper_thread_active = false; 
+                    r_args->pm->reaper_exit_status = EXIT_FAILURE;
+                    free(args);
+                    return NULL;
+                }               
+            }
+        }
+        else if(sig == -1 && (errno == EINTR || errno == EAGAIN)) continue; 
+        else
+        {
+            log_message(r_args->log_file, "[reaper_thread] sigtimedwait critical failure.");
+            r_args->pm->reaper_thread_active = false; 
+            r_args->pm->reaper_exit_status = EXIT_FAILURE;
+            free(args);
+            return NULL;
+        }
     }
 
+    r_args->pm->reaper_thread_active = false; 
+    r_args->pm->reaper_exit_status = EXIT_SUCCESS;
     free(args);
     return NULL;
 }
