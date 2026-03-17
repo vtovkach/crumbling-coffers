@@ -25,6 +25,7 @@ struct PortManager
 
     // Hashmap (pid_t -> port) <Later will be moved to a separate matchmaker module> 
     HashTable *pid_to_port_table; 
+    pthread_mutex_t ht_lock;
 };
 
 struct PortManager *initPortManager(FILE *const log_file);
