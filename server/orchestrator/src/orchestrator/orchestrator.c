@@ -143,7 +143,12 @@ int orchestrator_run(pid_t parent_pid)
         if(gq_ready(orch.gq, PLAYERS_PER_MATCH))
         {
             uint16_t av_port = getPort(orch.pm, orch.log_file);
-
+            if(av_port == INVALID_PORT)
+            {
+                printf("[formSession] critical error.\n");
+                goto fail; 
+            }
+            
             if(formSession(orch.log_file, orch.gq, orch.epoll_fd, av_port, server_ip) == -1)
             {
                 // Critical Error happened 
