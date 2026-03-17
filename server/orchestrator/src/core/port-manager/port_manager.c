@@ -3,6 +3,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#define REAPER_FAILURE 1
+#define REAPER_NORMAL 0
+
 struct ReaperArgs
 {
     struct PortManager *pm;
@@ -76,3 +79,22 @@ struct PortManager *initPortManager(FILE *const log_file)
 
     return pm;
 }
+
+void destroyPortManager(struct PortManager *pm, FILE *const log_file)
+{
+    // Stop reaper thread
+    pm->reaper_thread_stop = true;
+    pthread_join(pm->reaper_thread, NULL);
+
+    if(pm->reaper_exit_status == REAPER_FAILURE)
+    {
+        char err[128];
+        snprintf(err, 128, "[destroyPortManager] reaper thread exited \
+                            with failure code: %hhu", pm->reaper_exit_status);
+        log_message(log_file, err);
+    }
+
+    pthread_mutex_destroy(&pm->ports_lock);
+    q_destroy(pm->port_queue);
+    free(pm);
+}   
