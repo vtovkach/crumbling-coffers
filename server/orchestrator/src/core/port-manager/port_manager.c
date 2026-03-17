@@ -62,7 +62,19 @@ static uint16_t ht_retrieve_port(struct PortManager *pm, pid_t process_id, FILE 
 
 static int ht_insert_port(struct PortManager *pm, pid_t process_id, uint16_t port, FILE *const log_file)
 {
+    int rc;
+     
+    pthread_mutex_lock(&pm->ht_lock);
+    rc = ht_insert(pm->pid_to_port_table, process_id, port);
+    pthread_mutex_unlock(&pm->ht_lock);
 
+    if(rc < 0)
+    {
+        log_message(log_file, "[ht_insert_port] ht_insert failed.");
+        return -1;
+    }
+
+    return 0;
 }
 
 // ===================================== Internal Wrappers QUEUE ==================================================== 
