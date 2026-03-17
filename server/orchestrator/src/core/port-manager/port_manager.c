@@ -30,7 +30,8 @@ static unsigned int pid_hash(const void *key, unsigned int table_size)
     return x % table_size;
 }
 
-static uint16_t ht_retrieve_port(struct PortManager *pm, pid_t process_id, FILE *const log_file)
+static uint16_t ht_retrieve_port(struct PortManager *pm, pid_t process_id, 
+                                 FILE *const log_file)
 {
     uint16_t *port_ptr = NULL;
     uint16_t port; 
@@ -60,10 +61,11 @@ static uint16_t ht_retrieve_port(struct PortManager *pm, pid_t process_id, FILE 
     return port;
 }
 
-static int ht_insert_port(struct PortManager *pm, pid_t process_id, uint16_t port, FILE *const log_file)
+static int ht_insert_port(struct PortManager *pm, pid_t process_id, 
+                          uint16_t port, FILE *const log_file)
 {
     int rc;
-     
+
     pthread_mutex_lock(&pm->ht_lock);
     rc = ht_insert(pm->pid_to_port_table, process_id, port);
     pthread_mutex_unlock(&pm->ht_lock);
@@ -77,7 +79,7 @@ static int ht_insert_port(struct PortManager *pm, pid_t process_id, uint16_t por
     return 0;
 }
 
-// ===================================== Internal Wrappers QUEUE ==================================================== 
+// ================== Internal Wrappers QUEUE =================
 static size_t get_queue_size(struct PortManager *pm)
 {
     size_t cur_size; 
@@ -103,7 +105,8 @@ static uint16_t pop_queue(struct PortManager *pm, FILE *const log_file)
     return port; 
 }
 
-static int push_queue(struct PortManager *pm, uint16_t port, FILE *const log_file)
+static int push_queue(struct PortManager *pm, uint16_t port, 
+                      FILE *const log_file)
 {
     pthread_mutex_lock(&pm->ports_lock);
     int rc = q_enqueue(pm->port_queue, uint16_t, port);
