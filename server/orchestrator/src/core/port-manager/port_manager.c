@@ -2,11 +2,17 @@
 #include "log_system.h"
 #include <stdlib.h>
 #include <unistd.h>
+#include <signal.h>
+#include <errno.h>
+#include <time.h>
+#include <sys/wait.h>
 
 #define REAPER_FAILURE 1
 #define REAPER_NORMAL 0
 
 #define INVALID_PORT 0
+
+// ===================================== Internal HASHTABLE HELPERS ==================================================== 
 
 static unsigned int pid_hash(const void *key, unsigned int table_size)
 {
