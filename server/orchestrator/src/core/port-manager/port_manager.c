@@ -32,7 +32,32 @@ static unsigned int pid_hash(const void *key, unsigned int table_size)
 
 static uint16_t ht_retrieve_port(struct PortManager *pm, pid_t process_id, FILE *const log_file)
 {
-    // Remove mapping 
+    uint16_t *port_ptr = NULL;
+    uint16_t port; 
+    int rs = 0; 
+
+    pthread_mutex_lock(&pm->ht_lock);
+
+    port_ptr = ht_get(pm->pid_to_port_table, process_id, sizeof(pid_t));
+    if(!port_ptr)
+    {
+        pthread_mutex_unlock(&pm->ht_lock);
+        log_message(log_file, "[ht_retrieve_port] ht_get fail.");
+        return INVALID_PORT;
+    }
+
+    port = *port_ptr;
+
+    rs = ht_remove(pm->pid_to_port_table, process_id);
+    pthread_mutex_unlock(&pm->ht_lock);
+    
+    if(rs < 0)
+    {
+        log_message(log_file, "[ht_retrieve_port] ht_remove.");
+        return INVALID_PORT;
+    }
+
+    return port;
 }
 
 static int ht_insert_port(struct PortManager *pm, pid_t process_id, uint16_t port, FILE *const log_file)
