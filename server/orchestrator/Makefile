@@ -1,8 +1,8 @@
 CC      := gcc
-CFLAGS  := -Wall -Wextra -Wfloat-equal -O2 -D_GNU_SOURCE -Iinclude -I../common/include
+CFLAGS  := -Wall -Wextra -Wfloat-equal -O2 -D_GNU_SOURCE -Iinclude -I../common/include -std=c23
 
 ifdef DEBUG
-CFLAGS := -Wall -Wextra -Wfloat-equal -O0 -g -D_GNU_SOURCE -Iinclude -I../common/include
+CFLAGS := -Wall -Wextra -Wfloat-equal -O0 -g -D_GNU_SOURCE -Iinclude -I../common/include -std=c23
 endif
 
 SRC_DIR := src
