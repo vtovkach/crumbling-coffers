@@ -23,9 +23,6 @@ void *netThread(void *arg)
     int listen_fd = -1; 
     int epoll_fd = -1;
     
-    // Detach from the parent 
-    pthread_detach(pthread_self());
-    
     listen_fd = make_udp_server_socket(args.udp_port);
     if(listen_fd == -1)
     {
@@ -60,7 +57,7 @@ void *netThread(void *arg)
     {
         if(stop_net)
         {
-            printf("[net thread] parent requests termination.\n");
+            //printf("[net thread] parent requests termination.\n");
             goto exit;  
         }
 
@@ -81,8 +78,7 @@ void *netThread(void *arg)
             udp_read(cur_event.data.fd);
         }
         
-        sleep(2);
-        printf("[net thread] Tick: %d\n", tick++);
+        sleep(1);
     }
 
 exit: 
