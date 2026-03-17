@@ -179,6 +179,10 @@ static void *reaper_thread(void *args)
                     free(args);
                     return NULL;
                 }               
+
+                char msg[128];
+                snprintf(msg, sizeof(msg), "[reaper_thread] pid=%d port=%u returned\n", (int)pid, (unsigned)port);
+                log_message(r_args->log_file, msg);
             }
         }
         else if(sig == -1 && (errno == EINTR || errno == EAGAIN)) continue; 
