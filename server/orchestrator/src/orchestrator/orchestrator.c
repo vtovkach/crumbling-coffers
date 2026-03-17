@@ -13,6 +13,7 @@
 #include "orchestrator/net/io.h"
 #include "orchestrator/net/listen_socket.h"
 #include "orchestrator/matchmaker/game_queue.h"
+#include "orchestrator/matchmaker/port_manager.h"
 #include "server-config.h"
 #include "ds/hashmap.h"
 #include "signals.h"
@@ -26,18 +27,17 @@ static void shutdownServer(int listen_fd,
                            int epoll_fd, 
                            struct HashTable *clients, 
                            FILE *log_file, 
-                           struct GameQueue *gq)
+                           struct GameQueue *gq,
+                           struct PortManager *pm
+                        )
 {
     // Close socket for every active connection 
     ht_close_all_sockets(clients, epoll_fd);
 
+    // dont close ht_clients before game queue
     freeGameQueue(gq);
-
     ht_destroy(clients);
-
-    // Later I will have 1 more data structure that I will need to free  
-    // TODO
-    // ... 
+    destroyPortManager(pm, log_file);
 
     close(epoll_fd);
     close(listen_fd); 
@@ -83,7 +83,7 @@ int orchestrator_run(pid_t parent_pid)
     orch.clients = ht_create(sizeof(int), 1, sizeof(struct Client), 1, hash, HASH_TABLE_SIZE); 
     if(!orch.clients)
     {
-        printf("[orchestrator] ht_create\n");
+        printf("[orchestrator] ht_create failure\n");
         close(orch.listen_fd);
         return -1;
     }
@@ -97,12 +97,14 @@ int orchestrator_run(pid_t parent_pid)
         goto boot_fail;
     }
 
-    
-    // Here I will set up PORTS QUEUE 
-    // TODO 
-    // ...
-
-
+    // Setup PortManager 
+    orch.pm = initPortManager(orch.log_file);
+    if(!orch.pm)
+    {
+        printf("[orchestrator] initPortManager failure\n");
+        close(orch.listen_fd);
+        goto boot_fail; 
+    }
 
     // Setup EPOLL 
     struct epoll_event eventQueue[ORCH_MAX_EPOLL_EVENTS];
@@ -133,16 +135,14 @@ int orchestrator_run(pid_t parent_pid)
         if(signals_should_terminate())
         {
             // Gracefully terminate this process by invoking shutdownServer function   
-            shutdownServer(orch.listen_fd, orch.epoll_fd, orch.clients, orch.log_file, orch.gq);
+            shutdownServer(orch.listen_fd, orch.epoll_fd, orch.clients, orch.log_file, orch.gq, orch.pm);
             break;
         }
 
         // Later also check if there is available port 
         if(gq_ready(orch.gq, PLAYERS_PER_MATCH))
         {
-            // Later I will use api call to my future port pull structure 
-            // to get a real available port from the port queue 
-            uint16_t av_port = 10001 + port_counter++;
+            uint16_t av_port = getPort(orch.pm, orch.log_file);
 
             if(formSession(orch.log_file, orch.gq, orch.epoll_fd, av_port, server_ip) == -1)
             {
@@ -226,10 +226,11 @@ int orchestrator_run(pid_t parent_pid)
     return 0;
 
 fail:
-    shutdownServer(orch.listen_fd, orch.epoll_fd, orch.clients, orch.log_file, orch.gq);
+    shutdownServer(orch.listen_fd, orch.epoll_fd, orch.clients, orch.log_file, orch.gq, orch.pm);
     return -1;
 
 boot_fail:
+    if(orch.pm) destroyPortManager(orch.pm, orch.log_file);
     ht_destroy(orch.clients); // safe on NULL
     fclose(orch.log_file);
     return -1;
