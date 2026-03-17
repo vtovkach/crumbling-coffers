@@ -98,3 +98,18 @@ void destroyPortManager(struct PortManager *pm, FILE *const log_file)
     q_destroy(pm->port_queue);
     free(pm);
 }   
+
+static size_t get_queue_size(struct PortManager *pm)
+{
+    size_t cur_size; 
+    pthread_mutex_lock(&pm->ports_lock);
+    cur_size = q_size(pm->port_queue);
+    pthread_mutex_unlock(&pm->ports_lock);
+    return cur_size;
+}
+
+bool pm_ready(struct PortManager *pm, FILE *const log_file)
+{
+    (void)log_file; // silence compiler warning 
+    return get_queue_size(pm) > 0;
+}
