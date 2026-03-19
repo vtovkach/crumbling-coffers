@@ -7,7 +7,12 @@
 [ext_resource type="PackedScene" uid="uid://dgg4u7btgypj7" path="res://Scenes/items/Common Item.tscn" id="4_ycfoj"]
 [ext_resource type="PackedScene" uid="uid://xbf2l3fnxo71" path="res://Scenes/Maps/HUD.tscn" id="5_cvff3"]
 [ext_resource type="PackedScene" uid="uid://b1685e8yqvhki" path="res://Scenes/items/test_item.tscn" id="7_i3aph"]
+<<<<<<< HEAD
 [ext_resource type="PackedScene" uid="uid://xhx4thvdvj3a" path="res://Scenes/TestDummy/TestDummy.tscn" id="8_cvf1c"]
+=======
+[ext_resource type="PackedScene" uid="uid://cwhksgbynlqro" path="res://Scenes/ItemSpawnManager/ItemSpawnManager.tscn" id="8_ntwnh"]
+[ext_resource type="PackedScene" uid="uid://ebnib7p4ygxf" path="res://Scenes/AreaToSpawnItems/SpawnArea.tscn" id="9_isx1w"]
+>>>>>>> a104c15 (PROJ-112: spawn area)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_y41hj"]
 texture = ExtResource("2_rpucx")
@@ -297,6 +302,7 @@ collision_layer = 4
 position = Vector2(2816, 1536)
 collision_layer = 4
 
+<<<<<<< HEAD
 [node name="TestDummy" parent="." unique_id=1531798817 instance=ExtResource("8_cvf1c")]
 position = Vector2(853, -148)
 
@@ -310,3 +316,12 @@ dialog_text = "You'll be returned to the Main Menu"
 
 [connection signal="canceled" from="QuitConfirmation" to="." method="_on_quit_confirmation_canceled"]
 [connection signal="confirmed" from="QuitConfirmation" to="." method="_on_quit_confirmation_confirmed"]
+=======
+[node name="ItemSpawnManager" parent="." unique_id=899288004 instance=ExtResource("8_ntwnh")]
+common_items = Array[PackedScene]([ExtResource("4_ycfoj")])
+
+[node name="Items" type="Node2D" parent="." unique_id=233828747]
+
+[node name="AreaToSpawn" parent="." unique_id=1591107580 instance=ExtResource("9_isx1w")]
+position = Vector2(-1058, 921)
+>>>>>>> a104c15 (PROJ-112: spawn area)
