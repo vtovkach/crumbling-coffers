@@ -11,8 +11,13 @@
 [ext_resource type="PackedScene" uid="uid://xhx4thvdvj3a" path="res://Scenes/TestDummy/TestDummy.tscn" id="8_cvf1c"]
 =======
 [ext_resource type="PackedScene" uid="uid://cwhksgbynlqro" path="res://Scenes/ItemSpawnManager/ItemSpawnManager.tscn" id="8_ntwnh"]
+[ext_resource type="PackedScene" uid="uid://ca4xrdyvb24qm" path="res://Scenes/items/Rare Item.tscn" id="9_dvfde"]
 [ext_resource type="PackedScene" uid="uid://ebnib7p4ygxf" path="res://Scenes/AreaToSpawnItems/SpawnArea.tscn" id="9_isx1w"]
+<<<<<<< HEAD
 >>>>>>> a104c15 (PROJ-112: spawn area)
+=======
+[ext_resource type="PackedScene" uid="uid://bifnv1qm0vp37" path="res://Scenes/items/Legendary Item.tscn" id="10_dvfde"]
+>>>>>>> b5caf05 (PROJ-112: Spawn Areas)
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_y41hj"]
 texture = ExtResource("2_rpucx")
@@ -319,9 +324,43 @@ dialog_text = "You'll be returned to the Main Menu"
 =======
 [node name="ItemSpawnManager" parent="." unique_id=899288004 instance=ExtResource("8_ntwnh")]
 common_items = Array[PackedScene]([ExtResource("4_ycfoj")])
+rare_items = Array[PackedScene]([ExtResource("9_dvfde")])
+legendary_items = Array[PackedScene]([ExtResource("10_dvfde")])
 
 [node name="Items" type="Node2D" parent="." unique_id=233828747]
 
+<<<<<<< HEAD
 [node name="AreaToSpawn" parent="." unique_id=1591107580 instance=ExtResource("9_isx1w")]
 position = Vector2(-1058, 921)
 >>>>>>> a104c15 (PROJ-112: spawn area)
+=======
+[node name="AreaToSpawn" parent="." unique_id=1471580716 instance=ExtResource("9_isx1w")]
+position = Vector2(-141, 1033)
+
+[node name="AreaToSpawn2" parent="." unique_id=1591107580 instance=ExtResource("9_isx1w")]
+position = Vector2(1148, -2568)
+
+[node name="AreaToSpawn3" parent="." unique_id=299687785 instance=ExtResource("9_isx1w")]
+position = Vector2(-753, 3600)
+
+[node name="AreaToSpawn4" parent="." unique_id=225506381 instance=ExtResource("9_isx1w")]
+position = Vector2(6437, -1979)
+
+[node name="AreaToSpawn5" parent="." unique_id=199489314 instance=ExtResource("9_isx1w")]
+position = Vector2(-11568, 3628)
+
+[node name="AreaToSpawn6" parent="." unique_id=1940143010 instance=ExtResource("9_isx1w")]
+position = Vector2(7266, 5127)
+
+[node name="AreaToSpawn7" parent="." unique_id=628579323 instance=ExtResource("9_isx1w")]
+position = Vector2(6379, 2593)
+
+[node name="AreaToSpawn8" parent="." unique_id=1348728929 instance=ExtResource("9_isx1w")]
+position = Vector2(-4178, -4606)
+
+[node name="AreaToSpawn9" parent="." unique_id=1591840656 instance=ExtResource("9_isx1w")]
+position = Vector2(8451, -4722)
+
+[node name="AreaToSpawn10" parent="." unique_id=1414998546 instance=ExtResource("9_isx1w")]
+position = Vector2(-10991, 515)
+>>>>>>> b5caf05 (PROJ-112: Spawn Areas)
