@@ -24,6 +24,9 @@
 [ext_resource type="Texture2D" uid="uid://bce4pmfs0mpx6" path="res://Assets/Players/BlueWizard/2BlueWizardIdle/Chara - BlueIdle00019.png" id="21_ixrbb"]
 [ext_resource type="PackedScene" uid="uid://d1nf7qbl005j0" path="res://Inventory/inv_ui.tscn" id="23_rqdc0"]
 [ext_resource type="Script" uid="uid://73k0lcauha43" path="res://Scripts/State/StateMachine.gd" id="24_rqdc0"]
+[ext_resource type="Script" uid="uid://cx4qvh51f854a" path="res://Scripts/State/PlayerState/PlayerFall.gd" id="25_bmb2s"]
+[ext_resource type="Script" uid="uid://cq3twrefhj7a0" path="res://Scripts/State/PlayerState/PlayerIdle.gd" id="26_ur3l4"]
+[ext_resource type="Script" uid="uid://upf8fro5n3lg" path="res://Scripts/State/PlayerState/PlayerRun.gd" id="27_2ahak"]
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_ei2r2"]
 animations = [{
@@ -121,5 +124,21 @@ offset_top = -1564.0
 offset_right = -297.0
 offset_bottom = -846.0
 
-[node name="StateMachine" type="Node" parent="." unique_id=172053909]
+[node name="StateMachine" type="Node" parent="." unique_id=172053909 node_paths=PackedStringArray("initial_state")]
 script = ExtResource("24_rqdc0")
+initial_state = NodePath("PlayerIdle")
+
+[node name="PlayerFall" type="Node" parent="StateMachine" unique_id=2115730946 node_paths=PackedStringArray("player")]
+script = ExtResource("25_bmb2s")
+player = NodePath("../..")
+metadata/_custom_type_script = "uid://cx4qvh51f854a"
+
+[node name="PlayerIdle" type="Node" parent="StateMachine" unique_id=1965352058 node_paths=PackedStringArray("player")]
+script = ExtResource("26_ur3l4")
+player = NodePath("../..")
+metadata/_custom_type_script = "uid://cq3twrefhj7a0"
+
+[node name="PlayerRun" type="Node" parent="StateMachine" unique_id=423729712 node_paths=PackedStringArray("player")]
+script = ExtResource("27_2ahak")
+player = NodePath("../..")
+metadata/_custom_type_script = "uid://upf8fro5n3lg"
