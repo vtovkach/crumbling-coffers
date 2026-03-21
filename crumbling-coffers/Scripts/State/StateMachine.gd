@@ -5,6 +5,9 @@ extends Node
 var active_state : State
 var states : Dictionary = {}
 
+# This is not a great design. I'm not sure of alternative
+var stored_delta : float = 0
+
 func _ready() -> void:
 	for child in get_children():
 		if child is State:
@@ -19,6 +22,7 @@ func _process(delta: float) -> void:
 		active_state.update(delta)
 
 func _physics_process(delta: float) -> void:
+	stored_delta = delta
 	if active_state:
 		active_state.physics_update(delta)
 
@@ -36,3 +40,6 @@ func on_child_transition(state, new_state_name) -> void:
 		active_state.exit()
 	new_state.enter()
 	active_state = new_state
+	
+	# Not great design. Update incoming state immediately so that a gameplay frame isn't skipped
+	active_state.physics_update(stored_delta)
