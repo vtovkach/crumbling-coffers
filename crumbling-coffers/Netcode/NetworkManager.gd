@@ -87,6 +87,19 @@ func send_server_tcp(packet: PackedByteArray) -> bool:
 		return false
 
 	return tcp_framer.send_server_tcp(packet)
+	
+func has_server_tcp_frame() -> bool:
+	if not tcp_framer:
+		return false
+
+	return tcp_framer.has_frame()
+	
+func get_server_tcp_frame() -> PackedByteArray:
+	if not tcp_framer:
+		push_error("get_server_tcp_frame(): TCP framer is null")
+		return PackedByteArray()
+
+	return tcp_framer.get_frame()
 
 func is_server_tcp_connected() -> bool:
 	if not server_tcp:
