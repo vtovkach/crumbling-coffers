@@ -130,3 +130,19 @@ func init_udp(ip: String, port: int) -> bool:
 	game_server_udp.set_dest_address(ip, port)
 	return true
 
+func udp_send(packet: PackedByteArray) -> bool:
+	if not game_server_udp:
+		push_error("udp_send(): UDP instance is null")
+		return false
+
+	if packet.is_empty():
+		push_error("udp_send(): packet is empty")
+		return false
+
+	var err: int = game_server_udp.put_packet(packet)
+	if err != OK:
+		push_error("udp_send(): failed to send packet: %s" % err)
+		return false
+
+	return true
+
