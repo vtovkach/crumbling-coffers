@@ -82,3 +82,26 @@ func recv_server_tcp() -> PackedByteArray:
 
 	return data
 	
+func send_server_tcp(packet: PackedByteArray) -> bool:
+	if not server_tcp:
+		push_error("send_server_tcp(): TCP instance is null")
+		return false
+
+	server_tcp.poll()
+
+	if server_tcp.get_status() != StreamPeerTCP.STATUS_CONNECTED:
+		push_error("send_server_tcp(): TCP connection is not established")
+		main_server_connect = false
+		return false
+
+	if packet.is_empty():
+		push_error("send_server_tcp(): packet is empty")
+		return false
+
+	var err: int = server_tcp.put_data(packet)
+	if err != OK:
+		push_error("send_server_tcp(): failed to send data: %s" % err)
+		return false
+
+	return true
+	
