@@ -12,5 +12,6 @@ func physics_update(delta: float) -> void:
 		player.jump()
 		transitioned.emit(self, "PlayerFall")
 		return
-	
-		
+	if player.direction != 0:
+		transitioned.emit(self, "PlayerRun")
+		return
