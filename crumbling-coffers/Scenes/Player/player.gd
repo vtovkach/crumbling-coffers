@@ -31,11 +31,6 @@ const BASE_JUMP_VELOCITY: float = -3000.0
 # DO NOT MODIFY outside of set_inverted(bool)
 var _invert_multiplier: int = 1
 
-@onready var state_machine = $StateMachine
-@onready var idle_state = preload("uid://cq3twrefhj7a0").new()
-@onready var run_state  = preload("uid://upf8fro5n3lg").new()
-@onready var fall_state = preload("uid://cx4qvh51f854a").new()
-
 @export var inv: Inv
 
 #Daniel - adding a score to the character for when they pick up the items.
