@@ -15,7 +15,7 @@ var game_server_udp: PacketPeerUDP
 var server_ip: String = "127.0.0.1"
 var server_port: int = 10000
 
-const FramerTCP = preload("res://Netcode/FramerTCP.gd")
+const FramerTCP = preload("res://Netcode/tcp_framer.gd")
 var tcp_framer: FramerTCP
 
 # Called when the node enters the scene tree for the first time.
