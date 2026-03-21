@@ -1,5 +1,8 @@
 extends Node
 
+const UDPManager = preload("res://Netcode/udp_manager.gd")
+const FramerTCP = preload("res://Netcode/tcp_framer.gd")
+
 # Constants 
 var TCP_SEGMENT_SIZE: int = 200
 
@@ -9,14 +12,13 @@ var game_server_connect = false;
 
 # Orchestrator Server 
 var server_tcp: StreamPeerTCP
-var game_server_udp: PacketPeerUDP
 
 # Main Server Info
 var server_ip: String = "127.0.0.1"
 var server_port: int = 10000
 
-const FramerTCP = preload("res://Netcode/tcp_framer.gd")
 var tcp_framer: FramerTCP
+var udp_manager: UDPManager
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -24,7 +26,10 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	pass
+	if tcp_framer:
+		tcp_framer.process()
+
+# ================================= TCP API ========================================
 
 func connect_server_tcp() -> bool:
 	# Disconnect existing connection
@@ -108,57 +113,30 @@ func is_server_tcp_connected() -> bool:
 	server_tcp.poll()
 	return server_tcp.get_status() == StreamPeerTCP.STATUS_CONNECTED
 
-# =================== UDP API =====================
+# ================================= UDP API ========================================
+
 func init_udp(ip: String, port: int) -> bool:
-	if game_server_udp:
-		game_server_udp.close()
+	if udp_manager:
+		udp_manager.close()
 
-	game_server_udp = PacketPeerUDP.new()
+	udp_manager = UDPManager.new()
+	return udp_manager.init(ip, port)
 
-	var err: int = game_server_udp.bind(0)
-	if err != OK:
-		push_error("init_udp(): failed to bind UDP socket: %s" % err)
-		return false
-
-	game_server_udp.set_dest_address(ip, port)
-	return true
+func disconnect_udp() -> void:
+	if udp_manager:
+		udp_manager.close()
+		
+	udp_manager = null
 
 func udp_send(packet: PackedByteArray) -> bool:
-	if not game_server_udp:
-		push_error("udp_send(): UDP instance is null")
+	if not udp_manager:
+		push_error("udp_send(): UDP manager is null")
 		return false
 
-	if packet.is_empty():
-		push_error("udp_send(): packet is empty")
-		return false
+	return udp_manager.send(packet)
 
-	var err: int = game_server_udp.put_packet(packet)
-	if err != OK:
-		push_error("udp_send(): failed to send packet: %s" % err)
-		return false
-
-	return true
-
-func udp_receive(expected_size: int) -> PackedByteArray:
-	if not game_server_udp:
-		push_error("udp_receive(): UDP instance is null")
+func udp_receive() -> PackedByteArray:
+	if not udp_manager:
 		return PackedByteArray()
 
-	if expected_size <= 0:
-		push_error("udp_receive(): expected_size must be greater than 0")
-		return PackedByteArray()
-
-	if game_server_udp.get_available_packet_count() <= 0:
-		return PackedByteArray()
-
-	var packet: PackedByteArray = game_server_udp.get_packet()
-	var err: int = game_server_udp.get_packet_error()
-
-	if err != OK:
-		push_error("udp_receive(): failed to receive packet: %s" % err)
-		return PackedByteArray()
-
-	if packet.size() != expected_size:
-		return PackedByteArray()
-
-	return packet
+	return udp_manager.receive()
