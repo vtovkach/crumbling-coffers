@@ -53,7 +53,7 @@ func _physics_process(delta: float) -> void:
 
 	# Update up/down velocity
 	if not is_on_floor():
-		velocity.y = move_toward(velocity.y, max_fallingspeed, get_gravity().y * delta)
+		apply_gravity(delta)
 	
 	if (Input.is_action_pressed("jump")):
 		jump_pressed = true
@@ -71,6 +71,8 @@ func jump() -> void:
 	if is_on_floor():
 		velocity.y = jump_velocity
 		
+func apply_gravity(delta: float) -> void:
+	velocity.y = move_toward(velocity.y, max_fallingspeed, get_gravity().y * delta)
 
 # Update velocity according to direction of movement
 # direction: a float in [-1, 1]
