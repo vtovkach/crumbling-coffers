@@ -52,7 +52,6 @@ void *netThread(void *arg)
         goto exit;
     }
 
-    int tick = 0;
     for(;;)
     {
         if(stop_net)
