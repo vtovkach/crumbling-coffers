@@ -6,7 +6,6 @@
 [ext_resource type="PackedScene" uid="uid://cnc5w71sw0ku8" path="res://Scenes/Player/player.tscn" id="3_gyh6a"]
 [ext_resource type="PackedScene" uid="uid://dgg4u7btgypj7" path="res://Scenes/items/Common Item.tscn" id="4_ycfoj"]
 [ext_resource type="PackedScene" uid="uid://xbf2l3fnxo71" path="res://Scenes/Maps/HUD.tscn" id="5_cvff3"]
-[ext_resource type="PackedScene" uid="uid://b1685e8yqvhki" path="res://Scenes/items/test_item.tscn" id="7_i3aph"]
 [ext_resource type="PackedScene" uid="uid://xhx4thvdvj3a" path="res://Scenes/TestDummy/TestDummy.tscn" id="8_cvf1c"]
 [ext_resource type="PackedScene" uid="uid://cwhksgbynlqro" path="res://Scenes/ItemSpawnManager/ItemSpawnManager.tscn" id="8_ntwnh"]
 [ext_resource type="PackedScene" uid="uid://xofahnso8j72" path="res://Scenes/items/Rare Item.tscn" id="9_dvfde"]
@@ -224,18 +223,6 @@ collision_layer = 4
 
 [node name="CommonItem3" parent="." unique_id=309620172 instance=ExtResource("4_ycfoj")]
 position = Vector2(-768, -512)
-collision_layer = 4
-
-[node name="test-item" parent="." unique_id=643455879 instance=ExtResource("7_i3aph")]
-position = Vector2(1024, 1536)
-collision_layer = 4
-
-[node name="test-item2" parent="." unique_id=1032219937 instance=ExtResource("7_i3aph")]
-position = Vector2(-1024, 1536)
-collision_layer = 4
-
-[node name="test-item3" parent="." unique_id=46343357 instance=ExtResource("7_i3aph")]
-position = Vector2(2816, 1536)
 collision_layer = 4
 
 [node name="TestDummy" parent="." unique_id=1531798817 instance=ExtResource("8_cvf1c")]

@@ -45,6 +45,7 @@ func _on_game_timer_timeout() -> void:
 		$GameTimer.stop()
 		print("Game Over!")
 
+# function _input will "listen" for an event when "toggle_inventory" occurs. The button connected is "E".
 func _input(event):
 	if event.is_action_pressed("toggle_inventory"):
 		print("e pressed")

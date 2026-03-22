@@ -110,3 +110,10 @@ func push(direction: Vector2, pushStrength: float) -> void:
 	velocity += direction.normalized() * pushStrength
 	velocity.x = clamp(velocity.x, -max_speed, max_speed)
 	velocity.y = clamp(velocity.y, -max_speed, max_speed)
+
+
+# Function "collect": When player comes across an item, it will call func  "insert" from "inventory_slot.gd"
+# to add the item to the inventory resource (data container). This will update main inventory view to display
+# the collected item.
+func collect(item):
+	inventory.insert(item)

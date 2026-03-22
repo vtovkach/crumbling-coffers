@@ -3,6 +3,8 @@ extends Area2D
 @export var points: int = 1
 @export var float_amplitude: float = 10
 @export var float_speed: float = 2.0
+#Adding item resource variable that will connect corresponding .tres resources to .tscn scenes.
+@export var itemRes: InventoryItem
 
 var initial_y: float
 var random_offset: float
