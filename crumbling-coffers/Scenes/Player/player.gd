@@ -27,6 +27,7 @@ const BASE_JUMP_VELOCITY: float = -3000.0
 # Values for states
 @export var direction: float = 0
 @export var jump_pressed: bool = false
+@export var down_pressed: bool = false
 
 # DO NOT MODIFY outside of set_inverted(bool)
 var _invert_multiplier: int = 1
@@ -48,6 +49,7 @@ func _physics_process(delta: float) -> void:
 	# Get inputs
 	direction = _invert_multiplier * Input.get_axis("left", "right")
 	jump_pressed = Input.is_action_pressed("jump")
+	down_pressed = Input.is_action_pressed("down")
 	
 	# Update position
 	move_and_slide()
