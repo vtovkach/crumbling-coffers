@@ -89,9 +89,9 @@ func move(direction: float, delta: float) -> void:
 	
 # Similar to push, but a player-applied dash with cooldown. 
 func dash() -> void:
-	if dash_cooldown > 0:				# no dash
+	if dash_cooldown > 0 or direction == 0:	# no dash
 		return
-	dash_cooldown = BASE_DASH_COOLDOWN 	# yes dash
+	dash_cooldown = BASE_DASH_COOLDOWN 		# yes dash
 	push(Vector2(direction, 0), dash_strength)
 	
 # When acceleration direction is against current velocity
