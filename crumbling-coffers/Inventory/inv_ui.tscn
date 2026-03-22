@@ -21,7 +21,7 @@ grow_vertical = 2
 script = ExtResource("1_605em")
 
 [node name="NinePatchRect" type="NinePatchRect" parent="." unique_id=368926509]
-self_modulate = Color(1, 1, 1, 0.78431374)
+self_modulate = Color(1, 1, 1, 0.7058824)
 texture_filter = 1
 custom_minimum_size = Vector2(2750, 1800)
 layout_mode = 1
@@ -43,7 +43,7 @@ patch_margin_right = 1
 patch_margin_bottom = 1
 
 [node name="GridContainer" type="GridContainer" parent="NinePatchRect" unique_id=1748499754]
-self_modulate = Color(1, 1, 1, 0.78431374)
+self_modulate = Color(1, 1, 1, 0.5882353)
 custom_minimum_size = Vector2(2516, 1508)
 layout_mode = 1
 anchors_preset = 8

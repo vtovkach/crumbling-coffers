@@ -6,9 +6,9 @@ extends Panel
 @onready var itemVisual: Sprite2D = $CenterContainer/Panel/item_display
 
 
-func update(item: InventoryItem):
-	if !item:
+func update(slot: InventorySlot):
+	if !slot.item:
 		itemVisual.visible = false
 	else:
 		itemVisual.visible = true
-		itemVisual.texture = item.texture
+		itemVisual.texture = slot.item.texture

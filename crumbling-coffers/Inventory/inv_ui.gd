@@ -11,15 +11,7 @@ func _ready():
 func update_slots():
 	for i in range(min(inventory.items.size(), slots.size())):
 		slots[i].update(inventory.items[i])
-	
-#func _process(delta):
-#	if Input.is_action_just_pressed("toggle_inventory"):
-#		print("I pressed")
-#		if is_open:
-#			close()
-#		else:
-#			open()	
-#	
+
 func open():
 	self.visible = true
 	is_open = true

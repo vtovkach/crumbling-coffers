@@ -26,7 +26,7 @@ scale = Vector2(30, 30.062)
 texture = ExtResource("1_s06lr")
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=749623453]
-custom_minimum_size = Vector2(16, 16)
+custom_minimum_size = Vector2(500, 500)
 layout_mode = 0
 offset_right = 16.0
 offset_bottom = 16.0
@@ -35,4 +35,13 @@ offset_bottom = 16.0
 layout_mode = 2
 
 [node name="item_display" type="Sprite2D" parent="CenterContainer/Panel" unique_id=668592544]
-position = Vector2(-20, -20)
+
+[node name="amount" type="Label" parent="CenterContainer/Panel" unique_id=824832181]
+custom_minimum_size = Vector2(200, 200)
+layout_mode = 0
+offset_right = 200.0
+offset_bottom = 467.0
+theme_override_font_sizes/font_size = 170
+text = "99
+"
+horizontal_alignment = 2
