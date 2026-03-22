@@ -2,6 +2,9 @@ extends Resource
 
 class_name Inventory
 
+# Signal that will be sent out to tell inv_ui to update the changes that were made from func "insert".
+signal update
+
 @export var slots: Array[InventorySlot]
 
 # Use of Godot's array filtering to parse through and check if a slot has a pre-existing item in it or not. 

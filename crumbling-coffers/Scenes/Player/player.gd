@@ -40,6 +40,7 @@ const BASE_DASH_STRENGTH: float = 3600.0
 var _invert_multiplier: int = 1
 
 @export var inventory: Inventory
+@export var itemRes: InventoryItem
 
 #Daniel - adding a score to the character for when they pick up the items.
 
@@ -115,5 +116,5 @@ func push(direction: Vector2, pushStrength: float) -> void:
 # Function "collect": When player comes across an item, it will call func  "insert" from "inventory_slot.gd"
 # to add the item to the inventory resource (data container). This will update main inventory view to display
 # the collected item.
-func collect(item):
-	inventory.insert(item)
+func collect(itemRes):
+	inventory.insert(itemRes)

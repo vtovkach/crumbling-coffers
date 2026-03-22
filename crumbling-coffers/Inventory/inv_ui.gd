@@ -5,7 +5,7 @@ extends Control
 var is_open: bool = false
 
 func _ready():
-	update_slots()
+	inventory.update.connect(self.update_slots)
 	update_slots()	# Called to have the inventory be empty at start.
 
 func update_slots():
