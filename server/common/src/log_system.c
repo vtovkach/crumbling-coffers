@@ -6,7 +6,12 @@
 #include "util.h"
 #include "server-config.h"
 
+#define ERRNO_BUF_SIZE 128 
+
+
 static pthread_mutex_t logging_lock = PTHREAD_MUTEX_INITIALIZER;
+
+char errno_buf[ERRNO_BUF_SIZE];
 
 void log_message(FILE *const log_file, const char *msg)
 {
@@ -51,7 +56,7 @@ void log_error(FILE *const log_file, const char *msg, int errno_code)
     if(errno_code == 0)
         fprintf(log_file, "%s %s\n", time, msg);
     else
-        fprintf(log_file, "%s %s: %s\n", time, msg, strerror_r(errno_code));
+        fprintf(log_file, "%s %s: %s\n", time, msg, strerror_r(errno_code, errno_buf, ERRNO_BUF_SIZE));
 
     pthread_mutex_unlock(&logging_lock);
 }
@@ -66,7 +71,7 @@ void log_error_fd(FILE *const log_file, const char *err_msg, int conn_fd, int er
     if(errno_code == 0)
         fprintf(log_file, "%s %s fd (%d)\n", time, err_msg, conn_fd);
     else
-        fprintf(log_file, "%s %s fd (%d): %s\n", time, err_msg, conn_fd, strerror_r(errno_code));
+        fprintf(log_file, "%s %s fd (%d): %s\n", time, err_msg, conn_fd, strerror_r(errno_code, errno_buf, ERRNO_BUF_SIZE));
 
     pthread_mutex_unlock(&logging_lock);
 }
