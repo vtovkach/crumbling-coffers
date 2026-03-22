@@ -16,7 +16,6 @@ func physics_update(delta: float) -> void:
 		transitioned.emit(self, "PlayerFall")
 		return
 	if player.down_pressed == true:
-		player.velocity.y *= jump_slowdown_multiplier	# end the jump early if down (fast-fall) is pressed as well
 		transitioned.emit(self, "PlayerFall")
 		
 	# When player stops holding jump, their vertical speed drops. To a player, "hold jump to jump higher"
