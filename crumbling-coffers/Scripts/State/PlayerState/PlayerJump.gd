@@ -3,6 +3,7 @@ class_name PlayerJump
 
 @export var player: Player
 var jump_released: bool
+const jump_slowdown_multiplier: float = 0.5	
 
 func enter() -> void:
 	player.jump()
@@ -17,4 +18,4 @@ func physics_update(delta: float) -> void:
 	# When player stops holding jump, their vertical speed drops. To a player, "hold jump to jump higher"
 	if !jump_released and player.jump_pressed == false:
 		jump_released = true
-		player.velocity.y *= 0.5
+		player.velocity.y *= jump_slowdown_multiplier
