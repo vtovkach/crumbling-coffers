@@ -6,11 +6,11 @@ var is_open: bool = false
 
 func _ready():
 	update_slots()
-#	close()
+	update_slots()	# Called to have the inventory be empty at start.
 
 func update_slots():
-	for i in range(min(inventory.items.size(), slots.size())):
-		slots[i].update(inventory.items[i])
+	for i in range(min(inventory.slots.size(), slots.size())):
+		slots[i].update(inventory.slots[i])
 
 func open():
 	self.visible = true
