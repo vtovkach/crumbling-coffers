@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://xbf2l3fnxo71"]
 
 [ext_resource type="Script" uid="uid://boqmq6t5xucsj" path="res://Scripts/hud.gd" id="1_s1siy"]
+[ext_resource type="PackedScene" uid="uid://d1nf7qbl005j0" path="res://Inventory/inv_ui.tscn" id="2_7iq3s"]
 
 [node name="HUD" type="CanvasLayer" unique_id=401163621]
 script = ExtResource("1_s1siy")
@@ -42,5 +43,16 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 40
 
 [node name="GameTimer" type="Timer" parent="." unique_id=1535482286]
+
+[node name="Inv_UI" parent="." unique_id=664736319 instance=ExtResource("2_7iq3s")]
+modulate = Color(1, 1, 1, 0.7058824)
+anchors_preset = -1
+anchor_right = 0.614
+anchor_bottom = 0.84300005
+offset_left = 19.000008
+offset_top = 83.0
+offset_right = 1080.672
+offset_bottom = 902.73596
+scale = Vector2(0.35, 0.35)
 
 [connection signal="timeout" from="GameTimer" to="." method="_on_game_timer_timeout"]

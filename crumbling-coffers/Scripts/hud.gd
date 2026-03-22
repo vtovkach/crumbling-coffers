@@ -6,12 +6,15 @@ extends CanvasLayer
 @onready var game_timer_label: Label = $MarginContainer/GameTimerLabel
 # Variable to track seconds
 var time_left: int = 60
+@onready var inventory = $Inv_UI
 
 func _ready() -> void:
 	# Hide the countdown by default
 	hide_countdown()
 	# Set initial text for game clock
 	update_game_timer(time_left)
+	#Have main inventory toggled off by default.
+	inventory.close()
 
 func _on_player_score_changed(new_score: int) -> void:
 	score_label.text = "Score: %d" % new_score
@@ -41,3 +44,11 @@ func _on_game_timer_timeout() -> void:
 		# Stop the timer when we hit 0
 		$GameTimer.stop()
 		print("Game Over!")
+
+func _input(event):
+	if event.is_action_pressed("toggle_inventory"):
+		print("e pressed")
+		if inventory.is_open:
+			inventory.close()
+		else:
+			inventory.open()
