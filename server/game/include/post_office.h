@@ -26,7 +26,7 @@ void post_office_destroy(struct PostOffice *post_office);
 bool post_office_is_ready(const struct PostOffice *post_office,
                           size_t player_index);
 
-int post_office_write(const struct PostOffice *post_office,
+int post_office_write(struct PostOffice *post_office,
                       size_t player_index,
                       const void *src,
                       size_t size);
