@@ -25,6 +25,10 @@ int main(int argc, char *argv[])
 
     uint16_t game_port = (uint16_t) atoi(argv[1]);
 
+    // Define all structures here 
+    // Spawn 2 threads here 
+    // and wait for both of them to join at the end 
+
     int status = runGame(game_port);
 
     return status;
