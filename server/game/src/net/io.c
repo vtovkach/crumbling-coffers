@@ -67,3 +67,15 @@ ssize_t udp_read(int target_fd, struct sockaddr_in *addr, void *dest, size_t des
 
     return bytes;
 }
+
+ssize_t udp_write(int target_fd, struct sockaddr_in *addr, void *buf, size_t buf_size)
+{
+    if(!buf || !addr)
+        return -1;
+
+    ssize_t bytes = sendto(target_fd, buf, buf_size, 0, (struct sockaddr *) addr, sizeof(*addr));
+    if(bytes != (ssize_t) buf_size)
+        return -1;
+
+    return bytes;
+}
