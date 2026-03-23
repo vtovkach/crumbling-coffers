@@ -11,14 +11,19 @@
 #define ORCH_MAX_EPOLL_EVENTS   512
 #define HASH_TABLE_SIZE         4096
 #define TCP_SEGMENT_SIZE        200
+#define PLAYERS_PER_MATCH 2
 
 // UDP GAME PROCESS 
 #define UDP_GAME_PROCESS_PORT   "10001"
 #define GAME_PROCESS            "./bin/game"
 #define GM_MAX_EPOLL_EVENTS     64  
-#define UDP_DATAGRAM_SIZE       200
 
-// GAME INFO 
-#define PLAYERS_PER_MATCH 2
+// UDP DATAGRAM CONSTANTS 
+#define UDP_DATAGRAM_SIZE           200
+#define UDP_DATAGRAM_HEADER_SIZE    40
+#define UDP_DATAGRAM_PAYLOAD_SIZE   160
+
+#define GAME_ID_SIZE 16
+#define PLAYER_ID_SIZE 16
 
 #endif
