@@ -4,6 +4,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+struct Mailbox 
+{
+    uint8_t *packet_buf;
+    size_t packet_size;
+    pthread_mutex_t lock;
+    atomic_bool ready;
+};
+
+struct PostOffice
+{
+    struct Mailbox *mailboxes;
+    size_t players;
+};
+
 static void clean_mailboxes(struct Mailbox *mailboxes, size_t num_boxes)
 {
     for(size_t i = 0; i < num_boxes; i++)
