@@ -76,7 +76,7 @@ void *netThread(void *arg)
         if(events_ready > 0)
         {
             struct epoll_event cur_event = eventsQueue[0];
-            udp_read(cur_event.data.fd);
+            //udp_read(cur_event.data.fd);
         }
         
         sleep(1);
