@@ -1,6 +1,7 @@
 #include "herald.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 struct Herald
 {
@@ -20,4 +21,11 @@ struct Herald *herald_init()
     atomic_init(&herald->ready, false); 
 
     return herald;
+}
+
+void herald_destroy(struct Herald *herald)
+{
+    pthread_mutex_destroy(&herald->lock);
+    free(herald);
+}
 }
