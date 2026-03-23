@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <string.h>
 
 #include "server-config.h" 
 
@@ -23,4 +24,38 @@ ssize_t udp_write()
 {
 
     return 0;
+}
+
+ssize_t udp_read(int target_fd, struct sockaddr_in *addr, void *dest, size_t dest_size)
+{
+    if(!dest || !dest)
+        return -1;
+    
+    struct iovec iov = {
+        .iov_base = dest,
+        .iov_len = dest_size
+    };
+
+    struct sockaddr_in src_addr;
+    socklen_t addrlen = sizeof(src_addr);
+
+    struct msghdr msg; 
+    memset(&msg, 0, sizeof(msg));
+
+    msg.msg_name = &src_addr; // Sender address 
+    msg.msg_namelen = addrlen;
+    msg.msg_iov = &iov;
+    msg.msg_iovlen = 1;
+
+    ssize_t bytes = recvmsg(target_fd, &msg, 0);
+    if(bytes < 0)
+        return -1;
+    
+
+    if(msg.msg_flags & MSG_TRUNC)
+        return 0;
+
+    *addr = src_addr;
+
+    return bytes;
 }
