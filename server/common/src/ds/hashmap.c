@@ -15,27 +15,6 @@
 
 #include "ds/hashmap.h"
 
-typedef struct Node
-{
-    void  *value;
-    void  *key;
-    struct Node  *nextNode;
-} Node;
-
-typedef struct HashTable
-{
-    size_t          value_size;         // Size of a single data block for the value (in bytes)
-    size_t          key_size;           // Size of a single data block for the key (in bytes)
-    size_t          value_blocks;       // Number of blocks that make up the value
-    size_t          key_blocks;         // Number of blocks that make up the key
-    Node            **hash_table;       // Array with Nodes 
-    unsigned int    num_elements;       // Current number of elements in the hash table 
-    unsigned int    hash_table_size;    // Maximum number of elements in a hash_table 
-    double          load_factor;
-    hsh_func        hash_function;      // User-implemented hash function 
-} HashTable;
-
-
 static void destroy_linked_list(Node *head)
 {
     Node *current_node = head;
