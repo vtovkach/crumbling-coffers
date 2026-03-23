@@ -50,7 +50,9 @@ struct PostOffice *post_office_init(size_t mailbox_count)
 
 void post_office_destroy(struct PostOffice *post_office)
 {
-
+    clean_mailboxes(post_office->mailboxes, post_office->players);
+    free(post_office->mailboxes);
+    free(post_office);
 }
 
 bool post_office_is_ready(const struct PostOffice *post_office,
