@@ -1,30 +1,11 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <sys/socket.h>
+#include <netinet/in.h>
 #include <unistd.h>
 #include <string.h>
 
 #include "server-config.h" 
-
-ssize_t udp_read(int target_fd)
-{
-    uint8_t temp_buf[UDP_DATAGRAM_SIZE];  
-
-    ssize_t bytes = recvfrom(target_fd, temp_buf, sizeof(temp_buf), 0, NULL, NULL);
-    if (bytes <= 0)
-        return bytes;
-
-    printf("%s\n", (char *) temp_buf);
-    fflush(stdout);
-
-    return bytes;
-}
-
-ssize_t udp_write()
-{
-
-    return 0;
-}
 
 ssize_t udp_read(int target_fd, struct sockaddr_in *addr, void *dest, size_t dest_size)
 {
@@ -51,7 +32,7 @@ ssize_t udp_read(int target_fd, struct sockaddr_in *addr, void *dest, size_t des
     if(bytes < 0)
         return -1;
     
-    if(bytes < dest_size)
+    if(bytes < (ssize_t) dest_size)
     {
         memset(dest, 0, dest_size);
         return 0;
