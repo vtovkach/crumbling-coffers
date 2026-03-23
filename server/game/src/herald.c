@@ -28,4 +28,13 @@ void herald_destroy(struct Herald *herald)
     pthread_mutex_destroy(&herald->lock);
     free(herald);
 }
+
+bool herald_is_ready(const struct Herald *herald)
+{
+    return atomic_load_explicit(
+        &herald->ready, 
+        memory_order_acquire
+    );
+}
+
 }
