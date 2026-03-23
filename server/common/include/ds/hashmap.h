@@ -11,6 +11,8 @@
 #ifndef _HASHTABLE_
 #define _HASHTABLE_
 
+#include <stddef.h>
+
 typedef unsigned int (*hsh_func)(const void *, unsigned int);
 
 typedef struct Node
