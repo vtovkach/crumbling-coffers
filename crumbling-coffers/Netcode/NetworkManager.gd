@@ -14,7 +14,7 @@ var game_server_connect = false;
 var server_tcp: StreamPeerTCP
 
 # Main Server Info
-var server_ip: String = "18.217.110.81"
+var server_ip: String = "18.226.159.186"
 var server_port: int = 10000
 
 var tcp_framer: FramerTCP
