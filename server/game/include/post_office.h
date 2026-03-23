@@ -6,7 +6,7 @@
 
 struct Mailbox 
 {
-    uint8_t packet_buf;
+    uint8_t *packet_buf;
     size_t packet_size;
     pthread_mutex_t lock;
     atomic_bool ready;
@@ -15,6 +15,7 @@ struct Mailbox
 struct PostOffice
 {
     struct Mailbox *mailboxes;
+    size_t players;
 };
 
 struct PostOffice *post_office_init(size_t mailbox_count, size_t mailbox_capacity);
