@@ -2,15 +2,21 @@
 #define __GAME_H
 #include <stdint.h>
 
-struct NetThreadArgs
-{
-    uint16_t udp_port; 
+#include "herald.h"
+#include "post_office.h"
+#include "server-config.h" 
 
-    // More fields will be defined later 
-    // ...
-    
+struct GameArgs
+{
+    uint8_t *game_id;
+    uint8_t *players_ids; 
+
+    struct PostOffice *post_office; 
+    struct Herald *herald;
+
+    size_t players_num;
 };
 
-int runGame(uint16_t game_port);
+void *run_game_t(void *t_args);
 
 #endif
