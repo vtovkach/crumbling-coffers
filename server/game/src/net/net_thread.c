@@ -12,20 +12,19 @@
 #include "net/io.h"
 #include "server-config.h"
 #include "game.h"
+#include "net/net_thread.h"
 
 #include "packet.h"
 
-extern _Atomic bool stop_net; // Parent signals when to stop netThread  
+atomic_bool net_stop;
 
-_Atomic bool net_dead = false;
-
-void *netThread(void *arg)
+void *run_net_t(void *t_args)
 {   
-    struct NetThreadArgs args = *(struct NetThreadArgs *)arg; 
+    struct NetArgs net_args = *(struct NetArgs *)t_args; 
     int listen_fd = -1; 
     int epoll_fd = -1;
     
-    listen_fd = make_udp_server_socket(args.udp_port);
+    listen_fd = make_udp_server_socket(net_args.port);
     if(listen_fd == -1)
     {
         // Something is wrong
@@ -56,7 +55,7 @@ void *netThread(void *arg)
 
     for(;;)
     {
-        if(stop_net)
+        if(2 == 3)
         {
             //printf("[net thread] parent requests termination.\n");
             goto exit;  
@@ -85,7 +84,6 @@ void *netThread(void *arg)
 exit: 
     if(epoll_fd != -1)  { close(epoll_fd);  }
     if(listen_fd != -1) { close(listen_fd); }
-    free(arg);
-    net_dead = true;
+    free(t_args);
     return NULL;
 }
