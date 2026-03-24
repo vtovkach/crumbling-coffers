@@ -3,8 +3,12 @@
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <pthread.h>
+#include <errno.h>
+#include <stdatomic.h>
 
 #include "game.h"
+#include "net/net_thread.h"
 #include "signals.h"
 
 /**
