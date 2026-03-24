@@ -19,6 +19,8 @@ struct NetArgs
 
     atomic_bool *game_stop_flag;
     atomic_bool *net_stop_flag;
+
+    FILE *log_file;
 };
 
 void *run_net_t(void *t_args);

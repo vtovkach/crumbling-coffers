@@ -25,6 +25,8 @@ void *run_game_t(void *t_args)
     atomic_bool *game_stop = ((struct GameArgs *) t_args)->game_stop_flag;
     atomic_bool *net_stop = ((struct GameArgs *) t_args)->net_stop_flag;
 
+    FILE *log_file = ((struct GameArgs *) t_args)->log_file;
+
     while(!atomic_load(game_stop) && !atomic_load(net_stop))
     {   
         printf("Game Thread\n");

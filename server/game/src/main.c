@@ -151,6 +151,7 @@ int main(int argc, char *argv[])
     game_t_args->players_num = players_num;
     game_t_args->game_stop_flag = &game_stop;
     game_t_args->net_stop_flag = &net_stop;
+    game_t_args->log_file = log_file;
 
     // Network Thread Arguments 
     net_t_args->game_id = game_id;
@@ -161,6 +162,7 @@ int main(int argc, char *argv[])
     net_t_args->players_num = players_num;
     net_t_args->game_stop_flag = &game_stop;
     net_t_args->net_stop_flag = &net_stop;
+    net_t_args->log_file = log_file;
 
     // Spawn game and network threads 
     if(pthread_create(&game_t, NULL, run_game_t, game_t_args) != 0)
