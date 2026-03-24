@@ -60,15 +60,28 @@ func add_score(amount: int) -> void:
 # Daniel - ending here
 
 func _physics_process(delta: float) -> void:
+	if is_frozen:
+		freeze_time_left -= delta
+		if freeze_time_left <= 0:
+			clear_freeze()
+	if not is_frozen:
 	# Get inputs
-	direction = _invert_multiplier * Input.get_axis("left", "right")
-	jump_pressed = Input.is_action_pressed("jump")
-	down_pressed = Input.is_action_pressed("down")
+		direction = _invert_multiplier * Input.get_axis("left", "right")
+		jump_pressed = Input.is_action_pressed("jump")
+		down_pressed = Input.is_action_pressed("down")
 
-	dash_cooldown = move_toward(dash_cooldown, 0, delta)
-	if Input.is_action_pressed("dash"):
-		dash()
-	
+		dash_cooldown = move_toward(dash_cooldown, 0, delta)
+		if Input.is_action_pressed("dash"):
+			dash()
+	else:
+		# Ignore player input while frozen
+		direction = 0
+		jump_pressed = false
+		down_pressed = false
+
+		# Optional: still reduce dash cooldown while frozen
+		dash_cooldown = move_toward(dash_cooldown, 0, delta)
+
 	# Update position
 	move_and_slide()
 
