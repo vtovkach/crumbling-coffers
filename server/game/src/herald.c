@@ -25,6 +25,7 @@ struct Herald *herald_init()
 
 void herald_destroy(struct Herald *herald)
 {
+    if(!herald) return;
     pthread_mutex_destroy(&herald->lock);
     free(herald);
 }
