@@ -3,6 +3,6 @@
 
 #include <stdint.h>
 
-int make_udp_server_socket(uint16_t port);
+int open_udp_socket(uint16_t port);
 
 #endif

@@ -9,19 +9,19 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-int make_udp_server_socket(uint16_t port)
+int open_udp_socket(uint16_t port)
 {
     int fd = socket(AF_INET, SOCK_DGRAM, 0);
     if(fd < 0)
     {
-        perror("[make_udp_server_socket] socket");
+        perror("[open_udp_socket] socket");
         return -1;
     } 
 
     int opt = 1;
     if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
     {
-        perror("[make_udp_server_socket] setsockopt");
+        perror("[open_udp_socket] setsockopt");
         close(fd);
         return -1;
     }
@@ -34,7 +34,7 @@ int make_udp_server_socket(uint16_t port)
 
     if(bind(fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) 
     {
-        perror("[make_udp_server_socket] bind");
+        perror("[open_udp_socket] bind");
         close(fd);
         return -1; 
     }
@@ -42,7 +42,7 @@ int make_udp_server_socket(uint16_t port)
     int fl = fcntl(fd, F_GETFL, 0);
     if(fl < 0 || fcntl(fd, F_SETFL, fl | O_NONBLOCK) < 0)
     {
-        perror("[make_udp_server_socket] fcntl");
+        perror("[open_udp_socket] fcntl");
         close(fd);
         return -1;
     } 
