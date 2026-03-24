@@ -10,9 +10,9 @@
 
 #include "net/udp_socket.h"
 #include "net/io.h"
-#include "threads/net_thread.h"
+#include "net/net_thread.h"
 #include "server-config.h"
-#include "threads/game.h"
+#include "game.h"
 
 extern _Atomic bool net_dead; 
 _Atomic bool stop_net = false;

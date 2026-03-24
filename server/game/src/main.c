@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 
-#include "threads/game.h"
+#include "game.h"
 #include "signals.h"
 
 /**

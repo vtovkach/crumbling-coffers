@@ -11,7 +11,7 @@
 #include "net/udp_socket.h"
 #include "net/io.h"
 #include "server-config.h"
-#include "threads/game.h"
+#include "game.h"
 
 #include "packet.h"
 
