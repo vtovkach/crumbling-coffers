@@ -11,6 +11,8 @@
 #include "net/net_thread.h"
 #include "signals.h"
 
+#define LOG_PATH "../../log/game"
+
 extern atomic_bool net_stop;
 extern atomic_bool game_stop; 
 
@@ -34,6 +36,39 @@ static ssize_t read_full(int fd, void *buf, size_t size)
     }
 
     return (ssize_t)total;
+}
+
+static void log_startup_data(
+    FILE *log_file,
+    uint16_t port,
+    const uint8_t *game_id,
+    uint32_t players_num,
+    const uint8_t *player_ids)
+{
+    if (!log_file) return;
+
+    fprintf(log_file, "=== STARTUP DATA ===\n");
+
+    fprintf(log_file, "port: %u\n", port);
+    fprintf(log_file, "players_num: %u\n", players_num);
+
+    fprintf(log_file, "game_id: ");
+    for (size_t i = 0; i < GAME_ID_SIZE; i++)
+        fprintf(log_file, "%02x ", game_id[i]);
+    fprintf(log_file, "\n");
+
+    for (uint32_t p = 0; p < players_num; p++)
+    {
+        fprintf(log_file, "player[%u]: ", p);
+
+        const uint8_t *id = player_ids + (p * PLAYER_ID_SIZE);
+        for (size_t i = 0; i < PLAYER_ID_SIZE; i++)
+            fprintf(log_file, "%02x ", id[i]);
+
+        fprintf(log_file, "\n");
+    }
+
+    fprintf(log_file, "====================\n\n");
 }
 
 /**
@@ -72,9 +107,9 @@ int main(int argc, char *argv[])
     
     signals_install(SIGUSR1); 
 
-    log_file = fopen("log/game", "a");
+    log_file = fopen(LOG_PATH, "a");
     if(!log_file)
-        return 0;
+        return 1;
 
     if (read_full(pipe_fd, &port, sizeof(port)) < 0)
         goto failure;
@@ -91,6 +126,8 @@ int main(int argc, char *argv[])
 
     if(read_full(pipe_fd, player_ids, PLAYER_ID_SIZE * players_num) < 0)
         goto failure;
+
+    log_startup_data(log_file, port, game_id, players_num, player_ids);
     
     // Declare and initialize shard data stuctures 
     po = post_office_init((size_t) players_num);
