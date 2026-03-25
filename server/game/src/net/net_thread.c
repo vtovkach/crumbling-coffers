@@ -16,6 +16,41 @@
 #include "net/io.h"
 #include "packet.h"
 
+#define EPOLL_WAIT_TIMEOUT 100      // time in milliseconds
+
+static int net_receive_packets(FILE *log_file, 
+                               int fd, 
+                               uint8_t *game_id, 
+                               struct PostOffice *po, 
+                               struct PlayersRegistry *players_reg, 
+                               size_t players_num)
+{
+    for(size_t i = 0; i < players_num; i++)
+    {
+        uint8_t recv_data[UDP_DATAGRAM_SIZE];
+        struct sockaddr_in incoming_addr; 
+        
+        if(udp_read(fd, &incoming_addr, recv_data, UDP_DATAGRAM_SIZE) == UDP_DATAGRAM_SIZE)
+        {
+            // TYPES Of Packets:
+            //      Reliable (implement later)
+            //      Regular 
+
+            // Validate packet 
+            // Validate userid 
+            // Validate seq num
+            // Place packet inside mailbox
+            // Update seq number
+
+            recv_data = (struct Header *) recv_data;
+            
+
+        }
+    }
+
+    return 0;
+}
+
 void *run_net_t(void *t_args)
 {   
     uint8_t *game_id = ((struct NetArgs *) t_args)->game_id; 
