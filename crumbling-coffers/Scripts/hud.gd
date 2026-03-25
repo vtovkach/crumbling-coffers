@@ -7,7 +7,7 @@ extends CanvasLayer
 # Variable to track seconds
 var time_left: int = 60
 @onready var inventory = $Inv_UI
-@onready var hotbar = Hotbar
+@onready var hotbar = $hotbar_ui
 
 func _ready() -> void:
 	# Hide the countdown by default
@@ -49,7 +49,6 @@ func _on_game_timer_timeout() -> void:
 # function _input will "listen" for an event when "toggle_inventory" occurs. The button connected is "E".
 func _input(event):
 	if event.is_action_pressed("toggle_inventory"):
-		print("e pressed")
 		if inventory.is_open:
 			inventory.close()
 		else:
@@ -57,8 +56,6 @@ func _input(event):
 	
 	# Adding in scroll mechanics for the hotbar.
 	if event.is_action_pressed("scroll_up"):
-		print("scrolling up.")
 		hotbar.active_item_scroll_up()
 	elif event.is_action_pressed("scroll_down"):
-		print("scrolling down")
 		hotbar.active_item_scroll_down()
