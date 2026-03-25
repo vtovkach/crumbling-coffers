@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cq0yb3sxdjx10" path="res://Scenes/Player/player.gd" id="1_uvnfx"]
 [ext_resource type="Texture2D" uid="uid://b662g1htkpbv6" path="res://Assets/Players/BlueWizard/2BlueWizardIdle/Chara - BlueIdle00000.png" id="2_h8ma5"]
-[ext_resource type="Resource" uid="uid://bw50gq41hhdr" path="res://Inventory/playerInventory.tres" id="2_jincj"]
+[ext_resource type="Resource" uid="uid://bw50gq41hhdr" path="res://Inventory/Main_Inventory/playerInventory.tres" id="2_jincj"]
 [ext_resource type="Texture2D" uid="uid://b4e2bx5p6jjid" path="res://Assets/Players/BlueWizard/2BlueWizardIdle/Chara - BlueIdle00001.png" id="3_eksi1"]
 [ext_resource type="Texture2D" uid="uid://ow58ux06geqx" path="res://Assets/Players/BlueWizard/2BlueWizardIdle/Chara - BlueIdle00002.png" id="4_jincj"]
 [ext_resource type="Texture2D" uid="uid://cgfvybgr1do3a" path="res://Assets/Players/BlueWizard/2BlueWizardIdle/Chara - BlueIdle00003.png" id="5_rqdc0"]
