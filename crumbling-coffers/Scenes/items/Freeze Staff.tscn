@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://dyv15lqe7udju"]
+
+[ext_resource type="Texture2D" uid="uid://dfwb4as23xosl" path="res://Assets/Items/PNG/staffsAndWeapons/PNG/Staves_2/5.png" id="1_icpfc"]
+[ext_resource type="Script" uid="uid://ckwfoh07du5ww" path="res://Scenes/items/freeze_staff.gd" id="1_itlrp"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_icpfc"]
+size = Vector2(94, 176)
+
+[node name="FreezeStaff" type="Area2D" unique_id=1866782437]
+script = ExtResource("1_itlrp")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1024317522]
+shape = SubResource("RectangleShape2D_icpfc")
+
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=336103401]
+position = Vector2(3.8146973e-06, -11.000003)
+rotation = -1.5877334
+scale = Vector2(0.5058542, 1.1158563)
+texture = ExtResource("1_icpfc")
