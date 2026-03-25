@@ -276,7 +276,7 @@ position = Vector2(8451, -4722)
 position = Vector2(-11045, 551)
 
 [node name="FreezeStaff" parent="." unique_id=1866782437 instance=ExtResource("12_pybn4")]
-position = Vector2(-1236, -636)
+position = Vector2(-1271, -568)
 
 [node name="test_consumable" parent="." unique_id=1535960858 instance=ExtResource("12_pybn4")]
 position = Vector2(-1522, -571)
