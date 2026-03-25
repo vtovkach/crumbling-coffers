@@ -24,7 +24,7 @@ void *run_net_t(void *t_args)
     uint16_t port = ((struct NetArgs *) t_args)->port;
 
     int udp_fd = -1;
-    int epoll_fd = -1;
+    int efd = -1;
 
     FILE *log_file = ((struct NetArgs *) t_args)->log_file;
 
@@ -50,9 +50,9 @@ void *run_net_t(void *t_args)
         goto exit; 
     }
 
-    epoll_fd = epoll_create1(0);
+    efd = epoll_create1(0);
     struct epoll_event e_events[GM_MAX_EPOLL_EVENTS];
-    if(epoll_fd < 0)
+    if(efd < 0)
     {
         log_error(log_file, "[run_net_t] epoll_create1 failed.", errno);
         goto exit;
@@ -63,7 +63,7 @@ void *run_net_t(void *t_args)
         .events = EPOLLIN
     };
 
-    if(epoll_ctl(epoll_fd, EPOLL_CTL_ADD, udp_fd, &ev) < 0)
+    if(epoll_ctl(efd, EPOLL_CTL_ADD, udp_fd, &ev) < 0)
     {
         log_error(log_file, "[run_net_t] epoll_ctl failed.", errno);
         goto exit; 
