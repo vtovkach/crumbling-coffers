@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://c5ouh54gapm7l"]
+
+[ext_resource type="Script" uid="uid://dfwywy614rur6" path="res://Inventory/Sub_Inventory/hotbar_item.gd" id="1_wr6p4"]
+
+[node name="hotbar_item" type="Node2D" unique_id=695659109]
+script = ExtResource("1_wr6p4")

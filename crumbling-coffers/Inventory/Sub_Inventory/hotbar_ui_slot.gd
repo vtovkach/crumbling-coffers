@@ -5,13 +5,13 @@ extends Panel
 
 # This update function is the same as the inventory's logic. Name conventions are changed to
 # associate with hotbar instead of inventory.
-func update(slot: InventorySlot):
-	if !slot.item:
+func update(hotbar_slot: HotbarSlot):
+	if !hotbar_slot.hotbar_item:
 		hotbarItemVisual.visible = false
 		hotbarAmtVisual.visible = false
 	else:
 		hotbarItemVisual.visible = true
-		hotbarItemVisual.texture = slot.item.texture
-		if slot.amount > 1: 
+		hotbarItemVisual.texture = hotbar_slot.hotbar_item.texture
+		if hotbar_slot.amount > 1: 
 			hotbarAmtVisual.visible = true
-		hotbarAmtVisual.text = str(slot.amount)
+		hotbarAmtVisual.text = str(hotbar_slot.amount)

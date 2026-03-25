@@ -39,8 +39,10 @@ const BASE_DASH_STRENGTH: float = 3600.0
 # DO NOT MODIFY outside of set_inverted(bool)
 var _invert_multiplier: int = 1
 
+# Inventory and hotbar variables for "collect" and "hotbar_collect" functions.
 @export var inventory: Inventory
 @export var itemRes: InventoryItem
+@export var hotbar: Hotbar
 
 #Daniel - adding a score to the character for when they pick up the items.
 
@@ -118,3 +120,8 @@ func push(direction: Vector2, pushStrength: float) -> void:
 # the collected item.
 func collect(itemRes):
 	inventory.insert(itemRes)
+
+# Consumables will call for this function when Player walks over and collides with the hit/collision box. 
+# This functionality is the same as inventory's.
+func consumable_collect(item):
+	hotbar.hotbar_insert(item)

@@ -5,16 +5,16 @@ class_name Hotbar
 signal update
 
 # Same insertion functionality as inventory.gd. Using different name conventions.
-@export var hotbar_slots: Array[InventorySlot]
+@export var hotbar_slots: Array[HotbarSlot]
 
-func hotbar_insert(hotbar_item: InventoryItem):
-	var itemSlots = hotbar_slots.filter(func(slot): return slot.item == hotbar_item) 
+func hotbar_insert(item: HotbarItem):
+	var itemSlots = hotbar_slots.filter(func(slot): return slot.hotbar_item == item) 
 	if !itemSlots.is_empty():
 		itemSlots[0].amount += 1
 	else:
-		var emptySlots = hotbar_slots.filter(func(slot): return slot.item == null)
+		var emptySlots = hotbar_slots.filter(func(slot): return slot.hotbar_item == null)
 		if !emptySlots.is_empty():
-			emptySlots[0].item = hotbar_item
+			emptySlots[0].hotbar_item = item
 			emptySlots[0].amount = 1
 	
 	update.emit()
