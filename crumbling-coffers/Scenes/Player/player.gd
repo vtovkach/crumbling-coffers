@@ -33,6 +33,8 @@ const BASE_DASH_STRENGTH: float = 3600.0
 
 @export var is_frozen: bool = false
 @export var freeze_time_left: float = 0.0
+const BASE_FROZEN_DECEL: float = 1000.0
+@export var frozen_decel: float = BASE_FROZEN_DECEL
 
 # Values for states
 @export var direction: float = 0
@@ -53,6 +55,9 @@ var _invert_multiplier: int = 1
 signal score_changed(new_score: int)
 
 var score: int = 0
+
+func _ready() -> void:
+	add_to_group("freezable")
 
 func add_score(amount: int) -> void:
 	score += amount
@@ -99,6 +104,10 @@ func apply_gravity(gravity_multiplier: float, delta: float) -> void:
 # 0: 		Stop 
 # (0, 1]:	To right.
 func move(direction: float, delta: float) -> void:
+	if is_frozen:
+		velocity.x = move_toward(velocity.x, 0, frozen_decel * delta)
+		return
+	
 	if direction:
 		if (velocity.x > 0 and direction < 0) or (velocity.x < 0 and direction > 0):
 			brake(direction, delta)
