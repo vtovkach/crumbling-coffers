@@ -71,12 +71,46 @@ void *run_net_t(void *t_args)
 
     while(!atomic_load(game_stop) && !atomic_load(net_stop))
     {   
+        // Check Herald 
+        uint8_t server_packet[UDP_DATAGRAM_SIZE];
+        if(herald_read(herald, &server_packet, UDP_DATAGRAM_SIZE) == 0)
+        {
+            // Broadcast packet to all clients 
+        }
+
+        int e_ret = epoll_wait(
+            efd, 
+            e_events, 
+            GM_MAX_EPOLL_EVENTS, 
+            EPOLL_WAIT_TIMEOUT
+        );
+
+        if(e_ret == -1)
+        {
+            // Error check errno 
+            if(errno == EINTR) { continue; }
+
+            log_error(
+                log_file, 
+                "[run_net_t] epoll_wait critical failure.", 
+                errno
+            );
+
+            goto exit; 
+        }
+
+        if(e_ret > 0)
+        {
+            // TODO 
+            // There are incoming UDP datagrams
+            // Invoke correct routine  
+        }
+        
         printf("Net Thread\n");
-        sleep(1);
     }
 
 exit:
-    if(epoll_fd > 0)    close(epoll_fd);
+    if(efd > 0)    close(efd);
     if(udp_fd > 0)      close(udp_fd);  
     players_registry_destroy(players_reg);
     atomic_store(game_stop, true);
