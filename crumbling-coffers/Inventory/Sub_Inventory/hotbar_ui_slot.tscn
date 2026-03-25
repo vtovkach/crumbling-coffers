@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://br57nkietfbmg"]
 
 [ext_resource type="Texture2D" uid="uid://bbvxpootwjp8y" path="res://Assets/Items/PNG/inventoryPNG/inventory-slot.png" id="1_6o6lk"]
+[ext_resource type="Script" uid="uid://hlklgadcap2i" path="res://Inventory/Sub_Inventory/hotbar_ui_slot.gd" id="1_b4rwl"]
 
 [node name="hotbar_ui_slot" type="Panel" unique_id=367499635]
 self_modulate = Color(1, 1, 1, 0)
@@ -14,6 +15,7 @@ offset_left = -269.92804
 offset_top = -262.56003
 offset_right = 270.07196
 offset_bottom = 262.43997
+script = ExtResource("1_b4rwl")
 
 [node name="bg" type="Sprite2D" parent="." unique_id=1822380301]
 texture_filter = 1

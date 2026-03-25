@@ -1,11 +1,12 @@
 extends Control
 
+@onready var hotbar: Hotbar = preload("res://Inventory/Sub_Inventory/playerHotbar.tres")
+@onready var slots: Array = $HBoxContainer.get_children()
 
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
 	pass
+
+# the update function for the hotbar will be the same functionality as the inventory's.
+func update_hotbar_slots():
+	for i in range(min(hotbar.slots.size(), slots.size())):
+		slots[i].update(hotbar.slots[i])
