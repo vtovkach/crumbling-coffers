@@ -58,6 +58,7 @@ var score: int = 0
 
 func _ready() -> void:
 	add_to_group("freezable")
+	add_to_group("player")
 
 func add_score(amount: int) -> void:
 	score += amount

@@ -60,5 +60,30 @@ func _input(event):
 		use_active_item()
 
 func use_active_item():
-	# Send out signal that an item was used.
+	var slot = hotbar.hotbar_slots[active_item_slot]
+	if slot == null or slot.hotbar_item == null:
+		print("No item in selected slot")
+		return
+
+	var item = slot.hotbar_item
+	print("Using item: ", item)
+	print("Resource path: ", item.resource_path)
+
+	if item.resource_path.ends_with("freeze_staff.tres"):
+		print("Matched freezing staff")
+
+		var targets = get_tree().get_nodes_in_group("freezable")
+		print("Found freezable targets: ", targets.size())
+
+		for target in targets:
+			print("Target: ", target.name)
+
+			if target.is_in_group("player"):
+				print("Skipping player: ", target.name)
+				continue
+
+			if target.has_method("apply_freeze"):
+				print("Applying freeze to: ", target.name)
+				target.apply_freeze(5.0)
+
 	hotbar.item_used.emit(active_item_slot)
