@@ -17,8 +17,11 @@ var time_left: int = 60
 signal time_updated(time: int) 
 signal match_ended() 
 signal state_changed(new_state: MatchState)
+signal match_ready
 
 func _ready() -> void:
+	# Connect handshake to start function
+	match_ready.connect(func(): start_match(60))
 	# Initializing MatchManager's timer when ran.
 	timer = Timer.new()
 	timer.wait_time = 1.0
