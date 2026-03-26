@@ -21,6 +21,7 @@ signal match_ready
 
 func _ready() -> void:
 	# Connect handshake to start function
+	# Later can be updated to wait for mulpitle match_ready signals before starting match
 	match_ready.connect(func(): start_match(60))
 	# Initializing MatchManager's timer when ran.
 	timer = Timer.new()
