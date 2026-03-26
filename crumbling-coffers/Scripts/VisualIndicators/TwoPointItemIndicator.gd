@@ -7,3 +7,27 @@
 
 extends Node2D
 class_name TwoPointItemIndicator
+
+var source: Player
+var target: PickupBase
+# var bounds: This thing needs to be aware of its bounds
+
+func spawn(player: Player, item: PickupBase) -> void:
+	source = player
+	target = item
+	# Add this to a group of indicators
+
+func destroy() -> void:
+	source = null
+	target = null
+	# Remove this from the group of indicators
+	
+func update() -> void:
+	# Set angle from source to target
+	# Set position between source and target but within bounds
+	
+	
+	pass
+
+
+	
