@@ -1,4 +1,4 @@
-extends "res://Scripts/pickup_base.gd"
+extends PickupBase
 
 #Adding item resource variable that will connect corresponding .tres resources to .tscn scenes.
 @export var itemRes: InventoryItem

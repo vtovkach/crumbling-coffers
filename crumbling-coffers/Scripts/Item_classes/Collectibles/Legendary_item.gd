@@ -1,4 +1,4 @@
-extends "res://Scripts/pickup_base.gd"
+extends PickupBase
 
 @export var itemRes: InventoryItem
 

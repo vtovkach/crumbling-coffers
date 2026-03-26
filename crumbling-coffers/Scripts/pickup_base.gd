@@ -1,4 +1,5 @@
 extends Area2D
+class_name PickupBase
 
 @export var points: int = 1
 @export var float_amplitude: float = 10
