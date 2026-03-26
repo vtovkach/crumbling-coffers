@@ -1,4 +1,5 @@
 extends CanvasLayer
+class_name HUD
 
 @onready var score_label: Label = $ScoreLabel
 # Mapped to countdown and game timer labels in scene
@@ -7,6 +8,7 @@ extends CanvasLayer
 
 @onready var inventory = $Inv_UI
 @onready var hotbar = $hotbar_ui
+@onready var item_indicator_manager = $VisualIndicators/ItemIndicators/ItemIndicatorManager
 
 func _ready() -> void:
 	# Hide the countdown by default
@@ -63,3 +65,6 @@ func _input(event):
 	for i in range(8):
 		if event.is_action_pressed("hotbar_slot_%d" %(i+1)):
 			hotbar.set_active_slot(i)
+
+func set_player_to_indicators(p: Player) -> void:
+	item_indicator_manager.setPlayer(p)

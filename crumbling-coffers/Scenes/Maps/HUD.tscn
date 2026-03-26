@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://boqmq6t5xucsj" path="res://Scripts/hud.gd" id="1_s1siy"]
 [ext_resource type="PackedScene" uid="uid://d1nf7qbl005j0" path="res://Inventory/Main_Inventory/inv_ui.tscn" id="2_7iq3s"]
 [ext_resource type="PackedScene" uid="uid://3uy3typ8g1od" path="res://Inventory/Sub_Inventory/hotbar_ui.tscn" id="3_4exg6"]
+[ext_resource type="Script" uid="uid://cffhk74uhct5i" path="res://Scripts/VisualIndicators/ItemIndicatorManager.gd" id="4_xd437"]
 
 [node name="HUD" type="CanvasLayer" unique_id=401163621]
 script = ExtResource("1_s1siy")
@@ -59,3 +60,7 @@ pivot_offset = Vector2(-380, -100)
 [node name="VisualIndicators" type="Node" parent="." unique_id=1078054235]
 
 [node name="ItemIndicators" type="Node" parent="VisualIndicators" unique_id=6862422]
+
+[node name="ItemIndicatorManager" type="Node" parent="VisualIndicators/ItemIndicators" unique_id=692794499 node_paths=PackedStringArray("indicator_scene")]
+script = ExtResource("4_xd437")
+indicator_scene = NodePath("../../..")
