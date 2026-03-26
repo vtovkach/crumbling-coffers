@@ -87,6 +87,12 @@ func _on_game_timer_timeout() -> void:
 	# Now will just check if the match state is anything else other than running.
 	if current_state != MatchState.RUNNING:
 		return
+	
+	# In multiplayer make only the server calculate time to prevent drift
+	# Make clients ignore local clocks
+	if mode == MatchMode.MULTIPLAYER and not multiplayer.is_server():
+		return
+		
 	# decrement time by 1 second.
 	set_time(time_left - 1)
 	
