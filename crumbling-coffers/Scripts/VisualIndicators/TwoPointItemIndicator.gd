@@ -47,4 +47,16 @@ func _update_rotation() -> void:
 	
 func _update_position() -> void:
 	# Place at screen edge between source and target
-	pass
+
+	# Imagine a "ray" from the center of screen to the item. Place item along the "ray" at the border of screen (with margin included)
+	var viewport_size = get_viewport_rect().size
+	var center = viewport_size / 2
+	var ray_scale: Vector2
+	if dir.x != 0 and dir.y != 0:
+		ray_scale.x = (center.x - margin) / abs(dir.x) if dir.x != 0 else (center.y - margin)/ abs(dir.y)
+		ray_scale.y = (center.y - margin)/ abs(dir.y) if dir.y != 0 else ray_scale.x
+	else:
+		ray_scale = Vector2(0, 0) # realistically this should never occur 
+
+	# this is calculated position as screen coordinates. Buuut the point of reference isn't the screen, this should be fixed later. 
+	var position = center + dir.normalized() * min(ray_scale.x, ray_scale.y) 
