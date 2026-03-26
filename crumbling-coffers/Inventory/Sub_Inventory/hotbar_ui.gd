@@ -69,6 +69,8 @@ func use_active_item():
 	print("Using item: ", item)
 	print("Resource path: ", item.resource_path)
 
+
+	#FREEZING STAFF USED:
 	if item.resource_path.ends_with("freeze_staff.tres"):
 		print("Matched freezing staff")
 
@@ -85,5 +87,25 @@ func use_active_item():
 			if target.has_method("apply_freeze"):
 				print("Applying freeze to: ", target.name)
 				target.apply_freeze(5.0)
+				
+	#DISORIENTATION ORB USED:
+	if item.resource_path.ends_with("disorientation_staff.tres"):
+		print("Matched disorientation staff")
+
+		var targets = get_tree().get_nodes_in_group("disorientable")
+		print("Found dsiorientable targets: ", targets.size())
+
+		for target in targets:
+			print("Target: ", target.name)
+			
+			#FOR TESTING AGAINST SELF COMMENT OUT CHUNK BELOW
+			if target.is_in_group("player"):
+				print("Skipping player: ", target.name)
+				continue
+
+			if target.has_method("apply_disorientation"):
+				print("Applying disorientation to: ", target.name)
+				target.apply_disorientation(5.0)
+	
 
 	hotbar.item_used.emit(active_item_slot)
