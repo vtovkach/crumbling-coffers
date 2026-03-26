@@ -52,13 +52,12 @@ static void net_receive_packets(FILE *log_file,
 
         if(header.control & CTRL_INIT_PACKET)
         {   
-            // I first need to verify if the player belongs to this game
-            // TODO 
             int ret = players_registry_add_next(
                 players_reg, 
                 header.player_id, 
                 incoming_addr
             );
+
             if(ret != 0)
             {
                 log_message(
@@ -69,8 +68,9 @@ static void net_receive_packets(FILE *log_file,
             }
         }
 
-        uint8_t idx;
-        if(players_registry_get_index(players_reg, header.player_id, &idx) < 0)
+        uint8_t idx = 0;
+        int ret = players_registry_get_index(players_reg, header.player_id, &idx);
+        if(ret < 0)
         {
             // User id does not belong to this game process 
             // DROP PACKET 
