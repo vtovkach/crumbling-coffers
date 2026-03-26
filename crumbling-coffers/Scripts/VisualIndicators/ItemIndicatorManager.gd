@@ -44,7 +44,8 @@ func _remove_indicator(item: PickupBase) -> void:
 		return
 	
 	var indicator = indicators[item]
-	indicator.destroy()
+	if is_instance_valid(indicator):
+		indicator.queue_free()
 	indicators.erase(item)
 
 # This function checks if the item should have indicator. 

@@ -35,11 +35,6 @@ func init(player: Player, item: PickupBase) -> void:
 	source = player
 	target = item
 
-func destroy() -> void:
-	source = null
-	target = null
-	queue_free()
-	
 func _update_rotation() -> void:
 	# Rotate to face target
 	rotation = atan2(dir.y, dir.x)
