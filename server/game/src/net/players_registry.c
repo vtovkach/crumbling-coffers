@@ -106,25 +106,30 @@ int players_registry_add(struct PlayersRegistry *pr,
                          struct sockaddr_in addr)
 {
     struct PlayerEntry entry;
+    int ret;
 
-    if (!player_id) 
+    if (!pr || !player_id)
         return -1;
 
-    if (player_index >= pr->players_count) 
+    if (player_index >= pr->players_count)
         return -1;
 
     memset(&entry, 0, sizeof(entry));
     entry.addr = addr;
     entry.index = player_index;
 
-    return ht__insert_internal(pr->id_to_entry, player_id, &entry);
+    ret = ht__insert_internal(pr->id_to_entry, player_id, &entry);
+    if (ret < 0)
+        return -1;
+
+    return 0;
 }
 
 int players_registry_get_index(struct PlayersRegistry *pr,
                                const uint8_t *player_id,
                                uint8_t *out_index)
 {
-    struct PlayerEntry *entry;
+    struct PlayerEntry *entry = NULL;
 
     if (!player_id) 
         return -1;
