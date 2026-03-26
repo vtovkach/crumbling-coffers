@@ -22,6 +22,11 @@ signal match_ended()
 signal state_changed(new_state: MatchState)
 signal match_ready
 
+# Broadcasts end of match to all clients
+@rpc("authority", "call_local", "reliable")
+func end_match_rpc() -> void:
+	end_match()
+
 func _ready() -> void:
 	# Connect handshake to start function
 	# Later can be updated to wait for mulpitle match_ready signals before starting match
@@ -52,8 +57,10 @@ func set_time(new_time: int) -> void:
 	
 	# Check if the time_left is 0, then switch match state to ENDED by calling end_match.
 	if time_left <= 0 and current_state != MatchState.ENDED:
-		end_match()
-
+		if multiplayer.is_server():
+			end_match_rpc.rpc() # Server tells everyone to end
+		else:
+			end_match() # For singleplayer
 
 func start_countdown() -> void:
 	set_state(MatchState.COUNTDOWN)
