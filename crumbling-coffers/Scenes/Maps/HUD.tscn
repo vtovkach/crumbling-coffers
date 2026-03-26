@@ -61,6 +61,6 @@ pivot_offset = Vector2(-380, -100)
 
 [node name="ItemIndicators" type="Node" parent="VisualIndicators" unique_id=6862422]
 
-[node name="ItemIndicatorManager" type="Node" parent="VisualIndicators/ItemIndicators" unique_id=692794499 node_paths=PackedStringArray("indicator_scene")]
+[node name="ItemIndicatorManager" type="Node" parent="VisualIndicators/ItemIndicators" unique_id=692794499]
 script = ExtResource("4_xd437")
-indicator_scene = NodePath("../../..")
+indicator_scene = null

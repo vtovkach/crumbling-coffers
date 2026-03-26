@@ -1,7 +1,7 @@
 extends Node
 class_name ItemIndicatorManager
 
-@export var indicator_scene: HUD
+@export var indicator_scene: PackedScene
 var player: Player
 
 var indicators: Dictionary[PickupBase, TwoPointItemIndicator] = {}
