@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://ebnib7p4ygxf" path="res://Scenes/AreaToSpawnItems/SpawnArea.tscn" id="9_isx1w"]
 [ext_resource type="PackedScene" uid="uid://cjn27mygahs0q" path="res://Scenes/items/Legendary Item.tscn" id="10_dvfde"]
 [ext_resource type="PackedScene" uid="uid://dyv15lqe7udju" path="res://Scenes/items/Freeze Staff.tscn" id="12_pybn4"]
+[ext_resource type="PackedScene" uid="uid://1gp35rd3wpli" path="res://Scenes/items/Disorientation Staff.tscn" id="13_war8x"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_cvf1c"]
 texture = ExtResource("1_xc2b5")
@@ -277,17 +278,11 @@ position = Vector2(-11045, 551)
 [node name="FreezeStaff" parent="." unique_id=1866782437 instance=ExtResource("12_pybn4")]
 position = Vector2(-1271, -568)
 
-[node name="test_consumable" parent="." unique_id=1535960858 instance=ExtResource("12_pybn4")]
-position = Vector2(-1555, -563)
-
-[node name="test_consumable2" parent="." unique_id=2024158003 instance=ExtResource("12_pybn4")]
-position = Vector2(-26, -1080)
-
-[node name="test_consumable3" parent="." unique_id=2003773398 instance=ExtResource("12_pybn4")]
-position = Vector2(-1899, -49)
-
 [node name="FreezeStaff2" parent="." unique_id=1483547316 instance=ExtResource("12_pybn4")]
 position = Vector2(-426, -77)
+
+[node name="DisorientationStaff" parent="." unique_id=1987817097 instance=ExtResource("13_war8x")]
+position = Vector2(-1601, -580)
 
 [connection signal="canceled" from="QuitConfirmation" to="." method="_on_quit_confirmation_canceled"]
 [connection signal="confirmed" from="QuitConfirmation" to="." method="_on_quit_confirmation_confirmed"]
