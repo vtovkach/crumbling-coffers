@@ -6,6 +6,7 @@ extends Node2D
 
 # Variable to track countdown state
 var countdown_number: int = 3
+var total_time: int = 60
 
 func _ready() -> void:
 	MusicManager.stop_music()
@@ -18,6 +19,8 @@ func start_training() -> void:
 	# Pause player movement until countdown stops
 	# Disables _physics_process in player.gd
 	player.set_physics_process(false)
+	# Tell MatchManager to enter COUNTDOWN state.
+	MatchManager.start_countdown()
 	
 	# Run countdown loop
 	while countdown_number > 0:
@@ -41,7 +44,7 @@ func start_training() -> void:
 	
 func start_game_clock() -> void:
 	# The "start_game_timer" is now "start_match" in MatchManager.
-	MatchManager.start_match(60)
+	MatchManager.start_match(total_time)
 
 func _input(event:InputEvent) -> void:
 	# Check for the escape key

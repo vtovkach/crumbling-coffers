@@ -3,7 +3,6 @@ extends Node
 # Match Manager will handle timer logic for SINGLEPLAYER ONLY (currently). For multiplayer logic, the server will 
 # be keeping track of the timer globally. This is the first iteration of the MatchManager autoload.
 
-# IMPLEMENTING STATES FOR MATCH AND IF SINGLEPLAYER OR MULTIPLAYER (remove comment later).
 enum MatchState {WAITING, COUNTDOWN, RUNNING, ENDED} # May add more states later on.
 enum MatchMode {SINGLEPLAYER, MULTIPLAYER}
 # Set the current state to waiting by default.
@@ -28,29 +27,39 @@ func _ready() -> void:
 	add_child(timer)
 	
 	timer.timeout.connect(_on_game_timer_timeout)
+	#print(current_state) # To check if current_state = 0 (which is WAITING)
 
-# Set the state to change.
-# will set current_state to the state passed into set_state and signal to state_changed
+
+# set_state: Will assign/set the current state that is passed to the function and emit corresponding signal.
 func set_state(new_state: MatchState) -> void:
 	current_state = new_state
 	state_changed.emit(current_state)
+# Debugging code below to check if singleplayer mode is in proper state.
+#	print("I am now this current state:")
+#	print(current_state)
 
-# When called, will assign the new time and emmit signal to have HUD update UI.
+# set_time: When called, will assign the new time and emit signal to have HUD update UI.
 func set_time(new_time: int) -> void:
 	time_left = new_time
 	time_updated.emit(time_left)
 	
-# Will set the state to COUNTDOWN when called.
+	# Check if the time_left is 0, then switch match state to ENDED by calling end_match.
+	if time_left <= 0 and current_state != MatchState.ENDED:
+		end_match()
+
+
 func start_countdown() -> void:
 	set_state(MatchState.COUNTDOWN)
 
-# Responsibility will not call to start the timer, will only call to set the time and new state.
-# UNLESS MODE IS SINGLEPLAYER, the timer is not started by start match since handled by server.
 func start_match(match_duration: int) -> void:
 	set_time(match_duration)
 	set_state(MatchState.RUNNING)
+	
+	# check mode to see if need to start timer or not when countdown ends.
+	if mode == MatchMode.SINGLEPLAYER:
+		timer.start()
 
-# check mode to see if need to start timer or not when countdown ends.
+# Note: Multiplayer mode distinction will be defined in a later task. For right now, only handling Singleplayer. 
 
 # New end_match function that will change the match state to ENDED wehen the timer runs out.
 func end_match() -> void:
@@ -59,7 +68,7 @@ func end_match() -> void:
 	match_ended.emit()
 
 
-# Decrementing timer functionality. Will need to change so calls set_time instead of decrementing timer itself.
+# _on_game_timer_timeout: Checks if the current state is not running. If false, then set timer to decrement current time (time_left).
 func _on_game_timer_timeout() -> void:
 	# Now will just check if the match state is anything else other than running.
 	if current_state != MatchState.RUNNING:
