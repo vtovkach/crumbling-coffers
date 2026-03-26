@@ -17,12 +17,12 @@ func _process(delta: float) -> void:
 	# This system integrates a lot of moving and misplaced parts so I'm willing to make a convenient inefficiency
 	var items = get_tree().get_nodes_in_group("pickups")
 	_spawn_indicators(items)
-	_destroy_indicators(items)
+	_remove_indicators(items)
 
 func _spawn_indicators(items: Array) -> void:
-	pass	# NOT IMPLEMENTED
+	pass	# TO BE IMPLEMENTED
 	
-func _destroy_indicators(items: Array) -> void:
+func _remove_indicators(items: Array) -> void:
 	var valid_items: Dictionary[PickupBase, bool] = {}
 
 	for item in items:
@@ -32,8 +32,19 @@ func _destroy_indicators(items: Array) -> void:
 		if not valid_items.has(item):
 			_remove_indicator(item)
 
+func _spawn_indicator(item: PickupBase) -> void:
+	var indicator = indicator_scene.instantiate() as TwoPointItemIndicator
+	add_child(indicator)
+	indicator.init(player, item)
+	indicators[item] = indicator
+
 func _remove_indicator(item: PickupBase) -> void:
-	pass	# NOT IMPLEMENTED
+	if not indicators.has(item):
+		return
+	
+	var indicator = indicators[item]
+	indicator.destroy()
+	indicators.erase(item)
 
 func setPlayer(p: Player) -> void:
 	player = p

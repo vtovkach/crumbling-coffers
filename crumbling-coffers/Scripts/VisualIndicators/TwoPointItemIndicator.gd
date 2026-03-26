@@ -31,15 +31,14 @@ func _process(delta: float) -> void:
 	_update_position()
 
 
-func spawn(player: Player, item: PickupBase) -> void:
+func init(player: Player, item: PickupBase) -> void:
 	source = player
 	target = item
-	# Add this to a group of indicators
 
 func destroy() -> void:
 	source = null
 	target = null
-	# Remove this from the group of indicators
+	queue_free()
 	
 func _update_rotation() -> void:
 	# Rotate to face target
