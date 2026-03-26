@@ -5,7 +5,9 @@ GAME_BIN       := bin/game
 ORCH_BIN       := bin/orch
 
 TEST_DIR_MATCHMAKER := test/orchestrator/matchmaker
-TEST_DIR_GAME := test/game/
+TEST_DIR_GAME := test/game/init-test
+TEST_DIR_NET_T := test/game/net-thread-test
+
 all: modules $(GAME_BIN) $(SUPERVISOR_BIN) $(ORCH_BIN)
 
 modules:
@@ -52,15 +54,20 @@ clean:
 test:
 	$(MAKE) -C $(TEST_DIR_MATCHMAKER)
 	$(MAKE) -C $(TEST_DIR_GAME)
+	$(MAKE) -C $(TEST_DIR_NET_T)
 
 test-clean:
 	$(MAKE) -C $(TEST_DIR_MATCHMAKER) clean
 	$(MAKE) -C $(TEST_DIR_GAME) clean 
+	$(MAKE) -C $(TEST_DIR_NET_T) clean 
 
 test-run-matchmaker: test
 	$(MAKE) -C $(TEST_DIR_MATCHMAKER) run
 
 test-run-game:
 	$(MAKE) -C $(TEST_DIR_GAME) run
+
+test-run-net:
+	$(MAKE) -C $(TEST_DIR_NET_T) run
 
 .PHONY: test test-clean test-run
