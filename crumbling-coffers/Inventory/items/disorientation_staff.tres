@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="HotbarItem" format=3 uid="uid://bxn22rwb72jrq"]
+
+[ext_resource type="Script" uid="uid://dfwywy614rur6" path="res://Inventory/Sub_Inventory/hotbar_item.gd" id="1_81m0l"]
+[ext_resource type="Texture2D" uid="uid://bsitpdhx6vq26" path="res://Assets/Items/PNG/staffsAndWeapons/PNG/Staves_7/5.png" id="2_81m0l"]
+
+[resource]
+script = ExtResource("1_81m0l")
+name = "Disorientatino Staff"
+texture = ExtResource("2_81m0l")
+metadata/_custom_type_script = "uid://dfwywy614rur6"
