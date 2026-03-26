@@ -32,33 +32,38 @@ func _ready() -> void:
 # Set the state to change.
 # will set current_state to the state passed into set_state and signal to state_changed
 func set_state(new_state: MatchState) -> void:
-	pass
+	current_state = new_state
+	state_changed.emit(current_state)
 
 # When called, will assign the new time and emmit signal to have HUD update UI.
 func set_time(new_time: int) -> void:
-	pass
+	time_left = new_time
+	time_updated.emit(time_left)
 	
 # Will set the state to COUNTDOWN when called.
 func start_countdown() -> void:
-	pass
+	set_state(MatchState.COUNTDOWN)
 
+# Responsibility will not call to start the timer, will only call to set the time and new state.
+# UNLESS MODE IS SINGLEPLAYER, the timer is not started by start match since handled by server.
 func start_match(match_duration: int) -> void:
-	time_left = match_duration
-	timer.start()
-	time_updated.emit(time_left)
+	set_time(match_duration)
+	set_state(MatchState.RUNNING)
+
+# check mode to see if need to start timer or not when countdown ends.
 
 # New end_match function that will change the match state to ENDED wehen the timer runs out.
 func end_match() -> void:
-	pass
+	timer.stop()
+	set_state(MatchState.ENDED)
+	match_ended.emit()
 
 
 # Decrementing timer functionality. Will need to change so calls set_time instead of decrementing timer itself.
 func _on_game_timer_timeout() -> void:
-	if time_left > 0:
-		time_left -= 1
-		# Update the timer by using signals instead of functions.
-		time_updated.emit(time_left)
-	else:
-		# Stop the timer when we hit 0
-		timer.stop()
-		match_ended.emit()
+	# Now will just check if the match state is anything else other than running.
+	if current_state != MatchState.RUNNING:
+		return
+	# decrement time by 1 second.
+	set_time(time_left - 1)
+	

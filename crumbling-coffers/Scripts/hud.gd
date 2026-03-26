@@ -40,7 +40,6 @@ func update_game_timer(seconds: int) -> void:
 # controls later.
 func _on_match_ended() -> void:
 	print("Game Over!")
-	# When timer runs out, will pause tree.
 	
 # Match start will be handled in MatchManager.gd.
 # Note: "_on_game_timer_timeout()" has been moved to MatchManager.gd.
