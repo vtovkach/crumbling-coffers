@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://xeo6je45suoa"]
+
+[node name="ScorePage" type="Node2D" unique_id=1535050298]
+
+[node name="MatchResults" type="Label" parent="." unique_id=1200502218]
+offset_right = 40.0
+offset_bottom = 23.0
+text = "Score: ..."
