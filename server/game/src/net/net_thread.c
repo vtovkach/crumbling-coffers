@@ -186,6 +186,15 @@ void *run_net_t(void *t_args)
             // TODO 
             // There are incoming UDP datagrams
             // Invoke correct routine  
+
+            net_receive_packets(
+                log_file, 
+                udp_fd, 
+                game_id, 
+                post_office, 
+                players_reg, 
+                players_num
+            );
         }
         
         printf("Net Thread\n");
