@@ -19,6 +19,7 @@
 #define EPOLL_WAIT_TIMEOUT 100      // time in milliseconds
 
 static int net_receive_packets(FILE *log_file, 
+static void net_receive_packets(FILE *log_file, 
                                int fd, 
                                uint8_t *game_id, 
                                struct PostOffice *po, 
@@ -29,29 +30,70 @@ static int net_receive_packets(FILE *log_file,
     {
         uint8_t recv_data[UDP_DATAGRAM_SIZE];
         struct sockaddr_in incoming_addr; 
-        
-        if(udp_read(fd, &incoming_addr, recv_data, UDP_DATAGRAM_SIZE) == UDP_DATAGRAM_SIZE)
+
+        int res = udp_read(fd, &incoming_addr, recv_data, UDP_DATAGRAM_SIZE);
+
+        if(res != UDP_DATAGRAM_SIZE)
         {
-            // TYPES Of Packets:
-            //      Reliable (implement later)
-            //      Regular 
-
-            // Validate packet 
-            // Validate userid 
-            // Validate seq num
-            // Place packet inside mailbox
-            // Update seq number
-
-            recv_data = (struct Header *) recv_data;
-            
-
+            // Incorrect packet
+            continue; 
         }
-    }
 
-    return 0;
+        // Retrieve header 
+        struct Header header; 
+        memcpy(&header, recv_data, UDP_DATAGRAM_HEADER_SIZE);
+
+        if(memcmp(header.game_id, game_id, GAME_ID_SIZE) != 0)
+        {
+            // Drop packet 
+            // GAME ID Does not match
+            continue; 
+        }
+
+        if(header.control & CTRL_INIT_PACKET)
+        {
+            // It is the initiation packet
+            
+            // I first need to verify if the player belongs to this game
+            // TODO 
+
+            if(players_registry_add(players_reg, header.player_id, player_index, incoming_addr) < 0)
+            {
+                // Error adding 
+                // Log error 
+                continue;
+            }
+            player_index++;
+        }
+
+        uint8_t idx;
+        if(players_registry_get_index(players_reg, header.player_id, &idx) < 0)
+        {
+            // User id does not belong to this game process 
+            // DROP PACKET 
+            
+            continue;
+        }
+
+        // Validate sequence number 
+        uint32_t *seq_num = players_registry_seq_get_by_index(players_reg, idx);
+        if(!seq_num || header.seq_num <= *seq_num)
+        {
+            // Sequence number does not exist or existing is bigger then incoming
+            // Drop packet 
+            continue;
+        }
+
+        // Place packet inside mailbox  
+        post_office_write(po, (size_t)idx, &recv_data, UDP_DATAGRAM_SIZE);
+
+        // Update seq number      
+        *seq_num = header.seq_num;        
+    }
 }
 
-static int net_broadcast_state(FILE *log_file, struct PlayersRegistry *players_reg)
+static int net_broadcast_state(FILE *log_file, 
+                            struct PlayersRegistry *players_reg)
 {
     // TODO 
 }
