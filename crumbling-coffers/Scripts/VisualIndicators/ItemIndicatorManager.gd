@@ -65,13 +65,14 @@ func _remove_indicator(id: int) -> void:
 
 # This function checks if the item should have indicator. 
 func _should_have_indicator(item: PickupBase) -> bool:
-	return true # FOR NOW it will be true. 
+	var pos = item.global_position
+	return outer_rect.has_point(pos) and not inner_rect.has_point(pos)
 	
 func set_player(p: Player) -> void:
 	player = p
 	
 func _update_regions() -> void:
-	inner_rect = get_tree().get_viewport_rect()
+	inner_rect = get_viewport().get_visible_rect()
 	var GROW_H = indicator_region_scale_factor * inner_rect.size.x
 	var GROW_V = indicator_region_scale_factor * inner_rect.size.y
 	outer_rect = inner_rect.grow_individual(GROW_H, GROW_V, GROW_H, GROW_V)
