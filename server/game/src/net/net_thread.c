@@ -50,7 +50,7 @@ static void net_receive_packets(FILE *log_file,
             continue; 
         }
 
-        if(header.control & CTRL_INIT_PACKET)
+        if(header.control & CTRL_FLAG_INIT)
         {   
             int ret = players_registry_add_next(
                 players_reg, 
@@ -66,6 +66,22 @@ static void net_receive_packets(FILE *log_file,
                 );
                 continue;
             }
+        }
+        
+        if(header.control & CTRL_FLAG_RELIABLE)
+        {
+            // Reliable packet  
+            uint8_t ack_packet[UDP_DATAGRAM_SIZE];
+            memset(ack_packet, 0, UDP_DATAGRAM_SIZE);
+
+            struct Header *outgoing_header = (struct Header *)ack_packet;
+            memcpy(outgoing_header->game_id, header.game_id, GAME_ID_SIZE);
+            memcpy(outgoing_header->player_id, header.player_id, PLAYER_ID_SIZE);
+            outgoing_header->control = CTRL_FLAG_ACK;
+            outgoing_header->payload_size = 0;
+            outgoing_header->seq_num = header.seq_num;
+
+            udp_write(fd, &incoming_addr, ack_packet, UDP_DATAGRAM_SIZE);
         }
 
         uint8_t idx = 0;
