@@ -137,7 +137,7 @@ static void net_broadcast_state(FILE *log_file,
 
         if(!cur_addr) continue;
 
-        udp_write(fd, cur_addr, packet, UDP_DATAGRAM_SIZE);
+        udp_write(fd, cur_addr, packet, packet_size);
     }
 }
 
@@ -208,9 +208,10 @@ void *run_net_t(void *t_args)
                 log_file, 
                 udp_fd, 
                 players_reg, 
-                herald, 
                 players_num, 
-                players_ids
+                players_ids, 
+                server_packet, 
+                UDP_DATAGRAM_SIZE
             );
         }
 
