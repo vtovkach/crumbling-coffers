@@ -13,6 +13,7 @@
 [ext_resource type="PackedScene" uid="uid://cjn27mygahs0q" path="res://Scenes/items/Legendary Item.tscn" id="10_dvfde"]
 [ext_resource type="PackedScene" uid="uid://dyv15lqe7udju" path="res://Scenes/items/Freeze Staff.tscn" id="12_pybn4"]
 [ext_resource type="PackedScene" uid="uid://1gp35rd3wpli" path="res://Scenes/items/Disorientation Staff.tscn" id="13_war8x"]
+[ext_resource type="PackedScene" uid="uid://dfksyp0wlepyp" path="res://Scenes/items/Slow Staff.tscn" id="14_lfu1p"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_cvf1c"]
 texture = ExtResource("1_xc2b5")
@@ -283,6 +284,9 @@ position = Vector2(-426, -77)
 
 [node name="DisorientationStaff" parent="." unique_id=1987817097 instance=ExtResource("13_war8x")]
 position = Vector2(-1601, -580)
+
+[node name="SlowStaff" parent="." unique_id=2032628642 instance=ExtResource("14_lfu1p")]
+position = Vector2(-991, -571)
 
 [connection signal="canceled" from="QuitConfirmation" to="." method="_on_quit_confirmation_canceled"]
 [connection signal="confirmed" from="QuitConfirmation" to="." method="_on_quit_confirmation_confirmed"]
