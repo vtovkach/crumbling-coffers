@@ -1,4 +1,4 @@
-#include "spsc_queue.h"
+#include "ds/spsc_queue.h"
 
 #include <stdlib.h>
 #include <string.h>
