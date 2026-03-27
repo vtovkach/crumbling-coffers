@@ -66,7 +66,6 @@ func _remove_indicator(id: int) -> void:
 
 # This function checks if the item should have indicator. 
 func _should_have_indicator(item: PickupBase) -> bool:
-	var cam: Camera2D = get_viewport().get_camera_2d()
 	var pos: Vector2 = get_viewport().get_canvas_transform() * item.global_position
 	return outer_rect.has_point(pos) and not inner_rect.has_point(pos)
 	
