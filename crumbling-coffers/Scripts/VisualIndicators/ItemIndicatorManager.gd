@@ -9,13 +9,18 @@ var indicators: Dictionary[int, TwoPointItemIndicator] = {}	# int: id of pickup
 # Multiplying the viewport size by this scale factor produces the region where items spawn indicators 
 @export var indicator_region_scale_factor: float = 1.25 
 
+var inner_rect: Rect2
+var outer_rect: Rect2
+
 func _ready() -> void:
 	pass
 	
 func _process(_delta: float) -> void:
 	if not player: 
 		return
-
+	
+	_update_regions()
+	
 	# Yes... every frame get all the pickups. I am aware that this MIGHT NOT be a great idea. 
 	# This system integrates a lot of moving and misplaced parts so I'm willing to make a convenient inefficiency
 	var items = get_tree().get_nodes_in_group("pickups")
@@ -62,6 +67,11 @@ func _remove_indicator(id: int) -> void:
 func _should_have_indicator(item: PickupBase) -> bool:
 	return true # FOR NOW it will be true. 
 	
-
 func set_player(p: Player) -> void:
 	player = p
+	
+func _update_regions() -> void:
+	inner_rect = get_tree().get_viewport_rect()
+	var GROW_H = indicator_region_scale_factor * inner_rect.size.x
+	var GROW_V = indicator_region_scale_factor * inner_rect.size.y
+	outer_rect = inner_rect.grow_individual(GROW_H, GROW_V, GROW_H, GROW_V)
