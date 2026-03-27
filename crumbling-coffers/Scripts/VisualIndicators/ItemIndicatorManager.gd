@@ -7,7 +7,8 @@ var player: Player
 var indicators: Dictionary[int, TwoPointItemIndicator] = {}	# int: id of pickup
 
 # Multiplying the viewport size by this scale factor produces the region where items spawn indicators 
-@export var indicator_region_scale_factor: float = 1.25 
+@export var indicator_region_scale_factor_horizontal: float = 1.333 
+@export var indicator_region_scale_factor_vertical: float = 2
 
 var inner_rect: Rect2
 var outer_rect: Rect2
@@ -65,7 +66,8 @@ func _remove_indicator(id: int) -> void:
 
 # This function checks if the item should have indicator. 
 func _should_have_indicator(item: PickupBase) -> bool:
-	var pos = item.global_position
+	var cam: Camera2D = get_viewport().get_camera_2d()
+	var pos: Vector2 = get_viewport().get_canvas_transform() * item.global_position
 	return outer_rect.has_point(pos) and not inner_rect.has_point(pos)
 	
 func set_player(p: Player) -> void:
@@ -73,6 +75,7 @@ func set_player(p: Player) -> void:
 	
 func _update_regions() -> void:
 	inner_rect = get_viewport().get_visible_rect()
-	var GROW_H = indicator_region_scale_factor * inner_rect.size.x
-	var GROW_V = indicator_region_scale_factor * inner_rect.size.y
+	var GROW_H = (indicator_region_scale_factor_horizontal - 1) * inner_rect.size.x
+	var GROW_V = (indicator_region_scale_factor_vertical - 1) * inner_rect.size.y
 	outer_rect = inner_rect.grow_individual(GROW_H, GROW_V, GROW_H, GROW_V)
+	
