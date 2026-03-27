@@ -1,6 +1,7 @@
 // udp_test_sender.c
 // Sends packets for multiple players.
-// For each player: send INIT, then after 100 ms send REGULAR.
+// For each player: send reliable INIT and wait for ACK,
+// then after 100 ms send REGULAR.
 // Each packet is exactly 200 bytes.
 // No network byte order conversion is performed.
 
@@ -12,13 +13,17 @@
 #include <string.h>
 #include <unistd.h>
 #include <time.h>
+#include <errno.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <sys/select.h>
 
 #define TARGET_IP   "127.0.0.1"
 #define TARGET_PORT 5000
 
 #define UDP_DATAGRAM_SIZE 200
+#define UDP_ACK_TIMEOUT_MS 1000
+
 #define GAME_ID_SIZE      16
 #define PLAYER_ID_SIZE    16
 #define PLAYERS_NUM       6
@@ -92,13 +97,97 @@ static int send_player_packet(int sockfd,
                   (const struct sockaddr *)dest_addr,
                   sizeof(*dest_addr));
 
-    if (sent < 0)
+    if (sent != UDP_DATAGRAM_SIZE)
     {
-        perror("sendto");
+        if (sent < 0)
+            perror("sendto");
+        else
+            fprintf(stderr, "sendto sent unexpected byte count: %zd\n", sent);
         return -1;
     }
 
     return 0;
+}
+
+static int wait_for_ack(int sockfd,
+                        const uint8_t *game_id,
+                        const uint8_t *player_id,
+                        uint32_t expected_seq_num,
+                        long timeout_ms)
+{
+    fd_set readfds;
+    struct timeval tv;
+
+    for (;;)
+    {
+        FD_ZERO(&readfds);
+        FD_SET(sockfd, &readfds);
+
+        tv.tv_sec = timeout_ms / 1000;
+        tv.tv_usec = (timeout_ms % 1000) * 1000;
+
+        int sel = select(sockfd + 1, &readfds, NULL, NULL, &tv);
+        if (sel < 0)
+        {
+            if (errno == EINTR)
+                continue;
+
+            perror("select");
+            return -1;
+        }
+
+        if (sel == 0)
+        {
+            fprintf(stderr, "ACK timeout for seq=%u\n", expected_seq_num);
+            return -1;
+        }
+
+        if (FD_ISSET(sockfd, &readfds))
+        {
+            uint8_t recv_buf[UDP_DATAGRAM_SIZE];
+            struct sockaddr_in from_addr;
+            socklen_t from_len = sizeof(from_addr);
+
+            ssize_t recvd = recvfrom(sockfd,
+                                     recv_buf,
+                                     sizeof(recv_buf),
+                                     0,
+                                     (struct sockaddr *)&from_addr,
+                                     &from_len);
+
+            if (recvd < 0)
+            {
+                if (errno == EINTR)
+                    continue;
+
+                perror("recvfrom");
+                return -1;
+            }
+
+            if (recvd != UDP_DATAGRAM_SIZE)
+            {
+                fprintf(stderr, "Received unexpected datagram size: %zd\n", recvd);
+                continue;
+            }
+
+            struct Header header;
+            memcpy(&header, recv_buf, sizeof(header));
+
+            if ((header.control & CTRL_FLAG_ACK) == 0)
+                continue;
+
+            if (memcmp(header.game_id, game_id, GAME_ID_SIZE) != 0)
+                continue;
+
+            if (memcmp(header.player_id, player_id, PLAYER_ID_SIZE) != 0)
+                continue;
+
+            if (header.seq_num != expected_seq_num)
+                continue;
+
+            return 0;
+        }
+    }
 }
 
 int main(void)
@@ -147,6 +236,8 @@ int main(void)
     {
         char init_payload[128];
         char reg_payload[128];
+        uint32_t init_seq = (i * 2) + 1;
+        uint32_t reg_seq = (i * 2) + 2;
 
         snprintf(init_payload, sizeof(init_payload),
                  "PLAYER[%u] INIT PACKET", i);
@@ -158,15 +249,28 @@ int main(void)
                                &dest_addr,
                                game_id,
                                player_ids[i],
-                               CTRL_FLAG_INIT,
-                               (i * 2) + 1,
+                               CTRL_FLAG_INIT | CTRL_FLAG_RELIABLE,
+                               init_seq,
                                init_payload) != 0)
         {
             close(sockfd);
             return 1;
         }
 
-        printf("Sent INIT for player %u\n", i);
+        printf("Sent RELIABLE INIT for player %u\n", i);
+
+        if (wait_for_ack(sockfd,
+                         game_id,
+                         player_ids[i],
+                         init_seq,
+                         UDP_ACK_TIMEOUT_MS) != 0)
+        {
+            fprintf(stderr, "Failed to receive ACK for player %u init packet\n", i);
+            close(sockfd);
+            return 1;
+        }
+
+        printf("Received ACK for player %u init packet\n", i);
 
 #if SEND_REGULAR_PACKETS
         sleep_ms(100);
@@ -176,7 +280,7 @@ int main(void)
                                game_id,
                                player_ids[i],
                                0,
-                               (i * 2) + 2,
+                               reg_seq,
                                reg_payload) != 0)
         {
             close(sockfd);
