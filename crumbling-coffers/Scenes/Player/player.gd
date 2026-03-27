@@ -39,6 +39,10 @@ const BASE_FROZEN_DECEL: float = 1000.0
 @export var is_disoriented: bool = false
 @export var disorientation_time_left: float = 0.0
 
+@export var is_slowed: bool = false
+@export var slow_time_left: float = 0.0
+ 
+
 
 # Values for states
 @export var direction: float = 0
@@ -172,6 +176,15 @@ func clear_disorientation() -> void:
 	is_disoriented = false
 	disorientation_time_left = 0.0
 	set_inverted(false)
+	
+func apply_slow(duration: float) -> void:
+	is_slowed = true
+	slow_time_left = duration
+	
+func clear_slow() -> void:
+	is_slowed = false
+	slow_time_left = 0.0
+		
 
 
 
