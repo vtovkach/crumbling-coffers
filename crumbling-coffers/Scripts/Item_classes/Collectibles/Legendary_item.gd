@@ -3,6 +3,7 @@ extends PickupBase
 @export var itemRes: InventoryItem
 
 func _ready() -> void:
+	color = Color("#DA1")
 	super()
 	points = 35
 

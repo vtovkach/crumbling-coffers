@@ -35,7 +35,7 @@ func _process(delta: float) -> void:
 func init(player: Player, item: PickupBase) -> void:
 	source = player
 	target = item
-#	recolor(item.color)
+	recolor(item.color)
 
 func _update_rotation() -> void:
 	# Rotate to face target

@@ -6,7 +6,8 @@ extends PickupBase
 func _ready() -> void:
 	super()
 	points = 5
-
+	color = Color("#D3A")
+	
 func on_collected(body: Node) -> void:
 	if body.has_method("add_score"):
 		body.add_score(points)
