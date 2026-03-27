@@ -4,7 +4,7 @@ class_name ItemIndicatorManager
 @export var indicator_scene: PackedScene
 var player: Player
 
-var indicators: Dictionary[PickupBase, TwoPointItemIndicator] = {}
+var indicators: Dictionary[int, TwoPointItemIndicator] = {}	# int: id of pickup
 
 func _ready() -> void:
 	pass
@@ -19,34 +19,41 @@ func _process(delta: float) -> void:
 	_update_indicators_list(items)
 
 func _update_indicators_list(items: Array) -> void:
-	var valid_items: Dictionary[PickupBase, bool] = {}
+	var valid_ids: Dictionary[int, bool] = {}
 
 	# Spawn
 	for item: PickupBase in items:
+		if not is_instance_valid(item):
+			continue
+			
 		if _should_have_indicator(item):
-			valid_items[item] = true
-			if not indicators.has(item):
+			var id: int = item.get_instance_id()
+			valid_ids[id] = true
+			
+			if not indicators.has(id):
 				_spawn_indicator(item)
 	
 	# Remove
-	for item: PickupBase in indicators.keys().duplicate():
-		if not valid_items.has(item):
-			_remove_indicator(item)
+	for id: int in indicators.keys():
+		if not valid_ids.has(id):
+			_remove_indicator(id)
 
-func _spawn_indicator(item: PickupBase) -> void:
+func _spawn_indicator(target: PickupBase) -> void:
 	var indicator = indicator_scene.instantiate() as TwoPointItemIndicator
 	add_child(indicator)
-	indicator.init(player, item)
-	indicators[item] = indicator
+	indicator.init(player, target)
+	indicators[target.get_instance_id()] = indicator
 
-func _remove_indicator(item: PickupBase) -> void:
-	if not indicators.has(item):
+func _remove_indicator(id: int) -> void:
+	if not indicators.has(id):
 		return
 	
-	var indicator = indicators[item]
+	var indicator : TwoPointItemIndicator = indicators[id]
+
 	if is_instance_valid(indicator):
 		indicator.queue_free()
-	indicators.erase(item)
+
+	indicators.erase(id)
 
 # This function checks if the item should have indicator. 
 func _should_have_indicator(item: PickupBase) -> bool:
