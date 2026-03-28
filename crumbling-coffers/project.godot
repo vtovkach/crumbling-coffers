@@ -33,7 +33,7 @@ enabled=PackedStringArray("res://addons/gut/plugin.cfg")
 
 [gui]
 
-theme/custom_font="uid://6qnqq7pr6gjp"
+theme/custom_font="uid://d2etvha13htlp"
 
 [input]
 

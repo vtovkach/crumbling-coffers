@@ -11,8 +11,11 @@ script = ExtResource("1_s1siy")
 
 [node name="ScoreLabel" type="Label" parent="." unique_id=1960863938]
 custom_minimum_size = Vector2(10, 10)
-offset_right = 470.0
-offset_bottom = 118.0
+offset_left = 19.0
+offset_top = 9.0
+offset_right = 439.0
+offset_bottom = 79.0
+theme_override_font_sizes/font_size = 22
 
 [node name="CenterContainer" type="CenterContainer" parent="." unique_id=823944240]
 anchors_preset = 8
