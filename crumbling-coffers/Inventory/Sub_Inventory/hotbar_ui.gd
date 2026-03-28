@@ -7,6 +7,8 @@ signal active_item_updated
 # variable that will keep track of what index the selection is on.
 var active_item_slot = 0
 
+
+
 func _ready():
 	hotbar.update.connect(self.update_hotbar_slots)
 	# connect the active_item_updated signal 
@@ -51,6 +53,13 @@ func set_active_slot(index: int):
 	active_item_slot = index
 	active_item_updated.emit()
 
+
+# ADDING MOUSE HOVERING DETECTION.
+func hovering_started(slots) -> void:
+	pass
+
+func hovering_ended() -> void:
+	pass
 
 # Will check if the button (right mouse click) is pressed to use the highlighted item.
 # Will only remove the selected item from the array for now.
