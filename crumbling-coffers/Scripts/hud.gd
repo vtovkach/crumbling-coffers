@@ -43,28 +43,29 @@ func update_game_timer(seconds: int) -> void:
 func _on_match_ended() -> void:
 	update_countdown_text("MATCH OVER") # Visual indication for match ending
 	
-	
-# Match start will be handled in MatchManager.gd.
-# Note: "_on_game_timer_timeout()" has been moved to MatchManager.gd.
 
 # function _input will "listen" for an event when "toggle_inventory" occurs. The button connected is "E".
 func _input(event):
-	if event.is_action_pressed("toggle_inventory"):
+	if event.is_action_pressed("toggle_inventory") and MatchManager.current_state == MatchManager.MatchState.RUNNING:
 		if inventory.is_open:
 			inventory.close()
 		else:
 			inventory.open()
 	
+	# Ensure that the hotbar can only be parsed through when the match is in the RUNNING state. No dependencies on 
+	# what mode the match is in.
 	# Adding in scroll mechanics for the hotbar.
-	if event.is_action_pressed("scroll_up"):
-		hotbar.active_item_scroll_up()
-	elif event.is_action_pressed("scroll_down"):
-		hotbar.active_item_scroll_down()
+	if MatchManager.current_state == MatchManager.MatchState.RUNNING:
+		if event.is_action_pressed("scroll_up"):
+			hotbar.active_item_scroll_up()
+		elif event.is_action_pressed("scroll_down"):
+			hotbar.active_item_scroll_down()
 	
 	# Hotbar slot can be selected with numbers.
 	for i in range(8):
-		if event.is_action_pressed("hotbar_slot_%d" %(i+1)):
-			hotbar.set_active_slot(i)
+		if MatchManager.current_state == MatchManager.MatchState.RUNNING:
+			if event.is_action_pressed("hotbar_slot_%d" %(i+1)):
+				hotbar.set_active_slot(i)
 
 func set_player_to_indicators(p: Player) -> void:
 	item_indicator_manager.set_player(p)
