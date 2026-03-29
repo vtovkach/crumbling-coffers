@@ -9,7 +9,13 @@ extends Panel
 # update function: if there is no item in the inventory_slot, do not show visibility.
 # If there is an item, then update and turn on the visibility to true.
 func update(slot: InventorySlot):
-	if !slot.item:
+	# Check if there is a slot inside the array.
+	if slot == null:
+		itemVisual.visible = false
+		amountVisual.visible = false
+		return
+	
+	if slot.item == null:
 		itemVisual.visible = false
 		amountVisual.visible = false
 	else:

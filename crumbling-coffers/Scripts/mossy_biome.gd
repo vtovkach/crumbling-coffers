@@ -73,7 +73,8 @@ func _on_quit_confirmation_canceled() -> void:
 func _on_match_ended() -> void:
 	if player:
 		player.set_physics_process(false) # Disables movement
-		
+		# Reset player inventory.
+		player.inventory.reset_inv()
 		# Get data from HUD/Player before moving on
 		MatchManager.final_score = int(hud.score_label.text)
 		
@@ -84,5 +85,4 @@ func _on_match_ended() -> void:
 	get_tree().change_scene_to_file("res://Scenes/Menu/score_page.tscn")
 	print("Redirecting to Score Page...")
 	
-	# Reset player inventory.
-	player.inventory.reset_inv()
+	

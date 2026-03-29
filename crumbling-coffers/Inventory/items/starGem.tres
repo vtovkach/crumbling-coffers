@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="InventoryItem" format=3 uid="uid://bpwcnqecbbqtm"]
+
+[ext_resource type="Script" uid="uid://f6j08xi4a6wt" path="res://Inventory/Main_Inventory/inventory_item.gd" id="1_833qy"]
+[ext_resource type="Texture2D" uid="uid://2h36beewrw77" path="res://Assets/Items/PNG/shiny/11.png" id="2_2dais"]
+
+[resource]
+script = ExtResource("1_833qy")
+name = "starGem"
+texture = ExtResource("2_2dais")
+metadata/_custom_type_script = "uid://f6j08xi4a6wt"
