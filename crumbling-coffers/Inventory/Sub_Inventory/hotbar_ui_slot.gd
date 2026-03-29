@@ -9,13 +9,13 @@ var slot_active: bool = false
 var current_slot: HotbarSlot
 
 # Mouse detection signals.
-signal hovering_on(item_name)
-signal hovering_off
+#signal hovering_on(item_name)
+#signal hovering_off
 
 
-func _ready():
-	mouse_entered.connect(_on_mouse_entered)
-	mouse_exited.connect(_on_mouse_exited)
+#func _ready():
+#	mouse_entered.connect(_on_mouse_entered)
+#	mouse_exited.connect(_on_mouse_exited)
 
 # This update function is the same as the inventory's logic. Name conventions are changed to
 # associate with hotbar instead of inventory.
@@ -53,10 +53,10 @@ func set_active_slot(value: bool):
 	update_active_slot_visual()
 
 
-func _on_mouse_entered() -> void:
-	if current_slot and current_slot.hotbar_item:
-		hovering_on.emit(current_slot.hotbar_item.name)
+#func _on_mouse_entered() -> void:
+#	if current_slot and current_slot.hotbar_item:
+#		hovering_on.emit(current_slot.hotbar_item.name)
 
 
-func _on_mouse_exited() -> void:
-	hovering_off.emit()
+#func _on_mouse_exited() -> void:
+#	hovering_off.emit()

@@ -66,6 +66,8 @@ signal score_changed(new_score: int)
 var score: int = 0
 
 func _ready() -> void:
+	# Connect signal to func reset_inv_hotbar so is called when the signal is emitted.
+	MatchManager.match_ended.connect(reset_inv_hotbar)
 	add_to_group("freezable")
 	add_to_group("player")
 	add_to_group("disorientable")
@@ -219,3 +221,8 @@ func collect(itemRes):
 # This functionality is the same as inventory's.
 func consumable_collect(hotbar_itemRes):
 	hotbar.hotbar_insert(hotbar_itemRes)
+
+# Implementing call reset functions for inventory and hotbar when a match ends.
+func reset_inv_hotbar():
+	inventory.reset_inv()
+	hotbar.reset_hotbar()

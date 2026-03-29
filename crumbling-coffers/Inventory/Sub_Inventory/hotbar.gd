@@ -22,8 +22,15 @@ func hotbar_insert(item: HotbarItem):
 		if !emptySlots.is_empty():
 			emptySlots[0].hotbar_item = item
 			emptySlots[0].amount = 1
-	
+	# Emit hotbar's update signal.
 	update.emit()
+
+# Reset the hotbar to have no items when a new match is started. Similar behavior to inventory's reset_inv().
+func reset_hotbar() -> void:
+	for hotbar_slot in hotbar_slots:
+		hotbar_slot.hotbar_item = null
+	update.emit()
+
 
 func _on_item_used(index):
 	# !!!

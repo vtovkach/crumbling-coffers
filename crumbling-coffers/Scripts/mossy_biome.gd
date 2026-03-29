@@ -61,6 +61,7 @@ func _on_quit_confirmation_confirmed() -> void:
 	MatchManager.set_state(MatchManager.MatchState.WAITING)
 	# Reset player inventory to have no items from previous matches.
 	player.inventory.reset_inv()
+	player.hotbar.reset_hotbar()
 	
 # Connect from 'canceled' signal
 func _on_quit_confirmation_canceled() -> void:
@@ -73,8 +74,7 @@ func _on_quit_confirmation_canceled() -> void:
 func _on_match_ended() -> void:
 	if player:
 		player.set_physics_process(false) # Disables movement
-		# Reset player inventory.
-		player.inventory.reset_inv()
+
 		# Get data from HUD/Player before moving on
 		MatchManager.final_score = int(hud.score_label.text)
 		
