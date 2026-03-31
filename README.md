@@ -198,16 +198,20 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 - `Jira Task: Testing Collisions`  
     - [PROJ-65](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-65), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-65-testing-collisions)  
 
-**Daniel Pelley**: "Added a basic item and system that allows the player to pick up items along with the framework for the player's inventory/backpack."
+**Daniel Pelley**: "Added various items for players to use against each other, a test dummy to test items and other various aspects, and random spawning for items around the map."
 
-- `Jira Task: Learning GDScript and GoDot`
-    - [PROJ-29](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-29), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-29-learning-gdscript)
-- `Jira Task: Learn Event System & Signals Through Item Collection`
-    - [PROJ-48](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-48), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-48-learn-event-system-signals-throu)
-- `Jira Task: Design: Ability Item System Spec`
-    - [PROJ-21](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-21), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-21-design-ability-item-system-spec)
- - `Jira Task: Implementation Item Inventory (Client, Godot/GDScript)`
-    - [PROJ-25](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-25), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-25-implementation-client-godot-gdsc)
+- `Jira Task: Create Test Dummy for Item Effects`
+    - [PROJ-107](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-107), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-107-create-test-dummy-for-item-effe)
+- `Jira Task: Implement Random Item Spawning`
+    - [PROJ-112](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-112), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-112-implement-random-item-spawning)
+- `Jira Task: Create Freezing Staff`
+    - [PROJ-111](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-111), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-111-freezing-staff)
+ - `Jira Task: Create Slow Staff`
+    - [PROJ-110](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-110), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-110-slow-staff)
+ - `Jira Task: Create Disorientation Staff`
+    - [PROJ-109](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-109), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-109-disorientation-orb)
+ 
+    
  
 **Nicholas**: "Refined player movement and added screen hints for items out of view"
 
