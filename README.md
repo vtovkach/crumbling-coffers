@@ -193,14 +193,18 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 
 **Andrea**: "incorporated an unrefined inheritance framework for how item classes will be created, and wrote tests testing initial character movment collisions." 
 
-- `Jira Task: Learn Node System & Scene Composition`  
-    - [PROJ-47](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-47), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-47-learn-node-system-scene-composit)  
-- `Jira Task: Learn Timers, Autoloads & Basic Game State Management`  
-    - [PROJ-52](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-52), [Bitbucket](http://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-52-learn-timers-autoloads-basic-gam)  
-- `Jira Task: Define classes for different items and classifications`  
-    - [PROJ-40](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-40), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/feature/PROJ-40-defining-abstract-item-objects)  
-- `Jira Task: Testing Collisions`  
-    - [PROJ-65](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-65), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-65-testing-collisions)  
+- `Jira Task: Main Menu Page Framework` 
+    - PROJ-83, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-83-main-menu-page-framework)  
+- `Jira Task: Main Inventory Framework`
+    - PROJ-106, [Bitbucket](http://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-106-main-inventory-framework)  
+- `Jira Task: Sub Inventory Framework`  
+    - PROJ-105, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-105-sub-inventory-framework)  
+- `Jira Task: Global Match State Manager`  
+    - PROJ-43, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-43-global-match-state-manager)
+- `Jira Task: Match Timer UI Design & HUD Integration`
+    - PROJ-42, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-42-match-timer-ui-design-hud-integr) 
+- `Jira Task: UI Visual Integration (Score & Timer Display Styling)`
+    - PROJ-61, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-61-score-and-timer-ui-visual-integration)
 
 **Daniel Pelley**: "Added various items for players to use against each other, a test dummy to test items and other various aspects, and random spawning for items around the map."
 
@@ -281,9 +285,11 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 
 **Andrea:**
 
-- Refine item inventory and score UI design (HUD, "head-up display")
-- Global match timer UI and game timer (for singleplayer)
-- Implement simple "end-of-match" redirection and score tally page
+- Fine-tune player hotbar to provide item information (info hints)
+- Integrate a refined/polished main menu page and character selection page
+- Add more aesthetic graphics for match making menu
+- Create assets for Title/Main page
+- Testing
 
 **Daniel:**
 
