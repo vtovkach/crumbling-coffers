@@ -209,18 +209,27 @@ The game also includes temporary **boost items (spells)** that enhance abilities
  - `Jira Task: Implementation Item Inventory (Client, Godot/GDScript)`
     - [PROJ-25](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-25), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-25-implementation-client-godot-gdsc)
  
-**Nicholas**: "added a player-character that users can move with keyboard input, and related tests."
+**Nicholas**: "Refined player movement and added screen hints for items out of view"
 
-- `Jira Task: learn godot movement + collision ideas`
-    - [PROJ-66](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-66), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-66-learn-godot-movement-collision-i)
-- `Jira Task: Player horizontal movement rules`
-    - [PROJ-51](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-51), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/feature/PROJ-51-player-horizontal-movement-rules)
-- `Jira Task: Player vertical movement rules`
-    - [PROJ-55](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-55), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/feature/PROJ-55-player-vertical-movement-rules)
-- `Jira Task: Player moves with keypresses`
-    - [PROJ-63](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-63), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/feature/PROJ-63-player-moves-with-keypresses)
-- `Jira Task: Testing Movement System`
-    - [PROJ-64](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-64), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-64-testing-movement-system)  
+- `Jira Task: first iteration movement tuning`
+    - [PROJ-86](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-86), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-86-first-iteration-movement-tuning)
+- `Jira Task: Add constant default variables for player's movement`
+    - [PROJ-79](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-79), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/feature%2FPROJ-79-add-constant-default-variables-f)
+- `Jira Task: Add a direction-inverting multiplier to player`
+    - [PROJ-84](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-84), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/feature%2FPROJ-84-add-a-direction-inverting-multip)
+- `Jira Task: Add State Machine for tracking player's state`
+    - [PROJ-80](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-80), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/feature%2FPROJ-80-add-state-machine-for-tracking-p)
+- `Jira Task: Add (more) player mechanics`
+    - [PROJ-81](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-81), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/feature%2FPROJ-81-add-more-player-mechanics)
+- `Jira Task: Off-screen indicator design`
+    - [PROJ-27](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-27), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/feature%2FPROJ-27-off-screen-indicator-design)
+- `Jira Task: Off-screen indicator spawning + spawnconditions`
+    - [PROJ-39](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-39), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/feature%2FPROJ-39-off-screen-indicator-spawning-sp)
+- `Jira Task: Off-screen indicator position on screen`
+    - [PROJ-31](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-31), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/feature%2FPROJ-31-off-screen-indicator-position-on)
+- `Jira Task: Add missing player state transitions `
+    - [PROJ-116](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-116), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-116-add-missing-player-state-transi)
+
 
 **Vadym**: created the initial version of the server and established the core infrastructure and foundation for the backend.
 
