@@ -16,154 +16,50 @@
 #include "orchestrator/net/conn.h"          
 #include "orchestrator/matchmaker/game_queue.h"  
 
-int receiveData(int epoll_fd, int target_fd, HashTable *const clients, struct GameQueue *const gq, FILE *const log_file)
+ssize_t tcp_read(FILE *log_file, int fd, void *dest, size_t dest_size)
 {
-    uint8_t temp_buf[TCP_SEGMENT_SIZE];
-    ssize_t bytes = recv(target_fd, temp_buf, sizeof(temp_buf), 0);
-
-    if(bytes < 0)
+    if(!dest || dest_size == 0)
     {
-        if(errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)
-        {
-            // No error: nothing available to read 
-            return 0;
-        }
-
-        if(closeConnection(log_file, epoll_fd, target_fd, clients, gq) < 0) { return -1; }
-
-        return 1;
+        log_error(log_file, "[tcp_read] incorrect input", 0);
+        return -1;
     }
 
-    if(bytes == 0)
-    {        
-        if(closeConnection(log_file, epoll_fd, target_fd, clients, gq) < 0) { return -1; } 
+    ssize_t n = recv(fd, dest, dest_size, 0);
+    if(n > 0)
+        return n; 
 
-        return 1;
-    }
-
-    struct Client *client = ht__get_internal(clients, &target_fd, sizeof(int));
-    if(!client)
+    if(n == 0)
     {
-        // ht__get_internal did not find the active client 
-        // Close connection and stop tracking it with epoll 
-        close(target_fd);
-
-        if(epoll_ctl(epoll_fd, EPOLL_CTL_DEL, target_fd, NULL) < 0) { return -1; }
-
-        return 1; 
+        // Client disconnected 
+        return -2;
     }
 
-    if((size_t) bytes > (client->buf_size - client->cur_size))
-    {
-        // Drop message
-        // Message exceeds protocol's size 
+    if(errno == EAGAIN || errno == EWOULDBLOCK) return 0;
 
-        // Reset buffer so clinet has another chance to sent a request to join game message  
+    if(errno == EINTR) return 0;
 
-        client->cur_size = 0;
-        client->is_received = false;
-        client->ACK_sent = false;
-        client->game_info_sent = false;  
-
-        return 2;
-    }
-    
-    memcpy(client->buffer + client->cur_size, temp_buf, bytes);
-
-    client->cur_size += bytes;
-
-    if(client->cur_size >= TCP_SEGMENT_SIZE)
-    {
-        client->is_received = true;
-
-        // Update epoll flags
-        struct epoll_event ev = {.data.fd = target_fd, .events = EPOLLOUT | EPOLLHUP | EPOLLERR | EPOLLRDHUP};
-        if(epoll_ctl(epoll_fd, EPOLL_CTL_MOD, target_fd, &ev) < 0) 
-        {
-            ht__remove_internal(clients, &target_fd);
-            return -1;
-        }
-
-        log_net_data(log_file, (char *) client->buffer, client->buf_size);
-
-        // Add client to the game queue 
-        addClientToQueue(gq, client, log_file);
-
-        // Prepare ACK message into client's buffer
-        char ack_msg[TCP_SEGMENT_SIZE];
-        memset(ack_msg, 0, TCP_SEGMENT_SIZE);
-        memcpy(ack_msg, "ACK", 3);
-
-        client->cur_size = 0;
-        // Copy ACK message into the client's buffer 
-        memcpy(client->buffer, (uint8_t *)ack_msg, TCP_SEGMENT_SIZE);
-    }
-
-    return 0;
+    log_error(log_file, "[tcp_read] recv error", errno);
+    return -1;
 }
 
-int sendData(FILE *const log_file, int epoll_fd, int target_fd, HashTable *const clients, struct GameQueue *gq)
+int tcp_send(FILE *log_file, int fd, void *buf, size_t buf_size)
 {
-    struct Client *client = ht__get_internal(clients, &target_fd, sizeof(int));
-    if(!client)
+    if(!buf || buf_size == 0)
     {
-        // Error: client not found 
-        closeConnection(log_file, epoll_fd, target_fd, clients, gq);
-        return 1; 
+        log_error(log_file, "[tcp_send] incorrect input", 0);
+        return -1;
     }
 
-    if(client->ACK_sent && client->game_q_ready)
-    {
-        // Send game info 
-        ssize_t bytes = send(target_fd, client->game_queue_info + client->game_q_cur_size, client->game_q_size - client->game_q_cur_size, MSG_NOSIGNAL);
-        if(bytes < 0)
-        {
-            // Handle error exit code 
-            if(errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) { return 0; } // Not critical 
+    ssize_t n = send(fd, buf, buf_size, 0);
+    if(n >= 0)
+        return n; 
 
-            log_error_fd(log_file, "send failed", target_fd, errno);
-            closeConnection(log_file, epoll_fd, target_fd, clients, gq);
-            return 1;
-        }
-
-        client->game_q_cur_size += (size_t)bytes;
-
-        if(client->game_q_cur_size == client->game_q_size)
-        {
-            // Close Connection: nothing else to do with the client 
-            closeConnection(log_file, epoll_fd, target_fd, clients, gq);
-        }
-
+    if(errno == EINTR) 
         return 0;
-    }
-    
-    if(!client->ACK_sent)
-    {
-        ssize_t bytes = send(target_fd, client->buffer + client->cur_size, client->buf_size - client->cur_size, MSG_NOSIGNAL);
-        if(bytes < 0)
-        {
-            // Handle error exit code 
-            if(errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) { return 0; } // Not critical 
 
-            log_error_fd(log_file, "send failed", target_fd, errno);
-            closeConnection(log_file, epoll_fd, target_fd, clients, gq);
-            return 1;
-        }
+    if(errno == EAGAIN || errno == EWOULDBLOCK)
+        return 0;
 
-        client->cur_size += (size_t)bytes;
-
-        if(client->cur_size == client->buf_size)
-        {
-            client->ACK_sent = true; 
-
-            if(!client->game_q_ready)
-            {
-                // Update epoll events: remove EPOLLOUT until game_q_ready is false 
-                struct epoll_event ev = {.data.fd = target_fd, .events = EPOLLHUP | EPOLLERR | EPOLLRDHUP };
-                if(epoll_ctl(epoll_fd, EPOLL_CTL_MOD, target_fd, &ev) < 0) { return -1; } // Critical Error 
-            }
-        }
-    }
-    
-    return 0;
+    log_error(log_file, "[tcp_send] send error", errno);
+    return -1;
 }
