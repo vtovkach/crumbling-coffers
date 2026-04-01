@@ -191,7 +191,7 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 - `Jira Task: Main Menu to Single-Player Scene Transition`  
     - [PROJ-90](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-90), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-90-mm-2-training-ground)  
 
-**Andrea**: "incorporated an unrefined inheritance framework for how item classes will be created, and wrote tests testing initial character movment collisions." 
+**Andrea**: "Created simple main menu page, worked on implementation of inventory for collectible score items and hotbar for consumable items. Also implemented match state manager, added to the HUD UI, and created custom font asset to make game distinctive." 
 
 - `Jira Task: Main Menu Page Framework` 
     - PROJ-83, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-83-main-menu-page-framework)  
