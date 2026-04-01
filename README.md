@@ -246,27 +246,27 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 **Vadym**: created the initial version of the server and established the core infrastructure and foundation for the backend.
 
 - `Jira Task: PROJ-4`
-    - PROJ-4, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-4)
+    - PROJ-4
 - `Jira Task: PROJ-77`
-    - PROJ-77, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-77)
+    - PROJ-77
 - `Jira Task: PROJ-91`
-    - PROJ-91, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-91)
+    - PROJ-91
 - `Jira Task: PROJ-92`
-    - PROJ-92, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-92)
+    - PROJ-92
 - `Jira Task: PROJ-93`
-    - PROJ-93, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-93)
+    - PROJ-93
 - `Jira Task: PROJ-94`
-    - PROJ-94, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-94)
+    - PROJ-94
 - `Jira Task: PROJ-95`
-    - PROJ-95, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-95)
+    - PROJ-95
 - `Jira Task: PROJ-96`
-    - PROJ-96, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-96)
+    - PROJ-96
 - `Jira Task: PROJ-114`
-    - PROJ-114, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-114)
+    - PROJ-114
 - `Jira Task: PROJ-115`
-    - PROJ-115, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-115)
+    - PROJ-115
 - `Jira Task: PROJ-130`
-    - PROJ-130, [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-130)
+    - PROJ-130
 
 - `Sprint Work`
     - Contributed 200+ commits during Sprint 1.
