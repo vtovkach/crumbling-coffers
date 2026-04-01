@@ -314,16 +314,9 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 
 **Vadym:**
 
-- For the server, the next goal is to implement matchmaking and meaningful communication between the client and the server.
-    - Finish the orchestrator process.
-    - Add a game loop to the game processes.
-    - Implement port management on the orchestrator side.
-
-- Design and implement a network module on the client side.
-
-
-
-
+- Prepare the client side for multiplayer integration.
+- Implement the game process.
+- Integrate multiplayer into the game.
 
 ### Upcoming
 - Multiplayer support (planned: 4 players per match)
