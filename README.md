@@ -312,12 +312,9 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 
 - Design and implement a network module on the client side.
 
-#### Completed Features (in Sprint 1)
-- Learning Godot Engine  
-- Leaning GDScript  
-- Map Design & Interactivity  
-- Large vertically and horizontally explorable map   
-- Item system with rarity tiers and score values  
+#### Completed Features (in Sprint 2)
+- User story completed in sprint 2 ?
+- 
 
 
 
