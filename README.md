@@ -243,7 +243,7 @@ The game also includes temporary **boost items (spells)** that enhance abilities
     - [PROJ-116](https://cs3398-callisto-s26.atlassian.net/browse/PROJ-116), [Bitbucket](https://bitbucket.org/cs3398-callisto-s26/crumbling-coffers-main/commits/branch/PROJ-116-add-missing-player-state-transi)
 
 
-**Vadym**: created the initial version of the server and established the core infrastructure and foundation for the backend.
+**Vadym**: **Vadym**: implemented core networking, matchmaking, and process management systems for the game server, enabling scalable session creation and reliable communication between components. Contributed to both client and server-side functionality, including testing, bug fixes, and integration of gameplay features.
 
 - `Jira Task: PROJ-4`
     - PROJ-4
