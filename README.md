@@ -299,8 +299,11 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 
 **Daniel:**
 
-- Adding functional items that affect the player in various ways. 
-- Adding to the player the ability to use the items. 
+- Tuning and touching up items
+- Add spawn locations for usuable items
+- Organize Code to ensure SOLID principles
+- Add music while match is going. 
+- Tasks above subject to change as management requires or if priorities shift.
  
 **Nicholas:**
 
@@ -342,6 +345,8 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 
 - Daniel: Learning GDScript (learn technologies needed such as GDScript, C, SQLite)  
 - Daniel: Adding and Implementing Ability Items (item design & interactivity, player picking up & using items)  
+- Daniel: As a developer, I want a test dummy so that we can easily test gameplay effects without needing multiple players.
+- Daniel: As a player, I want to collect items that affect other players so that gameplay becomes more strategic. (Fixed and more accurate version of previous story)
 
 - Nicholas: Player character movement (player character design & mechanics, player movement, navigating the map)  
 - Nicholas: Off-screen visual hints (Off screen direction, reveal other players and rare items)  
