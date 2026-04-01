@@ -321,9 +321,6 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 
 - Design and implement a network module on the client side.
 
-#### Completed Features (in Sprint 2)
-- User story completed in sprint 2 ?
-- 
 
 
 
@@ -354,7 +351,6 @@ The game also includes temporary **boost items (spells)** that enhance abilities
 - Vadym: Server foundation creation (foundational asynchronous UDP networking layer)  
 - Vadym: Create the foundation for the client networking module (UDP send/receive + protocol parsing, main menu before the match starts waiting on other players)  
 
-- Score screen after match ends (compare scores & announce winner)  
 
 ---
 
