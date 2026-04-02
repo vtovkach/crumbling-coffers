@@ -18,6 +18,17 @@ struct Orchestrator
     struct PortManager *pm; 
 };
 
+struct OrchArgs
+{
+    FILE *log_file;
+    int orch_eventfd; 
+    int sessions_manager_eventfd;
+};
+
+void *orch_t_run(void *);
+
 int orchestrator_run(pid_t parent_pid);
+
+
 
 #endif 
