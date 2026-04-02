@@ -1,0 +1,6 @@
+#ifndef _BROKER_CONFIG_
+#define _BROKER_CONFIG_
+
+#define BROKER_QUEUE_CAPACITY 128
+
+#endif
