@@ -57,3 +57,6 @@ server/orchestrator/obj/*
 server/supervisor/obj/*
 server/log/*
 server/bin
+
+# Claude Code
+CLAUDE.md
