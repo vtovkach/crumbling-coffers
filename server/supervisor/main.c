@@ -6,17 +6,24 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
-#include <signal.h>
 #include <sys/poll.h>
+#include <stdatomic.h>
+#include <sys/eventfd.h>
+#include <pthread.h>
 
+#include "broker.h"
+#include "orchestrator.h"
+#include "matchmaker.h"
 #include "util.h"
 #include "server-config.h"
 
 // Logging CONSTANTS  
 #define LOG_DIR "log/"
-#define LOG_ACTIVITY "log/supervisor"
+#define SUPERVISOR_LOG "log/supervisor"
 
-int main(void)
+atomic_bool shutdown = false; 
+
+static FILE *setup_log(void)
 {
     // Create log directory if it already does not exist 
     if(mkdir(LOG_DIR, 0755) == -1)
@@ -24,101 +31,93 @@ int main(void)
         if(errno != EEXIST)
         {
             perror("mkdir (supervisor)");
-            return 1;
+            return NULL;
         }
     }
 
-    FILE *log_activity = fopen(LOG_ACTIVITY, "a");
-    if(!log_activity)
+    return fopen(SUPERVISOR_LOG, "a");
+}
+
+static void shutdown_controller()
+{
+    // TODO 
+}
+
+int main(void)
+{
+    // Declare and initialize variables 
+    FILE *log = NULL;
+    struct Broker *broker = NULL;
+    int orch_eventfd = -1;
+    int matchmaker_eventfd = -1;
+    int rc = -1;
+
+    // Set up logging file 
+    log = setup_log();
+    if(!log) return 1;
+
+    // Setup broker structure 
+    broker = init_broker();
+    if(!broker) goto error;
+
+    // Signals orchestrator if there is an available packet in the queue 
+    orch_eventfd = eventfd(0, EFD_NONBLOCK);
+    // Signals sessions manager if there is an available packet in the queue 
+    matchmaker_eventfd = eventfd(0, EFD_NONBLOCK); 
+
+    // Launch Orchestrator 
+    struct OrchArgs orch_args = {
+        .broker = broker, 
+        .log_file = log, 
+        .orch_eventfd = orch_eventfd, 
+        .matchmaker_eventfd = matchmaker_eventfd
+    };
+
+    pthread_t orch_t;
+    rc = pthread_create(&orch_t, NULL, orch_run_t, &orch_args);
+    if(rc != 0)
     {
-        perror("fopen (supervisor)");
-        return 1;
+        // Handle potential errors
+        goto error; 
     }
-
-    // Get parent pid which will be passed to orchestrator  
-    pid_t p_pid = getpid(); 
-
-    // Create Orchestrator Process and save child pid 
-    pid_t c_pid = fork(); 
     
-    // Check if fork failed 
-    if(c_pid < 0)
+    // Launch SessionsManager 
+    struct MatchmakerArgs matchmaker_args = {
+        .broker = broker,
+        .log_file = log,
+        .orch_eventfd = orch_eventfd,
+        .matchmaker_eventfd = matchmaker_eventfd
+    };
+
+    pthread_t matchmaker_t; 
+    rc = pthread_create(&matchmaker_t, 
+                            NULL, 
+                            matchmaker_run_t, 
+                            &matchmaker_args);
+    if(rc != 0)
     {
-        perror("fork (supervisor)");
-        return 1;
+        // Handle potential errors 
+        goto error;  
     }
-    
-    // Here goes the child process 
-    if(c_pid == 0)
-    {
-        // Make argument list to orchestrator process
-        // Will additional necessary arguments later 
 
-        char string_p_pid[32];
-        snprintf(string_p_pid, sizeof(string_p_pid), "%d", p_pid);
-        
-        char *argv[] = {ORCHESTRATOR_PROCESS, string_p_pid, NULL};
+    shutdown_controller();
 
-        // Execute process 
-        execv(ORCHESTRATOR_PROCESS, argv);
-
-        // Runs only if execv fails 
-        perror("execv (supervisor)");
-
-        // Report error in a log file 
-        char time[TIME_BUFFER_SIZE];
-        getTime(time, TIME_BUFFER_SIZE);
-        fprintf(log_activity, "%s: execv error: %s\n", time, strerror(errno));
-        fflush(log_activity);
-
-        _exit(1);
-    }   
-
-    char *userInput = NULL;
-    size_t cap = 0;
-
-    struct pollfd pfd = {.fd = STDIN_FILENO, .events = POLLIN};
-    
-    for(;;)
-    {   
-        int rc = poll(&pfd, 1, 2000);
-
-        if(rc == 0)
-        {
-            // Poll timeout 
-            int s = waitpid(c_pid, NULL, WNOHANG);
-
-            if(s > 0) break; 
-
-            continue;
-        }
-        if(rc < 0)
-        {
-            perror("poll (supervisor)");
-            kill(c_pid, SIGUSR1);
-            break; 
-        }
-
-        // stdin is ready, now I can read input 
-        ssize_t n = getline(&userInput, &cap, stdin);
-        if(n == -1)
-        {
-            perror("getline (supervisor)");
-            kill(c_pid, SIGUSR1);
-            break;
-        }
-
-        printf("U: %s", userInput);
-
-        if(strncmp(userInput, "exit", 4) == 0)
-        {
-            kill(c_pid, SIGUSR1);
-            break;
-        }
-    }
-    
-    free(userInput);
-    waitpid(c_pid, NULL, 0);
+    pthread_join(orch_t, NULL);
+    pthread_join(matchmaker_t, NULL);
 
     return 0;
+
+error: 
+
+    atomic_store(&shutdown, 1);
+
+    destroy_broker(broker);
+    if(orch_eventfd != -1) close(orch_eventfd);
+    if(matchmaker_eventfd != -1) close(matchmaker_eventfd);
+    fclose(log);
+    
+    pthread_join(orch_t, NULL);
+    pthread_join(matchmaker_t, NULL);
+
+    return 1; 
 }
