@@ -16,16 +16,17 @@
 #include "matchmaker.h"
 #include "util.h"
 #include "server-config.h"
+#include "log_system.h"
 
-// Logging CONSTANTS  
+// Logging CONSTANTS
 #define LOG_DIR "log/"
 #define SUPERVISOR_LOG "log/supervisor"
 
-atomic_bool shutdown = false; 
+atomic_bool shutdown = false;
 
 static FILE *setup_log(void)
 {
-    // Create log directory if it already does not exist 
+    // Create log directory if it already does not exist
     if(mkdir(LOG_DIR, 0755) == -1)
     {
         if(errno != EEXIST)
@@ -38,38 +39,111 @@ static FILE *setup_log(void)
     return fopen(SUPERVISOR_LOG, "a");
 }
 
-static void shutdown_controller()
+static void shutdown_controller(FILE *log)
 {
-    // TODO 
+    struct pollfd pfd = {
+        .fd = STDIN_FILENO,
+        .events = POLLIN
+    };
+
+    char *userInput = NULL;
+    size_t cap = 0;
+
+    for(;;)
+    {
+        int rc = poll(&pfd, 1, 2500);
+        if(rc < 0)
+        {
+            log_error(log, "[shutdown_controller] poll failed", errno);
+            goto exit;
+        }
+
+        if(rc == 0)
+        {
+            if(atomic_load(&shutdown))
+            {
+                log_message(log,
+                    "[shutdown_controller] shutdown signal received,"
+                    " terminating");
+                goto exit;
+            }
+            continue;
+        }
+
+        if(!(pfd.revents & POLLIN))
+        {
+            log_message(log,
+                "[shutdown_controller] unexpected poll event on stdin,"
+                " exiting");
+            goto exit;
+        }
+
+        // Get user input
+        ssize_t n = getline(&userInput, &cap, stdin);
+        if(n == -1)
+        {
+            log_error(log, "[shutdown_controller] getline failed", errno);
+            goto exit;
+        }
+
+        printf("U: %s", userInput);
+
+        if(strncmp(userInput, "exit", 4) == 0)
+        {
+            log_message(log,
+                "[shutdown_controller] user requested termination");
+            goto exit;
+        }
+    }
+
+exit:
+    free(userInput);
 }
 
 int main(void)
 {
-    // Declare and initialize variables 
+    // Declare and initialize variables
     FILE *log = NULL;
     struct Broker *broker = NULL;
     int orch_eventfd = -1;
     int matchmaker_eventfd = -1;
     int rc = -1;
+    bool orch_started = false;
+    bool matchmaker_started = false;
 
-    // Set up logging file 
+    // Set up logging file
     log = setup_log();
     if(!log) return 1;
 
-    // Setup broker structure 
+    // Setup broker structure
     broker = init_broker();
-    if(!broker) goto error;
+    if(!broker)
+    {
+        log_error(log, "[main] init_broker failed", 0);
+        goto exit;
+    }
 
-    // Signals orchestrator if there is an available packet in the queue 
+    // Signals orchestrator if there is an available packet in the queue
     orch_eventfd = eventfd(0, EFD_NONBLOCK);
-    // Signals sessions manager if there is an available packet in the queue 
-    matchmaker_eventfd = eventfd(0, EFD_NONBLOCK); 
+    if(orch_eventfd == -1)
+    {
+        log_error(log, "[main] eventfd failed", errno);
+        goto exit;
+    }
 
-    // Launch Orchestrator 
+    // Signals sessions manager if there is an available packet in the queue
+    matchmaker_eventfd = eventfd(0, EFD_NONBLOCK);
+    if(matchmaker_eventfd == -1)
+    {
+        log_error(log, "[main] eventfd failed", errno);
+        goto exit;
+    }
+
+    // Launch Orchestrator
     struct OrchArgs orch_args = {
-        .broker = broker, 
-        .log_file = log, 
-        .orch_eventfd = orch_eventfd, 
+        .broker = broker,
+        .log_file = log,
+        .orch_eventfd = orch_eventfd,
         .matchmaker_eventfd = matchmaker_eventfd
     };
 
@@ -77,11 +151,12 @@ int main(void)
     rc = pthread_create(&orch_t, NULL, orch_run_t, &orch_args);
     if(rc != 0)
     {
-        // Handle potential errors
-        goto error; 
+        log_error(log, "[main] failed to create orchestrator thread", rc);
+        goto exit;
     }
-    
-    // Launch SessionsManager 
+    orch_started = true;
+
+    // Launch SessionsManager
     struct MatchmakerArgs matchmaker_args = {
         .broker = broker,
         .log_file = log,
@@ -89,35 +164,31 @@ int main(void)
         .matchmaker_eventfd = matchmaker_eventfd
     };
 
-    pthread_t matchmaker_t; 
-    rc = pthread_create(&matchmaker_t, 
-                            NULL, 
-                            matchmaker_run_t, 
+    pthread_t matchmaker_t;
+    rc = pthread_create(&matchmaker_t,
+                            NULL,
+                            matchmaker_run_t,
                             &matchmaker_args);
     if(rc != 0)
     {
-        // Handle potential errors 
-        goto error;  
+        log_error(log, "[main] failed to create matchmaker thread", rc);
+        goto exit;
     }
+    matchmaker_started = true;
 
-    shutdown_controller();
+    shutdown_controller(log);
 
-    pthread_join(orch_t, NULL);
-    pthread_join(matchmaker_t, NULL);
+exit:
 
-    return 0;
-
-error: 
-
-    atomic_store(&shutdown, 1);
+    atomic_store(&shutdown, true);
 
     destroy_broker(broker);
     if(orch_eventfd != -1) close(orch_eventfd);
     if(matchmaker_eventfd != -1) close(matchmaker_eventfd);
-    fclose(log);
-    
-    pthread_join(orch_t, NULL);
-    pthread_join(matchmaker_t, NULL);
+    if(log) fclose(log);
 
-    return 1; 
+    if(orch_started) pthread_join(orch_t, NULL);
+    if(matchmaker_started) pthread_join(matchmaker_t, NULL);
+
+    return 0;
 }
