@@ -75,10 +75,26 @@ static inline int add_fd_epoll(FILE *log_file, int efd, int tfd, int events)
     return 0;
 }
 
+static int register_epoll_fds(  FILE *log_file,
+                                int efd,
+                                int lfd,
+                                int orch_eventfd,
+                                int send_eventfd,
+                                int recv_eventfd
+                            )
+{
+    if(add_fd_epoll(log_file, efd, lfd, EPOLLIN) < 0)           return -1;
+    if(add_fd_epoll(log_file, efd, orch_eventfd, EPOLLIN) < 0)  return -1;
+    if(add_fd_epoll(log_file, efd, send_eventfd, EPOLLIN) < 0)  return -1;
+    if(add_fd_epoll(log_file, efd, recv_eventfd, EPOLLIN) < 0)  return -1;
+    return 0;
+}
+
 int process_events( int n_events,
                     int lfd,
                     int efd,
                     int send_eventfd,
+                    int recv_eventfd,
                     struct OrchArgs *orch_args,
                     struct BufferController *c_buf,
                     struct ConnController *c_con,
@@ -121,6 +137,17 @@ int process_events( int n_events,
             continue;
         }
 
+        if(fd == recv_eventfd)
+        {
+            if(events & EPOLLIN)
+            {
+                uint64_t val;
+                read(fd, &val, sizeof(val));
+                // TODO: process input buffer
+            }
+            continue;
+        }
+
         // Client fd
         if(events & (EPOLLRDHUP | EPOLLHUP | EPOLLERR))
         {
@@ -139,43 +166,65 @@ int process_events( int n_events,
 
 void *orch_run_t(void *args)
 {
-    struct OrchArgs *t_orch_args = (struct OrchArgs *)args;
+    struct OrchArgs *t_orch_args  = (struct OrchArgs *)args;
+    FILE           *log           = t_orch_args->log_file;
+    int             orch_eventfd  = t_orch_args->orch_eventfd;
 
     struct BufferController *c_buf = NULL;
-    struct ConnController *c_con = NULL;
+    struct ConnController *c_con   = NULL;
     struct epoll_event epoll_events[EPOLL_MAX_EVENTS];
 
     int lfd          = -1;
     int efd          = -1;
     int send_eventfd = -1;
+    int recv_eventfd = -1;
 
-    lfd = setup_listen_socket(t_orch_args->log_file);
+    lfd = setup_listen_socket(log);
     if(lfd < 0) goto exit;
 
     efd = epoll_create1(0);
-    if(efd < 0) goto exit; 
+    if(efd < 0)
+    {
+        log_error(log, "[orch_run_t] epoll_create1 failed", errno);
+        goto exit;
+    }
 
     c_buf = bc_init();
-    if(!c_buf) goto exit;
+    if(!c_buf)
+    {
+        log_error(log, "[orch_run_t] bc_init failed", errno);
+        goto exit;
+    }
 
     c_con = cc_init(efd);
-    if(!c_con) goto exit; 
-
-    // Monitor listening file descriptor with epoll
-    int ret = add_fd_epoll(t_orch_args->log_file, efd, lfd, EPOLLIN);
-    if(ret != 0) goto exit;
-
-    ret = add_fd_epoll(t_orch_args->log_file, efd, t_orch_args->orch_eventfd, EPOLLIN);
-    if(ret != 0) goto exit;
+    if(!c_con)
+    {
+        log_error(log, "[orch_run_t] cc_init failed", errno);
+        goto exit;
+    }
 
     send_eventfd = eventfd(0, EFD_NONBLOCK);
     if(send_eventfd < 0)
     {
-        log_error(t_orch_args->log_file, "[orch_run_t] eventfd failed", errno);
+        log_error(log, "[orch_run_t] send_eventfd failed", errno);
         goto exit;
     }
 
-    ret = add_fd_epoll(t_orch_args->log_file, efd, send_eventfd, EPOLLIN);
+    recv_eventfd = eventfd(0, EFD_NONBLOCK);
+    if(recv_eventfd < 0)
+    {
+        log_error(log, "[orch_run_t] recv_eventfd failed", errno);
+        goto exit;
+    }
+
+    int ret = register_epoll_fds(
+        log, 
+        efd, 
+        lfd, 
+        orch_eventfd, 
+        send_eventfd, 
+        recv_eventfd
+    );
     if(ret != 0) goto exit;
 
     while(!atomic_load(&t_shutdown))
@@ -189,25 +238,27 @@ void *orch_run_t(void *args)
 
         if(ret == -1)
         {
-            log_error(
-                t_orch_args->log_file, 
-                "[orch_run_t] epoll_wait critical failure", 
-                errno
-            );
+            log_error(log, "[orch_run_t] epoll_wait critical failure", errno);
             goto exit;
         }
 
         if(ret == 0) continue;
 
-        int status = process_events(ret, lfd, efd, send_eventfd, t_orch_args, c_buf, c_con, epoll_events);
+        int status = process_events(
+            ret, 
+            lfd, 
+            efd, 
+            send_eventfd, 
+            recv_eventfd, 
+            t_orch_args, 
+            c_buf, 
+            c_con, 
+            epoll_events
+        );
 
         if(status < 0)
         {
-            log_error(
-                t_orch_args->log_file, 
-                "[orch_run_t] process_events: critical failure", 
-                0
-            );
+            log_error(log, "[orch_run_t] process_events: critical failure", 0);
             goto exit;
         }
     }
@@ -221,6 +272,7 @@ exit:
     if(lfd != -1) close(lfd);
     if(efd != -1) close(efd);
     if(send_eventfd != -1) close(send_eventfd);
+    if(recv_eventfd != -1) close(recv_eventfd);
 
     return NULL;
 }
