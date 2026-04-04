@@ -8,7 +8,7 @@
 #define PORTS_LIMIT             20 
 #define MAX_TCP_QUEUE           128
 #define MAX_GAME_QUEUE          128
-#define ORCH_MAX_EPOLL_EVENTS   512
+#define EPOLL_MAX_EVENTS        512
 #define HASH_TABLE_SIZE         4096
 #define TCP_SEGMENT_SIZE        200
 #define PLAYERS_PER_MATCH 2
