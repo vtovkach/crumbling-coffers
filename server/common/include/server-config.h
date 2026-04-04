@@ -9,6 +9,7 @@
 #define MAX_TCP_QUEUE           128
 #define MAX_GAME_QUEUE          128
 #define EPOLL_MAX_EVENTS        512
+#define EPOLL_TIMEOUT           1000
 #define HASH_TABLE_SIZE         4096
 #define TCP_SEGMENT_SIZE        200
 #define PLAYERS_PER_MATCH 2
