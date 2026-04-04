@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/wait.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
@@ -14,8 +12,6 @@
 #include "broker.h"
 #include "orchestrator.h"
 #include "matchmaker.h"
-#include "util.h"
-#include "server-config.h"
 #include "log_system.h"
 
 // Logging CONSTANTS
