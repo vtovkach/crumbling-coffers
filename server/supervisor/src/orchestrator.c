@@ -1,4 +1,5 @@
 #include <stdatomic.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
@@ -9,6 +10,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/epoll.h>
+#include <sys/eventfd.h>
 
 #include "log_system.h"
 #include "server-config.h"
@@ -73,9 +75,66 @@ static inline int add_fd_epoll(FILE *log_file, int efd, int tfd, int events)
     return 0;
 }
 
-void process_events(void)
+int process_events( int n_events,
+                    int lfd,
+                    int efd,
+                    int send_eventfd,
+                    struct OrchArgs *orch_args,
+                    struct BufferController *c_buf,
+                    struct ConnController *c_con,
+                    struct epoll_event *epoll_events
+                )
 {
-    // process events here 
+    for(int i = 0; i < n_events; i++)
+    {
+        int fd            = epoll_events[i].data.fd;
+        uint32_t events   = epoll_events[i].events;
+
+        if(fd == lfd)
+        {
+            if(events & EPOLLIN)
+            {
+                // TODO: cc_accept_connection — accept new client
+            }
+            continue;
+        }
+
+        if(fd == orch_args->orch_eventfd)
+        {
+            if(events & EPOLLIN)
+            {
+                uint64_t val;
+                read(fd, &val, sizeof(val));
+                // TODO: process item from broker
+            }
+            continue;
+        }
+
+        if(fd == send_eventfd)
+        {
+            if(events & EPOLLIN)
+            {
+                uint64_t val;
+                read(fd, &val, sizeof(val));
+                // TODO: send output buffer data to client
+            }
+            continue;
+        }
+
+        // Client fd
+        if(events & (EPOLLRDHUP | EPOLLHUP | EPOLLERR))
+        {
+            // TODO: cc_close_connection — clean up disconnected client
+            continue;
+        }
+
+        if(events & EPOLLIN)
+        {
+            // TODO: read incoming data into input buffer
+        }
+    }
+
+    return 0;
 }
 
 void *orch_run_t(void *args)
@@ -86,8 +145,9 @@ void *orch_run_t(void *args)
     struct ConnController *c_con = NULL;
     struct epoll_event epoll_events[EPOLL_MAX_EVENTS];
 
-    int lfd = -1;
-    int efd = -1;
+    int lfd          = -1;
+    int efd          = -1;
+    int send_eventfd = -1;
 
     lfd = setup_listen_socket(t_orch_args->log_file);
     if(lfd < 0) goto exit;
@@ -101,13 +161,55 @@ void *orch_run_t(void *args)
     c_con = cc_init(efd);
     if(!c_con) goto exit; 
 
-    // Monitor listening file descriptor with epoll 
+    // Monitor listening file descriptor with epoll
     int ret = add_fd_epoll(t_orch_args->log_file, efd, lfd, EPOLLIN);
+    if(ret != 0) goto exit;
+
+    ret = add_fd_epoll(t_orch_args->log_file, efd, t_orch_args->orch_eventfd, EPOLLIN);
+    if(ret != 0) goto exit;
+
+    send_eventfd = eventfd(0, EFD_NONBLOCK);
+    if(send_eventfd < 0)
+    {
+        log_error(t_orch_args->log_file, "[orch_run_t] eventfd failed", errno);
+        goto exit;
+    }
+
+    ret = add_fd_epoll(t_orch_args->log_file, efd, send_eventfd, EPOLLIN);
     if(ret != 0) goto exit;
 
     while(!atomic_load(&t_shutdown))
     {
+        int ret = epoll_wait(
+            efd, 
+            epoll_events, 
+            EPOLL_MAX_EVENTS, 
+            EPOLL_TIMEOUT
+        );
 
+        if(ret == -1)
+        {
+            log_error(
+                t_orch_args->log_file, 
+                "[orch_run_t] epoll_wait critical failure", 
+                errno
+            );
+            goto exit;
+        }
+
+        if(ret == 0) continue;
+
+        int status = process_events(ret, lfd, efd, send_eventfd, t_orch_args, c_buf, c_con, epoll_events);
+
+        if(status < 0)
+        {
+            log_error(
+                t_orch_args->log_file, 
+                "[orch_run_t] process_events: critical failure", 
+                0
+            );
+            goto exit;
+        }
     }
 
 exit:
@@ -118,6 +220,7 @@ exit:
     if(c_con) cc_destroy(c_con);
     if(lfd != -1) close(lfd);
     if(efd != -1) close(efd);
+    if(send_eventfd != -1) close(send_eventfd);
 
     return NULL;
 }
