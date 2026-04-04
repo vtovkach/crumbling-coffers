@@ -90,9 +90,45 @@ static int register_epoll_fds(  FILE *log_file,
     return 0;
 }
 
-int process_events( int n_events,
+static void accept_connections( FILE *log_file, 
+                                int listen_fd,
+                                struct ConnController *cc, 
+                                struct BufferController *bc
+                            )
+{
+    int num_fds; 
+    int *fds = cc_accept_connection(cc, listen_fd, log_file, &num_fds);
+
+    for(int i = 0; i < num_fds; i++)
+    {
+        bc_add(bc, fds[i]);
+    }
+
+    free(fds);
+}
+
+static void process_broker(FILE *log_file)
+{
+    log_message(log_file, "Process from broker!");
+};
+
+static void send_data(FILE *log_file)
+{
+    log_message(log_file, "Sending Data");
+};
+
+static void process_usr_request(FILE *log_file)
+{
+    log_message(log_file, "Process user request");
+}
+
+static void read_incoming_data(FILE *log_file)
+{
+    log_message(log_file, "read_incoming_data");
+}
+
+static int process_events( int n_events,
                     int lfd,
-                    int efd,
                     int send_eventfd,
                     int recv_eventfd,
                     struct OrchArgs *orch_args,
@@ -110,7 +146,7 @@ int process_events( int n_events,
         {
             if(events & EPOLLIN)
             {
-                // TODO: cc_accept_connection — accept new client
+                accept_connections(orch_args->log_file, lfd, c_con, c_buf);
             }
             continue;
         }
@@ -121,7 +157,7 @@ int process_events( int n_events,
             {
                 uint64_t val;
                 read(fd, &val, sizeof(val));
-                // TODO: process item from broker
+                process_broker(orch_args->log_file);
             }
             continue;
         }
@@ -132,7 +168,7 @@ int process_events( int n_events,
             {
                 uint64_t val;
                 read(fd, &val, sizeof(val));
-                // TODO: send output buffer data to client
+                send_data(orch_args->log_file);
             }
             continue;
         }
@@ -143,7 +179,7 @@ int process_events( int n_events,
             {
                 uint64_t val;
                 read(fd, &val, sizeof(val));
-                // TODO: process input buffer
+                process_usr_request(orch_args->log_file);
             }
             continue;
         }
@@ -152,12 +188,14 @@ int process_events( int n_events,
         if(events & (EPOLLRDHUP | EPOLLHUP | EPOLLERR))
         {
             // TODO: cc_close_connection — clean up disconnected client
+            cc_close_connection(c_con, fd, orch_args->log_file);
+            bc_remove(c_buf, fd);
             continue;
         }
 
         if(events & EPOLLIN)
         {
-            // TODO: read incoming data into input buffer
+            read_incoming_data(orch_args->log_file);
         }
     }
 
@@ -247,7 +285,6 @@ void *orch_run_t(void *args)
         int status = process_events(
             ret, 
             lfd, 
-            efd, 
             send_eventfd, 
             recv_eventfd, 
             t_orch_args, 
