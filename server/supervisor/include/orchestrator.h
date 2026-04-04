@@ -3,8 +3,6 @@
 
 #include <stdio.h>
 
-struct Broker;
-
 struct OrchArgs
 {
     struct Broker *broker; 

@@ -18,7 +18,7 @@
 #define LOG_DIR "log/"
 #define SUPERVISOR_LOG "log/supervisor"
 
-atomic_bool shutdown = false;
+atomic_bool t_shutdown = false;
 
 static FILE *setup_log(void)
 {
@@ -56,7 +56,7 @@ static void shutdown_controller(FILE *log)
 
         if(rc == 0)
         {
-            if(atomic_load(&shutdown))
+            if(atomic_load(&t_shutdown))
             {
                 log_message(log,
                     "[shutdown_controller] shutdown signal received,"
@@ -176,7 +176,7 @@ int main(void)
 
 exit:
 
-    atomic_store(&shutdown, true);
+    atomic_store(&t_shutdown, true);
 
     destroy_broker(broker);
     if(orch_eventfd != -1) close(orch_eventfd);
