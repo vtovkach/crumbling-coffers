@@ -3,14 +3,14 @@
 
 #include <stdio.h>
 
-#include "broker.h"
+struct Broker;
 
 struct OrchArgs
 {
     struct Broker *broker; 
 
     int orch_eventfd; 
-    int sessions_manager_eventfd;
+    int matchmaker_eventfd;
 
     FILE *log_file;
 };
