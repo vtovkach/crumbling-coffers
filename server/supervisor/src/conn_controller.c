@@ -90,8 +90,13 @@ void cc_destroy(struct ConnController *cc)
     free(cc);
 }
 
-int cc_accept_connection(struct ConnController *cc, int listen_fd, FILE *log_file)
+int *cc_accept_connection(struct ConnController *cc, int listen_fd, FILE *log_file, int *out_count)
 {
+    *out_count = 0;
+
+    int *fds = malloc(MAX_TCP_QUEUE * sizeof(int));
+    if (!fds) return NULL;
+
     int accepted = 0;
 
     while (true)
@@ -143,7 +148,7 @@ int cc_accept_connection(struct ConnController *cc, int listen_fd, FILE *log_fil
         }
 
         cc->num_connections++;
-        accepted++;
+        fds[accepted++] = conn_fd;
 
         char ip_str[INET_ADDRSTRLEN];
         char msg[128];
@@ -153,7 +158,15 @@ int cc_accept_connection(struct ConnController *cc, int listen_fd, FILE *log_fil
         log_message(log_file, msg);
     }
 
-    return accepted;
+    if (accepted == 0)
+    {
+        free(fds);
+        return NULL;
+    }
+
+    int *result = realloc(fds, accepted * sizeof(int));
+    *out_count = accepted;
+    return result ? result : fds;
 }
 
 int cc_close_connection(struct ConnController *cc, int fd, FILE *log_file)
