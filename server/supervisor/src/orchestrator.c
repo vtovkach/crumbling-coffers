@@ -122,15 +122,14 @@ static void send_data(FILE *log_file)
     log_message(log_file, "Sending Data");
 };
 
-static void process_usr_request(
-    FILE *log_file,
-    int efd,
-    struct BufferController *bc,
-    struct ConnController *cc,
-    struct Broker *broker,
-    int matchmaker_eventfd,
-    int recv_eventfd
-)
+static void process_usr_request(FILE *log_file,
+                                int efd,
+                                struct BufferController *bc,
+                                struct ConnController *cc,
+                                struct Broker *broker,
+                                int matchmaker_eventfd,
+                                int recv_eventfd
+                            )
 {
     uint64_t client_fd;
     if(read(recv_eventfd, &client_fd, sizeof(client_fd)) < 0)
@@ -175,15 +174,22 @@ static void process_usr_request(
     };
     if(epoll_ctl(efd, EPOLL_CTL_MOD, fd, &ev) < 0)
         log_error(log_file, "[process_usr_request] epoll_ctl MOD (resume) failed", errno);
+
+    char log_msg[256];
+    snprintf(
+        log_msg, 256,
+         "[process_usr_request] fd=%d request processed",
+         fd
+        );
+    log_message(log_file, log_msg);
 }
 
-static void read_incoming_data(
-    FILE *log_file,
-    int fd,
-    int efd,
-    int recv_eventfd,
-    struct BufferController *bc
-)
+static void read_incoming_data( FILE *log_file, 
+                                int fd, 
+                                int efd, 
+                                int recv_eventfd, 
+                                struct BufferController *bc
+                            )
 {
     size_t space = bc_input_available_space(bc, fd);
 
@@ -254,6 +260,14 @@ static void read_incoming_data(
             );
         }
     }
+
+    char log_msg[256];
+    snprintf(
+        log_msg, 256,
+         "[read_incoming_data] fd=%d bytes received: %d",
+         fd, n
+    );
+    log_message(log_file, log_msg);
 }
 
 static void disconnect_handler( FILE *log_file,
