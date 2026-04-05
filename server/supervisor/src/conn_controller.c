@@ -192,6 +192,26 @@ int cc_close_connection(struct ConnController *cc, int fd, FILE *log_file)
     return 0;
 }
 
+uint8_t *cc_get_client_id(const struct ConnController *cc, int fd, FILE *log_file)
+{
+    struct Client *client = ht__get_internal(cc->clients, &fd, sizeof(int));
+    if(!client)
+    {
+        log_error_fd(log_file, "[cc_get_client_id] client not found", fd, 0);
+        return NULL;
+    }
+
+    uint8_t *id = malloc(PLAYER_ID_SIZE);
+    if(!id)
+    {
+        log_error(log_file, "[cc_get_client_id] malloc failed", errno);
+        return NULL;
+    }
+
+    memcpy(id, client->client_id, PLAYER_ID_SIZE);
+    return id;
+}
+
 uint32_t cc_get_ipv4(const struct ConnController *cc, int fd)
 {
     struct Client *client = ht__get_internal(cc->clients, &fd, sizeof(int));
