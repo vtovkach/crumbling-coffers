@@ -21,7 +21,7 @@
 #include "io.h"
 #include "broker.h"
 #include "broker-config.h"
-#include "sv_packet.h"
+#include "tcp_packets.h"
 
 extern atomic_bool t_shutdown;
 
@@ -141,7 +141,7 @@ static void process_usr_request(
 
     int fd = (int)client_fd;
 
-    struct SvPacket pkt;
+    struct IncomingPacket pkt;
     int n = bc_copy_input(bc, fd, &pkt, sizeof(pkt));
     if(n < 0)
     {
