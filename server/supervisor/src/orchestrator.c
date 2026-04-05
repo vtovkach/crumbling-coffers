@@ -17,6 +17,7 @@
 #include "orchestrator.h"
 #include "buffer_controller.h"
 #include "conn_controller.h"
+#include "io.h"
 
 extern atomic_bool t_shutdown;
 
@@ -90,13 +91,13 @@ static int register_epoll_fds(  FILE *log_file,
     return 0;
 }
 
-static void accept_connections( FILE *log_file, 
+static void accept_connections( FILE *log_file,
                                 int listen_fd,
-                                struct ConnController *cc, 
+                                struct ConnController *cc,
                                 struct BufferController *bc
                             )
 {
-    int num_fds; 
+    int num_fds;
     int *fds = cc_accept_connection(cc, listen_fd, log_file, &num_fds);
 
     for(int i = 0; i < num_fds; i++)
@@ -122,13 +123,88 @@ static void process_usr_request(FILE *log_file)
     log_message(log_file, "Process user request");
 }
 
-static void read_incoming_data(FILE *log_file)
+static void read_incoming_data(
+    FILE *log_file,
+    int fd,
+    int efd,
+    int recv_eventfd,
+    struct BufferController *bc
+)
 {
-    log_message(log_file, "read_incoming_data");
+    size_t space = bc_input_available_space(bc, fd);
+
+    if(space == 0)
+    {
+        /**
+         * Buffer full — previous request not yet consumed
+         * Pause reads for this fd
+         */
+        struct epoll_event ev = {
+            .data.fd = fd,
+            .events  = EPOLLRDHUP | EPOLLHUP | EPOLLERR,
+        };
+
+        if(epoll_ctl(efd, EPOLL_CTL_MOD, fd, &ev) < 0)
+            log_error(
+                log_file,
+                "[read_incoming_data] epoll_ctl MOD (pause) failed",
+                errno
+            );
+
+        return;
+    }
+
+    uint8_t tmp[space];
+    int n = tcp_read(log_file, fd, tmp, space);
+
+
+    /**
+         * 0 = EAGAIN/EINTR
+         * -1 = error (logged inside tcp_read)
+         * -2 = let EPOLLRDHUP handle it
+    */
+    if(n <= 0)
+        return;
+
+    if(bc_push_input(bc, fd, tmp, (size_t)n) < 0)
+    {
+        log_error(log_file, "[read_incoming_data] bc_push_input failed", 0);
+        return;
+    }
+
+    if(bc_input_available_space(bc, fd) == 0)
+    {
+
+        /**
+         * Buffer now full — a complete request is ready
+         * Wake process_usr_request
+         */
+        uint64_t val = (uint64_t)fd;
+        if(write(recv_eventfd, &val, sizeof(val)) < 0)
+        {
+            log_error(log_file,
+                "[read_incoming_data] recv_eventfd write failed",
+                errno
+            );
+        }
+
+        struct epoll_event ev = {
+            .data.fd = fd,
+            .events  = EPOLLRDHUP | EPOLLHUP | EPOLLERR,
+        };
+        if(epoll_ctl(efd, EPOLL_CTL_MOD, fd, &ev) < 0)
+        {
+            log_error(log_file,
+                "[read_incoming_data] epoll_ctl MOD (suspend) failed",
+                errno
+            );
+        }
+    }
 }
 
 static int process_events( int n_events,
                     int lfd,
+                    int efd,
                     int send_eventfd,
                     int recv_eventfd,
                     struct OrchArgs *orch_args,
@@ -195,7 +271,7 @@ static int process_events( int n_events,
 
         if(events & EPOLLIN)
         {
-            read_incoming_data(orch_args->log_file);
+            read_incoming_data(orch_args->log_file, fd, efd, recv_eventfd, c_buf);
         }
     }
 
@@ -256,11 +332,11 @@ void *orch_run_t(void *args)
     }
 
     int ret = register_epoll_fds(
-        log, 
-        efd, 
-        lfd, 
-        orch_eventfd, 
-        send_eventfd, 
+        log,
+        efd,
+        lfd,
+        orch_eventfd,
+        send_eventfd,
         recv_eventfd
     );
     if(ret != 0) goto exit;
@@ -268,9 +344,9 @@ void *orch_run_t(void *args)
     while(!atomic_load(&t_shutdown))
     {
         int ret = epoll_wait(
-            efd, 
-            epoll_events, 
-            EPOLL_MAX_EVENTS, 
+            efd,
+            epoll_events,
+            EPOLL_MAX_EVENTS,
             EPOLL_TIMEOUT
         );
 
@@ -283,13 +359,14 @@ void *orch_run_t(void *args)
         if(ret == 0) continue;
 
         int status = process_events(
-            ret, 
-            lfd, 
-            send_eventfd, 
-            recv_eventfd, 
-            t_orch_args, 
-            c_buf, 
-            c_con, 
+            ret,
+            lfd,
+            efd,
+            send_eventfd,
+            recv_eventfd,
+            t_orch_args,
+            c_buf,
+            c_con,
             epoll_events
         );
 
