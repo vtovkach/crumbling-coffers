@@ -36,7 +36,16 @@ link-test:
 	$(CC) $(CFLAGS) $(TEST_OBJS) -o $(TEST_BIN)
 
 test-run: test
-	./$(TEST_BIN)
+	@FIFO=$$(mktemp -u /tmp/sv_stdin_XXXXXX); \
+	mkfifo $$FIFO; \
+	./$(BIN) < $$FIFO & SPID=$$!; \
+	exec 3>$$FIFO; \
+	./$(TEST_BIN); RESULT=$$?; \
+	echo exit >&3; \
+	exec 3>&-; \
+	wait $$SPID; \
+	rm -f $$FIFO; \
+	exit $$RESULT
 
 clean:
 	$(MAKE) -C common clean
