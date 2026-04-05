@@ -6,10 +6,13 @@
 #include <stdint.h>
 #include <stddef.h>
 
-#define CTRL_FLAG_RELIABLE  (1 << 0)
-#define CTRL_FLAG_INIT      (1 << 1)
-#define CTRL_FLAG_ACK       (1 << 2)  
-#define CTRL_FLAG_AUTH      (1 << 3)
+#define CTRL_FLAG_RELIABLE      (1 << 0)
+#define CTRL_FLAG_INIT          (1 << 1)
+#define CTRL_FLAG_ACK           (1 << 2)  
+#define CTRL_FLAG_AUTH          (1 << 3)
+
+#define CTRL_FLAG_HIT_EVENT     (1 << 10)
+#define CTRL_FLAG_PICK_EVENT    (1 << 11)
 
 /*
     Packet Header Layout (40 bytes)
@@ -23,13 +26,6 @@
 
     control (2 bytes):
         Bitfield for packet metadata and flags.
-        bit 0:
-            0 -> reliable packet (uses reliability layer)
-            1 -> regular packet (no reliability guarantees)
-        bit 1:
-            0: -> established connection  
-            1: -> init connection
-        Remaining bits are reserved for future use.
 
     payload_size (2 bytes):
         Size of the payload in bytes (excluding header).
