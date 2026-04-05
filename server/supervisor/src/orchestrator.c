@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
+#include <arpa/inet.h>
 
 #include "log_system.h"
 #include "server-config.h"
@@ -18,6 +19,9 @@
 #include "buffer_controller.h"
 #include "conn_controller.h"
 #include "io.h"
+#include "broker.h"
+#include "broker-config.h"
+#include "sv_packet.h"
 
 extern atomic_bool t_shutdown;
 
@@ -118,9 +122,58 @@ static void send_data(FILE *log_file)
     log_message(log_file, "Sending Data");
 };
 
-static void process_usr_request(FILE *log_file)
+static void process_usr_request(
+    FILE *log_file,
+    int efd,
+    struct BufferController *bc,
+    struct ConnController *cc,
+    struct Broker *broker,
+    int matchmaker_eventfd,
+    int recv_eventfd
+)
 {
-    log_message(log_file, "Process user request");
+    uint64_t client_fd;
+    if(read(recv_eventfd, &client_fd, sizeof(client_fd)) < 0)
+    {
+        log_error(log_file, "[process_usr_request] recv_eventfd read failed", errno);
+        return;
+    }
+
+    int fd = (int)client_fd;
+
+    struct SvPacket pkt;
+    int n = bc_copy_input(bc, fd, &pkt, sizeof(pkt));
+    if(n < 0)
+    {
+        log_error(log_file, "[process_usr_request] bc_copy_input failed", 0);
+        return;
+    }
+
+    uint8_t *cid = cc_get_client_id(cc, fd, log_file);
+    if(!cid) return;
+
+    struct BrokerMsg msg;
+    memcpy(msg.client_id, cid, PLAYER_ID_SIZE);
+    msg.fd         = (int32_t)fd;
+    msg.event_type = (uint8_t)pkt.event_type;
+    free(cid);
+
+    if(push_data_sessions_man(broker, &msg, sizeof(msg)) < 0)
+    {
+        log_error(log_file, "[process_usr_request] push_data_sessions_man failed", 0);
+        return;
+    }
+
+    uint64_t sig = 1;
+    if(write(matchmaker_eventfd, &sig, sizeof(sig)) < 0)
+        log_error(log_file, "[process_usr_request] matchmaker_eventfd write failed", errno);
+
+    struct epoll_event ev = {
+        .data.fd = fd,
+        .events  = EPOLLIN | EPOLLRDHUP | EPOLLHUP | EPOLLERR,
+    };
+    if(epoll_ctl(efd, EPOLL_CTL_MOD, fd, &ev) < 0)
+        log_error(log_file, "[process_usr_request] epoll_ctl MOD (resume) failed", errno);
 }
 
 static void read_incoming_data(
@@ -202,6 +255,31 @@ static void read_incoming_data(
     }
 }
 
+static void disconnect_handler( FILE *log_file,
+                                struct ConnController *cc,
+                                struct BufferController *bc,
+                                int fd
+                            )
+{
+    uint32_t ip = cc_get_ipv4(cc, fd);
+    char str_ip[INET_ADDRSTRLEN] = "IP_ERROR";
+
+    if(ip != 0) inet_ntop(AF_INET, &ip, str_ip, INET_ADDRSTRLEN);
+
+    cc_close_connection(cc, fd, log_file);
+    bc_remove(bc, fd);
+
+    char log_msg[256];
+    snprintf(
+        log_msg,
+        256,
+        "[disconnect_handler] Clinet Disconnected | fd: %d | ip: %s",
+        fd,
+        str_ip
+    );
+    log_message(log_file, log_msg);
+}
+
 static int process_events( int n_events,
                     int lfd,
                     int efd,
@@ -229,43 +307,47 @@ static int process_events( int n_events,
 
         if(fd == orch_args->orch_eventfd)
         {
-            if(events & EPOLLIN)
-            {
-                uint64_t val;
-                read(fd, &val, sizeof(val));
-                process_broker(orch_args->log_file);
-            }
+            uint64_t val;
+            read(fd, &val, sizeof(val));
+            process_broker(orch_args->log_file);
+
             continue;
         }
 
         if(fd == send_eventfd)
         {
-            if(events & EPOLLIN)
-            {
-                uint64_t val;
-                read(fd, &val, sizeof(val));
-                send_data(orch_args->log_file);
-            }
+            uint64_t val;
+            read(fd, &val, sizeof(val));
+            send_data(orch_args->log_file);
+
             continue;
         }
 
         if(fd == recv_eventfd)
         {
-            if(events & EPOLLIN)
-            {
-                uint64_t val;
-                read(fd, &val, sizeof(val));
-                process_usr_request(orch_args->log_file);
-            }
+            process_usr_request(
+                orch_args->log_file,
+                efd,
+                c_buf,
+                c_con,
+                orch_args->broker,
+                orch_args->matchmaker_eventfd,
+                recv_eventfd
+            );
+
             continue;
         }
 
         // Client fd
         if(events & (EPOLLRDHUP | EPOLLHUP | EPOLLERR))
         {
-            // TODO: cc_close_connection — clean up disconnected client
-            cc_close_connection(c_con, fd, orch_args->log_file);
-            bc_remove(c_buf, fd);
+            disconnect_handler(
+                orch_args->log_file,
+                c_con,
+                c_buf,
+                fd
+            );
+
             continue;
         }
 
