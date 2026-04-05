@@ -5,8 +5,10 @@
 
 #include <stdint.h>
 
-#define SV_EVENT_MATCH_REQUEST  0
-#define SV_EVENT_MATCH_CANCEL   1
+#define SV_EVENT_MATCH_REQUEST   0
+#define SV_EVENT_MATCH_CANCEL    1
+#define SV_EVENT_MATCH_FOUND     2
+#define SV_EVENT_MATCH_NOT_FOUND 3
 
 /*
  * Incoming TCP packet from client.
