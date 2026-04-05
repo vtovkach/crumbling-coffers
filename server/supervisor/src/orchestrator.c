@@ -153,9 +153,10 @@ static void process_usr_request(
     if(!cid) return;
 
     struct BrokerMsg msg;
-    memcpy(msg.client_id, cid, PLAYER_ID_SIZE);
-    msg.fd         = (int32_t)fd;
-    msg.event_type = (uint8_t)pkt.event_type;
+    msg.kind = BROKER_MSG_CLIENT_REQUEST;
+    memcpy(msg.client_request.client_id, cid, PLAYER_ID_SIZE);
+    msg.client_request.fd         = (int32_t)fd;
+    msg.client_request.event_type = (uint8_t)pkt.event_type;
     free(cid);
 
     if(push_data_sessions_man(broker, &msg, sizeof(msg)) < 0)
