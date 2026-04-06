@@ -1,0 +1,21 @@
+# Improvements
+
+## Event Handling
+- Introduce a dispatch routine for processing events  
+    - Replace multiple `if/else` chains with a centralized dispatcher
+
+## Project Structure
+- Restructure file layout into logical directories  
+  - Improve organization without over-structuring or fragmentation
+
+## EventFD Abstraction
+- Encapsulate `send_eventfd` and `recv_eventfd`  
+- Move associated FDs and queues into a dedicated structure  
+- Provide a clear, minimal interface for interaction
+
+## Epoll Utilities
+- Create a utility module for epoll operations:
+  - add
+  - modify
+  - remove  
+- Reduce boilerplate and improve readability around `epoll_ctl` usage
