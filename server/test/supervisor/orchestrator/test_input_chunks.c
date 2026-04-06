@@ -12,10 +12,10 @@
 
 #define CONNECT_RETRIES      20
 #define CONNECT_RETRY_US     50000  /* 50 ms between connect attempts */
-#define CHUNK_SIZE           100    /* bytes per send call */
-#define INTER_CHUNK_SLEEP_US 1000   /* 1 ms between chunks — forces separate TCP segments */
-#define POST_SEND_SLEEP_US   200000 /* 200 ms after all sends before disconnecting */
-#define NUM_CLIENTS          5
+#define CHUNK_SIZE           25    /* bytes per send call */
+#define INTER_CHUNK_SLEEP_US 0
+#define POST_SEND_SLEEP_US   0
+#define NUM_CLIENTS          10
 
 static void die(const char *msg)
 {

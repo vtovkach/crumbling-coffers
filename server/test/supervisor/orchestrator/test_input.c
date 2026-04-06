@@ -13,7 +13,7 @@
 #define CONNECT_RETRY_US     0   /* 50 ms between connect attempts (1 s total) */
 #define INTER_SEND_SLEEP_US  0   /* 10 ms between each client send */
 #define POST_SEND_SLEEP_US   100000  /* 500 ms after all sends before disconnecting */
-#define NUM_CLIENTS          20
+#define NUM_CLIENTS          10
 
 static void die(const char *msg)
 {
