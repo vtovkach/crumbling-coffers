@@ -117,10 +117,39 @@ static void process_broker(FILE *log_file)
     log_message(log_file, "Process from broker!");
 };
 
-static void send_data(FILE *log_file)
+static void send_data(  FILE *log_file,
+                        struct BufferController *bc,
+                        struct ConnController *cc,
+                        int send_eventfd,
+                        int fd
+                     )
 {
-    log_message(log_file, "Sending Data");
-};
+    uint8_t buf[TCP_SEGMENT_SIZE];
+    int n = bc_copy_output(bc, fd, buf, TCP_SEGMENT_SIZE);
+    if(n <= 0) return;
+
+    int sent = tcp_send(log_file, fd, buf, (size_t)n);
+    if(sent == -1) return;
+
+    bc_update_output(bc, fd, (size_t)sent);
+
+    if(!bc_is_output_free(bc, fd))
+    {
+        uint64_t sig = (uint64_t)fd;
+        if(write(send_eventfd, &sig, sizeof(sig)) < 0)
+            log_error(log_file, "[send_data] send_eventfd write failed", errno);
+    }
+
+    uint32_t ip = cc_get_ipv4(cc, fd);
+    char str_ip[INET_ADDRSTRLEN] = "IP_ERROR";
+    if(ip != 0) inet_ntop(AF_INET, &ip, str_ip, INET_ADDRSTRLEN);
+
+    char log_msg[256];
+    snprintf(log_msg, 256,
+        "[send_data] fd=%d | ip=%s | bytes_sent=%d",
+        fd, str_ip, sent);
+    log_message(log_file, log_msg);
+}
 
 static void process_usr_request(FILE *log_file,
                                 int efd,
@@ -341,7 +370,7 @@ static int process_events( int n_events,
         {
             uint64_t val;
             read(fd, &val, sizeof(val));
-            send_data(orch_args->log_file);
+            send_data(orch_args->log_file, c_buf, c_con, send_eventfd, (int)val);
 
             continue;
         }
