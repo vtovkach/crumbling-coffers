@@ -19,3 +19,8 @@
   - modify
   - remove  
 - Reduce boilerplate and improve readability around `epoll_ctl` usage
+
+## Use internal message queues for incoming and outgoing packets
+- Instead of using fixed TCP_SEG_SIZE bytes buffer 
+  - Create a queue for incoming data
+  - Create a queue for outgoing data
