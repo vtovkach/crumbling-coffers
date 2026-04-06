@@ -134,7 +134,9 @@ static void process_usr_request(FILE *log_file,
     uint64_t client_fd;
     if(read(recv_eventfd, &client_fd, sizeof(client_fd)) < 0)
     {
-        log_error(log_file, "[process_usr_request] recv_eventfd read failed", errno);
+        log_error(log_file,
+            "[process_usr_request] recv_eventfd read failed",
+            errno);
         return;
     }
 
@@ -160,20 +162,26 @@ static void process_usr_request(FILE *log_file,
 
     if(push_data_sessions_man(broker, &msg, sizeof(msg)) < 0)
     {
-        log_error(log_file, "[process_usr_request] push_data_sessions_man failed", 0);
+        log_error(log_file,
+            "[process_usr_request] push_data_sessions_man failed",
+            0);
         return;
     }
 
     uint64_t sig = 1;
     if(write(matchmaker_eventfd, &sig, sizeof(sig)) < 0)
-        log_error(log_file, "[process_usr_request] matchmaker_eventfd write failed", errno);
+        log_error(log_file,
+            "[process_usr_request] matchmaker_eventfd write failed",
+            errno);
 
     struct epoll_event ev = {
         .data.fd = fd,
         .events  = EPOLLIN | EPOLLRDHUP | EPOLLHUP | EPOLLERR,
     };
     if(epoll_ctl(efd, EPOLL_CTL_MOD, fd, &ev) < 0)
-        log_error(log_file, "[process_usr_request] epoll_ctl MOD (resume) failed", errno);
+        log_error(log_file,
+            "[process_usr_request] epoll_ctl MOD (resume) failed",
+            errno);
 
     char log_msg[256];
     snprintf(
