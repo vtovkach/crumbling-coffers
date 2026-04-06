@@ -113,10 +113,75 @@ static void accept_connections( FILE *log_file,
     free(fds);
 }
 
-static void process_broker(FILE *log_file)
+static void process_broker(FILE *log_file,
+                           struct Broker *broker,
+                           int orch_eventfd,
+                           struct BufferController *bc,
+                           int send_eventfd,
+                           struct FdQueue *send_queue)
 {
-    log_message(log_file, "Process from broker!");
-};
+    uint64_t u64;
+    if(read(orch_eventfd, &u64, sizeof(u64)) < 0)
+    {
+        log_error(log_file, "[process_broker] orch_eventfd read failed", errno);
+        return;
+    }
+
+    struct BrokerMsg msg;
+    if(pop_data_orch(broker, &msg, sizeof(msg)) < 0)
+    {
+        log_error(log_file, "[process_broker] pop_data_orch failed", 0);
+        return;
+    }
+
+    if(msg.kind != BROKER_MSG_MATCH_RESULT)
+    {
+        log_error(log_file, "[process_broker] unexpected BrokerMsgKind", 0);
+        return;
+    }
+
+    int fd = (int)msg.match_result.fd;
+
+    if(!bc_is_output_free(bc, fd))
+    {
+        log_error(log_file, "[process_broker] output buffer occupied", 0);
+        return;
+    }
+
+    uint8_t raw[TCP_SEGMENT_SIZE];
+    memset(raw, 0, TCP_SEGMENT_SIZE);
+
+    struct OutgoingPacket *pkt = (struct OutgoingPacket *)raw;
+    pkt->event_type = msg.match_result.event_type;
+
+    if(msg.match_result.event_type == SV_EVENT_MATCH_FOUND)
+    {
+        memcpy(pkt->game_id, msg.match_result.game_id, GAME_ID_SIZE);
+        pkt->server_ip   = msg.match_result.server_ip;
+        pkt->server_port = msg.match_result.server_port;
+    }
+
+    if(bc_push_output(bc, fd, raw, TCP_SEGMENT_SIZE) < 0)
+    {
+        log_error(log_file, "[process_broker] bc_push_output failed", 0);
+        return;
+    }
+
+    fdq_push(send_queue, fd);
+
+    uint64_t sig = 1;
+    if(write(send_eventfd, &sig, sizeof(sig)) < 0)
+    {
+        log_error(log_file, "[process_broker] send_eventfd write failed", errno);
+        return;
+    }
+
+    char log_msg[256];
+    snprintf(log_msg, sizeof(log_msg),
+        "[process_broker] fd=%d event_type=%u queued for send",
+        fd, msg.match_result.event_type);
+    log_message(log_file, log_msg);
+}
 
 static void send_data(  FILE *log_file,
                         struct BufferController *bc,
@@ -383,9 +448,14 @@ static int process_events( int n_events,
 
         if(fd == orch_args->orch_eventfd)
         {
-            uint64_t val;
-            read(fd, &val, sizeof(val));
-            process_broker(orch_args->log_file);
+            process_broker(
+                orch_args->log_file,
+                orch_args->broker,
+                orch_args->orch_eventfd,
+                c_buf,
+                send_eventfd,
+                send_queue
+            );
 
             continue;
         }
