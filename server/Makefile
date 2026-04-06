@@ -8,8 +8,11 @@ endif
 BIN      := bin/supervisor
 OBJS      = $(wildcard common/obj/*.o) $(wildcard supervisor/obj/*.o)
 
-TEST_BIN  := bin/test_orch_input
-TEST_OBJS := test/supervisor/orchestrator/obj/test_input.o
+TEST_BIN         := bin/test_orch_input
+TEST_OBJS        := test/supervisor/orchestrator/obj/test_input.o
+
+TEST_CHUNKS_BIN  := bin/test_orch_input_chunks
+TEST_CHUNKS_OBJS := test/supervisor/orchestrator/obj/test_input_chunks.o
 
 all: common supervisor link
 
@@ -34,18 +37,20 @@ test-build:
 link-test:
 	mkdir -p bin
 	$(CC) $(CFLAGS) $(TEST_OBJS) -o $(TEST_BIN)
+	$(CC) $(CFLAGS) $(TEST_CHUNKS_OBJS) -o $(TEST_CHUNKS_BIN)
 
 test-run: test
 	@FIFO=$$(mktemp -u /tmp/sv_stdin_XXXXXX); \
 	mkfifo $$FIFO; \
 	./$(BIN) < $$FIFO & SPID=$$!; \
 	exec 3>$$FIFO; \
-	./$(TEST_BIN); RESULT=$$?; \
+	./$(TEST_BIN); R1=$$?; \
+	./$(TEST_CHUNKS_BIN); R2=$$?; \
 	echo exit >&3; \
 	exec 3>&-; \
 	wait $$SPID; \
 	rm -f $$FIFO; \
-	exit $$RESULT
+	[ $$R1 -eq 0 ] && [ $$R2 -eq 0 ]
 
 clean:
 	$(MAKE) -C common clean
