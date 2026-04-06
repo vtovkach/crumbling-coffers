@@ -115,18 +115,10 @@ static void accept_connections( FILE *log_file,
 
 static void process_broker(FILE *log_file,
                            struct Broker *broker,
-                           int orch_eventfd,
                            struct BufferController *bc,
                            int send_eventfd,
                            struct FdQueue *send_queue)
 {
-    uint64_t u64;
-    if(read(orch_eventfd, &u64, sizeof(u64)) < 0)
-    {
-        log_error(log_file, "[process_broker] orch_eventfd read failed", errno);
-        return;
-    }
-
     struct BrokerMsg msg;
     if(pop_data_orch(broker, &msg, sizeof(msg)) < 0)
     {
@@ -448,10 +440,11 @@ static int process_events( int n_events,
 
         if(fd == orch_args->orch_eventfd)
         {
+            uint64_t val;
+            read(fd, &val, sizeof(val));
             process_broker(
                 orch_args->log_file,
                 orch_args->broker,
-                orch_args->orch_eventfd,
                 c_buf,
                 send_eventfd,
                 send_queue
