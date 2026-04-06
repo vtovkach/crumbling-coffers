@@ -22,6 +22,7 @@
 #include "broker.h"
 #include "broker-config.h"
 #include "tcp_packets.h"
+#include "fd_queue.h"
 
 extern atomic_bool t_shutdown;
 
@@ -121,23 +122,46 @@ static void send_data(  FILE *log_file,
                         struct BufferController *bc,
                         struct ConnController *cc,
                         int send_eventfd,
-                        int fd
+                        struct FdQueue *send_queue
                      )
 {
+    int fd = fdq_pop(send_queue);
+    if(fd < 0)
+    {
+        log_error(log_file, "[send_data] send_queue empty", 0);
+        return;
+    }
+
     uint8_t buf[TCP_SEGMENT_SIZE];
     int n = bc_copy_output(bc, fd, buf, TCP_SEGMENT_SIZE);
-    if(n <= 0) return;
+    if(n < 0)
+    {
+        log_error(log_file, "[send_data] bc_copy_output failed", 0);
+        return;
+    }
+    if(n == 0) return;
 
     int sent = tcp_send(log_file, fd, buf, (size_t)n);
-    if(sent == -1) return;
+    if(sent == -1)
+    {
+        log_error(log_file, "[send_data] tcp_send fatal error", 0);
+        return;
+    }
 
     bc_update_output(bc, fd, (size_t)sent);
 
     if(!bc_is_output_free(bc, fd))
     {
-        uint64_t sig = (uint64_t)fd;
+        fdq_push(send_queue, fd);
+        uint64_t sig = 1;
         if(write(send_eventfd, &sig, sizeof(sig)) < 0)
-            log_error(log_file, "[send_data] send_eventfd write failed", errno);
+        {
+            log_error(
+                log_file, 
+                "[send_data] send_eventfd write failed", 
+                errno
+            );
+        }
     }
 
     uint32_t ip = cc_get_ipv4(cc, fd);
@@ -157,19 +181,17 @@ static void process_usr_request(FILE *log_file,
                                 struct ConnController *cc,
                                 struct Broker *broker,
                                 int matchmaker_eventfd,
-                                int recv_eventfd
+                                struct FdQueue *recv_queue
                             )
 {
-    uint64_t client_fd;
-    if(read(recv_eventfd, &client_fd, sizeof(client_fd)) < 0)
+    int fd = fdq_pop(recv_queue);
+    if(fd < 0)
     {
         log_error(log_file,
-            "[process_usr_request] recv_eventfd read failed",
-            errno);
+            "[process_usr_request] recv_queue empty",
+            0);
         return;
     }
-
-    int fd = (int)client_fd;
 
     struct IncomingPacket pkt;
     int n = bc_copy_input(bc, fd, &pkt, sizeof(pkt));
@@ -221,10 +243,11 @@ static void process_usr_request(FILE *log_file,
     log_message(log_file, log_msg);
 }
 
-static void read_incoming_data( FILE *log_file, 
-                                int fd, 
-                                int efd, 
-                                int recv_eventfd, 
+static void read_incoming_data( FILE *log_file,
+                                int fd,
+                                int efd,
+                                int recv_eventfd,
+                                struct FdQueue *recv_queue,
                                 struct BufferController *bc
                             )
 {
@@ -254,7 +277,6 @@ static void read_incoming_data( FILE *log_file,
     uint8_t tmp[space];
     int n = tcp_read(log_file, fd, tmp, space);
 
-
     /**
          * 0 = EAGAIN/EINTR
          * -1 = error (logged inside tcp_read)
@@ -271,13 +293,13 @@ static void read_incoming_data( FILE *log_file,
 
     if(bc_input_available_space(bc, fd) == 0)
     {
-
         /**
          * Buffer now full — a complete request is ready
-         * Wake process_usr_request
+         * Push fd onto recv_queue, signal recv_eventfd once (semaphore += 1)
          */
-        uint64_t val = (uint64_t)fd;
-        if(write(recv_eventfd, &val, sizeof(val)) < 0)
+        fdq_push(recv_queue, fd);
+        uint64_t sig = 1;
+        if(write(recv_eventfd, &sig, sizeof(sig)) < 0)
         {
             log_error(log_file,
                 "[read_incoming_data] recv_eventfd write failed",
@@ -340,6 +362,8 @@ static int process_events( int n_events,
                     struct OrchArgs *orch_args,
                     struct BufferController *c_buf,
                     struct ConnController *c_con,
+                    struct FdQueue *recv_queue,
+                    struct FdQueue *send_queue,
                     struct epoll_event *epoll_events
                 )
 {
@@ -370,13 +394,15 @@ static int process_events( int n_events,
         {
             uint64_t val;
             read(fd, &val, sizeof(val));
-            send_data(orch_args->log_file, c_buf, c_con, send_eventfd, (int)val);
+            send_data(orch_args->log_file, c_buf, c_con, send_eventfd, send_queue);
 
             continue;
         }
 
         if(fd == recv_eventfd)
         {
+            uint64_t val;
+            read(fd, &val, sizeof(val));
             process_usr_request(
                 orch_args->log_file,
                 efd,
@@ -384,7 +410,7 @@ static int process_events( int n_events,
                 c_con,
                 orch_args->broker,
                 orch_args->matchmaker_eventfd,
-                recv_eventfd
+                recv_queue
             );
 
             continue;
@@ -405,7 +431,14 @@ static int process_events( int n_events,
 
         if(events & EPOLLIN)
         {
-            read_incoming_data(orch_args->log_file, fd, efd, recv_eventfd, c_buf);
+            read_incoming_data(
+                orch_args->log_file,
+                fd,
+                efd,
+                recv_eventfd,
+                recv_queue,
+                c_buf
+            );
         }
     }
 
@@ -420,6 +453,8 @@ void *orch_run_t(void *args)
 
     struct BufferController *c_buf = NULL;
     struct ConnController *c_con   = NULL;
+    struct FdQueue *recv_queue     = NULL;
+    struct FdQueue *send_queue     = NULL;
     struct epoll_event epoll_events[EPOLL_MAX_EVENTS];
 
     int lfd          = -1;
@@ -451,14 +486,28 @@ void *orch_run_t(void *args)
         goto exit;
     }
 
-    send_eventfd = eventfd(0, EFD_NONBLOCK);
+    recv_queue = fdq_init();
+    if(!recv_queue)
+    {
+        log_error(log, "[orch_run_t] fdq_init (recv) failed", errno);
+        goto exit;
+    }
+
+    send_queue = fdq_init();
+    if(!send_queue)
+    {
+        log_error(log, "[orch_run_t] fdq_init (send) failed", errno);
+        goto exit;
+    }
+
+    send_eventfd = eventfd(0, EFD_NONBLOCK | EFD_SEMAPHORE);
     if(send_eventfd < 0)
     {
         log_error(log, "[orch_run_t] send_eventfd failed", errno);
         goto exit;
     }
 
-    recv_eventfd = eventfd(0, EFD_NONBLOCK);
+    recv_eventfd = eventfd(0, EFD_NONBLOCK | EFD_SEMAPHORE);
     if(recv_eventfd < 0)
     {
         log_error(log, "[orch_run_t] recv_eventfd failed", errno);
@@ -501,6 +550,8 @@ void *orch_run_t(void *args)
             t_orch_args,
             c_buf,
             c_con,
+            recv_queue,
+            send_queue,
             epoll_events
         );
 
@@ -517,6 +568,8 @@ exit:
 
     if(c_buf) bc_destroy(c_buf);
     if(c_con) cc_destroy(c_con);
+    if(recv_queue) fdq_destroy(recv_queue);
+    if(send_queue) fdq_destroy(send_queue);
     if(lfd != -1) close(lfd);
     if(efd != -1) close(efd);
     if(send_eventfd != -1) close(send_eventfd);
