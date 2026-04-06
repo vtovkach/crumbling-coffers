@@ -6,6 +6,7 @@
 #define ORCH_LOG_PATH           "log/orchestrator"
 #define SERVER_TCP_PORT         "10000" // must be smaller then (65535 - PORTS_LIMIT) to avoid overflow in port manager
 #define PORTS_LIMIT             20 
+#define PLAYERS_QUEUE_SIZE      100
 #define MAX_TCP_QUEUE           128
 #define MAX_GAME_QUEUE          128
 #define EPOLL_MAX_EVENTS        512
