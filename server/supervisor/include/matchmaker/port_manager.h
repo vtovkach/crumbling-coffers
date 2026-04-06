@@ -1,6 +1,7 @@
 #ifndef _PORT_MANAGER
 #define _PORT_MANAGER
 
+#include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <sys/types.h>
