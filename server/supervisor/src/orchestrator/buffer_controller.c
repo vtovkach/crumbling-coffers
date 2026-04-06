@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "buffer_controller.h"
+#include "orchestrator/buffer_controller.h"
 #include "ds/hashmap.h"
 #include "server-config.h"
 

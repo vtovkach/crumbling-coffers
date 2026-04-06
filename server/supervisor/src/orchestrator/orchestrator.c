@@ -15,14 +15,14 @@
 
 #include "log_system.h"
 #include "server-config.h"
-#include "orchestrator.h"
-#include "buffer_controller.h"
-#include "conn_controller.h"
-#include "io.h"
+#include "orchestrator/orchestrator.h"
+#include "orchestrator/buffer_controller.h"
+#include "orchestrator/conn_controller.h"
+#include "orchestrator/io.h"
 #include "broker.h"
 #include "broker-config.h"
 #include "tcp_packets.h"
-#include "fd_queue.h"
+#include "orchestrator/fd_queue.h"
 
 extern atomic_bool t_shutdown;
 

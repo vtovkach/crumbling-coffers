@@ -11,7 +11,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#include "conn_controller.h"
+#include "orchestrator/conn_controller.h"
 #include "ds/hashmap.h"
 #include "random.h"
 #include "log_system.h"

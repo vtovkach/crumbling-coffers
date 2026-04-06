@@ -10,8 +10,8 @@
 #include <pthread.h>
 
 #include "broker.h"
-#include "orchestrator.h"
-#include "matchmaker.h"
+#include "orchestrator/orchestrator.h"
+#include "matchmaker/matchmaker.h"
 #include "log_system.h"
 
 // Logging CONSTANTS
