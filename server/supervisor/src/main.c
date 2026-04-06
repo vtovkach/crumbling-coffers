@@ -120,7 +120,7 @@ int main(void)
     }
 
     // Signals orchestrator if there is an available packet in the queue
-    orch_eventfd = eventfd(0, EFD_NONBLOCK);
+    orch_eventfd = eventfd(0, EFD_NONBLOCK | EFD_SEMAPHORE);
     if(orch_eventfd == -1)
     {
         log_error(log, "[main] eventfd failed", errno);
@@ -128,7 +128,7 @@ int main(void)
     }
 
     // Signals sessions manager if there is an available packet in the queue
-    matchmaker_eventfd = eventfd(0, EFD_NONBLOCK);
+    matchmaker_eventfd = eventfd(0, EFD_NONBLOCK | EFD_SEMAPHORE);
     if(matchmaker_eventfd == -1)
     {
         log_error(log, "[main] eventfd failed", errno);
