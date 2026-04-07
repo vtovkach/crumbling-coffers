@@ -155,19 +155,40 @@ void *matchmaker_run_t(void *args)
             EPOLL_TIMEOUT
         );
 
+        if(rc < 0 && errno != EINTR)
+        {
+            log_error(
+                m_args->log_file, 
+                "[orch_run_t] epoll_wait critical failure", 
+                errno
+            );
+            goto exit;
+        }
 
         // Process events 
-        process_events(m_args->log_file);
+        if(rc > 0) process_events(m_args->log_file);
 
-        // Check if queue has sufficient number of players 
-        // Check if there is an available port
-
-        // if both are true:
-        //  - issue form_match eventfd 
-
+        // Issue form match event if game queue and port is ready 
+        if(pm_is_port(ports_manager) && pq_ready(q_players, PLAYERS_PER_MATCH))
+        {
+            uint64_t sig = 1; 
+            if(write(form_match_eventfd, &sig, sizeof(sig)) < 0)
+            {
+                log_error(m_args->log_file, 
+                    "[matchmaker_run_t] form_match_eventfd write failed", 
+                    errno
+                );
+            }
+        }
 
         // Check the status of port manager 
-
+        if(!pm_status(ports_manager))
+        {
+            log_message(m_args->log_file, 
+                "[matchmaker_run_t] ports manager failure"
+            );
+            goto exit;
+        }
 
         sleep(1);
     }
