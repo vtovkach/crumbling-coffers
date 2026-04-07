@@ -598,8 +598,15 @@ void *orch_run_t(void *args)
 
         if(ret == -1)
         {
-            log_error(log, "[orch_run_t] epoll_wait critical failure", errno);
-            goto exit;
+            if(errno != EINTR)
+            {
+                log_error(
+                    log, 
+                    "[orch_run_t] epoll_wait critical failure", 
+                    errno
+                );
+                goto exit;
+            }
         }
 
         if(ret == 0) continue;
