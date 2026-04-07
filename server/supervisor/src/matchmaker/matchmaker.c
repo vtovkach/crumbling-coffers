@@ -7,6 +7,8 @@
 
 #include "server-config.h"
 #include "log_system.h"
+#include "broker.h"
+#include "broker-config.h"
 #include "matchmaker/matchmaker.h"
 #include "matchmaker/players_queue.h"
 #include "matchmaker/port_manager.h"
@@ -41,14 +43,80 @@ static inline int add_fd_epoll( FILE *log_file,
     return 0;
 }
 
-static void process_events(FILE *log_file)
+static void process_broker_msg( FILE *log_file,
+                                struct Broker *broker,
+                                struct PlayersQueue *q_players
+                              )
 {
-
+    // TODO: pop BrokerMsg from q_session_man via pop_data_sessions_man
+    // TODO: if SV_EVENT_MATCH_REQUEST -> pq_add_player(q_players, client_id, fd)
+    // TODO: if SV_EVENT_MATCH_CANCEL  -> pq_remove_player(q_players, fd)
 }
 
-static void check_match_readiness(FILE *log_file)
+static void form_match( FILE *log_file,
+                        struct PortManager *ports_manager,
+                        struct PlayersQueue *q_players,
+                        struct Broker *broker,
+                        int orch_eventfd
+                      )
 {
+    // TODO: pm_borrow_port, pop PLAYERS_PER_MATCH players via pop_from_queue
+    // TODO: fork/exec GAME_PROCESS with borrowed port
+    // TODO: pm_register_port on success, pm_return_port on failure
+    // TODO: push BROKER_MSG_MATCH_RESULT to q_orch, signal orch_eventfd
+}
 
+static void process_events( FILE *log_file,
+                            int n_events,
+                            struct epoll_event *events,
+                            int matchmaker_eventfd,
+                            int form_match_eventfd,
+                            struct Broker *broker,
+                            struct PlayersQueue *q_players,
+                            struct PortManager *ports_manager,
+                            int orch_eventfd
+                          )
+{
+    for(int i = 0; i < n_events; i++)
+    {
+        int fd = events[i].data.fd;
+
+        if(fd == matchmaker_eventfd)
+        {
+            uint64_t val;
+            read(fd, &val, sizeof(val));
+            process_broker_msg(log_file, broker, q_players);
+            continue;
+        }
+
+        if(fd == form_match_eventfd)
+        {
+            uint64_t val;
+            read(fd, &val, sizeof(val));
+            form_match(log_file, ports_manager, q_players, broker, orch_eventfd);
+            continue;
+        }
+    }
+}
+
+static void check_match_readiness(  FILE *log_file, 
+                                    struct PortManager *pm, 
+                                    struct PlayersQueue *pq, 
+                                    int event_fd)
+{
+    // Issue form match event if game queue and port is ready 
+    if(pm_is_port(pm) && pq_ready(pq, PLAYERS_PER_MATCH))
+    {
+        uint64_t sig = 1; 
+        if(write(event_fd, &sig, sizeof(sig)) < 0)
+        {
+            log_error(
+                log_file, 
+                "[matchmaker_run_t] form_match_eventfd write failed", 
+                errno
+            );
+        }
+    }
 }
 
 /* 
@@ -165,21 +233,26 @@ void *matchmaker_run_t(void *args)
             goto exit;
         }
 
-        // Process events 
-        if(rc > 0) process_events(m_args->log_file);
+        // Process events
+        if(rc > 0) process_events(
+            m_args->log_file,
+            rc,
+            e_events,
+            m_args->matchmaker_eventfd,
+            form_match_eventfd,
+            m_args->broker,
+            q_players,
+            ports_manager,
+            m_args->orch_eventfd
+        );
 
-        // Issue form match event if game queue and port is ready 
-        if(pm_is_port(ports_manager) && pq_ready(q_players, PLAYERS_PER_MATCH))
-        {
-            uint64_t sig = 1; 
-            if(write(form_match_eventfd, &sig, sizeof(sig)) < 0)
-            {
-                log_error(m_args->log_file, 
-                    "[matchmaker_run_t] form_match_eventfd write failed", 
-                    errno
-                );
-            }
-        }
+        // Check match readiness 
+        check_match_readiness(
+            m_args->log_file, 
+            ports_manager, 
+            q_players, 
+            form_match_eventfd
+        );
 
         // Check the status of port manager 
         if(!pm_status(ports_manager))
@@ -189,8 +262,6 @@ void *matchmaker_run_t(void *args)
             );
             goto exit;
         }
-
-        sleep(1);
     }
 
 exit: 
