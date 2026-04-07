@@ -1,6 +1,7 @@
 #include <stdatomic.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <string.h>
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
 #include <errno.h>
@@ -45,12 +46,77 @@ static inline int add_fd_epoll( FILE *log_file,
 
 static void process_broker_msg( FILE *log_file,
                                 struct Broker *broker,
-                                struct PlayersQueue *q_players
+                                struct PlayersQueue *q_players,
+                                int orch_eventfd
                               )
 {
-    // TODO: pop BrokerMsg from q_session_man via pop_data_sessions_man
-    // TODO: if SV_EVENT_MATCH_REQUEST -> pq_add_player(q_players, client_id, fd)
-    // TODO: if SV_EVENT_MATCH_CANCEL  -> pq_remove_player(q_players, fd)
+    struct BrokerMsg msg;
+    if(pop_data_sessions_man(broker, &msg, sizeof(msg)) < 0)
+    {
+        log_error(log_file, "[process_broker_msg] pop_data_sessions_man failed", 0);
+        return;
+    }
+
+    if(msg.kind != BROKER_MSG_CLIENT_REQUEST)
+    {
+        log_error(log_file, "[process_broker_msg] unexpected BrokerMsgKind", 0);
+        return;
+    }
+
+    uint8_t  event_type = msg.client_request.event_type;
+    int32_t  fd         = msg.client_request.fd;
+    uint8_t *client_id  = msg.client_request.client_id;
+
+    if(event_type == SV_EVENT_MATCH_REQUEST)
+    {
+        if(pq_add_player(q_players, client_id, (int)fd) < 0)
+        {
+            log_error(log_file, "[process_broker_msg] pq_add_player failed", 0);
+            return;
+        }
+    }
+    else if(event_type == SV_EVENT_MATCH_CANCEL)
+    {
+        if(pq_remove_player(q_players, (int)fd) < 0)
+        {
+            log_error(log_file, "[process_broker_msg] pq_remove_player: player not found", 0);
+            return;
+        }
+
+        struct BrokerMsg resp;
+        resp.kind                    = BROKER_MSG_MATCH_RESULT;
+        resp.match_result.fd         = fd;
+        resp.match_result.event_type = SV_EVENT_MATCH_NOT_FOUND;
+        memcpy(resp.match_result.client_id, client_id, PLAYER_ID_SIZE);
+
+        if(push_data_orch(broker, &resp, sizeof(resp)) < 0)
+        {
+            log_error(log_file, "[process_broker_msg] push_data_orch failed", 0);
+            return;
+        }
+
+        uint64_t sig = 1;
+        if(write(orch_eventfd, &sig, sizeof(sig)) < 0)
+        {
+            log_error(log_file, "[process_broker_msg] orch_eventfd write failed", errno);
+            return;
+        }
+    }
+    else
+    {
+        log_error(log_file, "[process_broker_msg] unknown event_type, dropping message", 0);
+        return;
+    }
+
+    char hex_id[PLAYER_ID_SIZE * 2 + 1];
+    for(int i = 0; i < PLAYER_ID_SIZE; i++)
+        snprintf(hex_id + i * 2, 3, "%02x", client_id[i]);
+
+    char log_msg[256];
+    snprintf(log_msg, sizeof(log_msg),
+        "[process_broker_msg] event_type=%u player_id=%s fd=%d",
+        event_type, hex_id, (int)fd);
+    log_message(log_file, log_msg);
 }
 
 static void form_match( FILE *log_file,
@@ -64,6 +130,8 @@ static void form_match( FILE *log_file,
     // TODO: fork/exec GAME_PROCESS with borrowed port
     // TODO: pm_register_port on success, pm_return_port on failure
     // TODO: push BROKER_MSG_MATCH_RESULT to q_orch, signal orch_eventfd
+
+
 }
 
 static void process_events( FILE *log_file,
@@ -85,7 +153,7 @@ static void process_events( FILE *log_file,
         {
             uint64_t val;
             read(fd, &val, sizeof(val));
-            process_broker_msg(log_file, broker, q_players);
+            process_broker_msg(log_file, broker, q_players, orch_eventfd);
             continue;
         }
 
