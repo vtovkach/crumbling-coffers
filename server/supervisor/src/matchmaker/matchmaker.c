@@ -59,7 +59,7 @@ static pid_t spawn_process(FILE *log_file, const char *process_path,
 
     log_message(log_file, "Match Created");
 
-    return -1;
+    return 0;
 }
 
 
