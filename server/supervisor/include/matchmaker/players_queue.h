@@ -29,13 +29,15 @@ void pq_destroy(struct PlayersQueue *pq);
 /**
  * Adds a player to the queue.
  *
- * @param pq         Pointer to the PlayersQueue.
- * @param player_id  Pointer to player ID (size PLAYER_ID_SIZE).
- * @param fd         File descriptor identifying the player.
- * @return           0 on success, -1 on failure.
+ * @param pq              Pointer to the PlayersQueue.
+ * @param player          Pointer to the Player to add.
+ * @param assign_seq_num  If true, overwrites player->seq_num with the queue's
+ *                        internal counter and advances it. If false, uses
+ *                        player->seq_num as-is and leaves the counter unchanged.
+ * @return                0 on success, -1 on failure.
  */
-int pq_add_player(struct PlayersQueue *pq, uint8_t *player_id,
-                  int fd);
+int pq_add_player(struct PlayersQueue *pq, const struct Player *player,
+                  bool assign_seq_num);
 /**
  * Removes a player from the queue by file descriptor.
  *
