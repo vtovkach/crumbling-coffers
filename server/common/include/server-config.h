@@ -16,6 +16,7 @@
 #define PLAYERS_PER_MATCH 2
 
 // UDP GAME PROCESS 
+#define GAME_SERVER_IP          "127.0.0.1"
 #define UDP_GAME_PROCESS_PORT   "10001"
 #define GAME_PROCESS            "./bin/game"
 #define GM_MAX_EPOLL_EVENTS     64  

@@ -17,6 +17,8 @@
 #define BASE_PORT 10001
 #define EPOLL_TIMEOUT 1000
 
+#define PUBLIC_IP_ADDRESS GAME_SERVER_IP
+
 extern atomic_bool t_shutdown;
 
 static inline int add_fd_epoll( FILE *log_file, 
