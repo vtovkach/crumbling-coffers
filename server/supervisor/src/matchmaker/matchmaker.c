@@ -368,7 +368,7 @@ void *matchmaker_run_t(void *args)
     uint16_t ports[PORTS_LIMIT];
     for(size_t i = 0; i < PORTS_LIMIT; i++)
     {
-        ports[i] = (uint16_t) (BASE_PORT + i + 1);
+        ports[i] = (uint16_t) (BASE_PORT + i);
     }
 
     // Initialize Matchmaker Structures
