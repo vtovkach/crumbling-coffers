@@ -20,6 +20,9 @@ TEST_CHUNKS_OBJS := test/supervisor/orchestrator/obj/test_input_chunks.o
 TEST_MATCHMAKING_BIN  := bin/test_matchmaking
 TEST_MATCHMAKING_OBJS := test/supervisor/matchmaker/obj/test_matchmaking.o
 
+TEST_MATCHMAKING_QUEUE_BIN  := bin/test_matchmaking_queue
+TEST_MATCHMAKING_QUEUE_OBJS := test/supervisor/matchmaker/obj/test_matchmaking_queue.o
+
 TEST_PORT_REAPER_BIN  := bin/test_port_reaper
 TEST_PORT_REAPER_OBJS := test/supervisor/matchmaker/obj/test_port_reaper.o \
                          supervisor/obj/port_manager.o \
@@ -74,6 +77,10 @@ link-test-matchmaker: test-build-matchmaker
 	mkdir -p bin
 	$(CC) $(CFLAGS) $(TEST_MATCHMAKING_OBJS) -o $(TEST_MATCHMAKING_BIN)
 
+link-test-matchmaking-queue: test-build-matchmaker
+	mkdir -p bin
+	$(CC) $(CFLAGS) $(TEST_MATCHMAKING_QUEUE_OBJS) -o $(TEST_MATCHMAKING_QUEUE_BIN)
+
 link-test-port-reaper: test-build-port-reaper
 	mkdir -p bin
 	$(CC) $(CFLAGS) $(TEST_PORT_REAPER_OBJS) -o $(TEST_PORT_REAPER_BIN) -lpthread
@@ -111,6 +118,9 @@ test-matchmaker: test
 test-matchmaker-remote: link-test-matchmaker
 	@./$(TEST_MATCHMAKING_BIN)
 
+test-matchmaking-queue-remote: link-test-matchmaking-queue
+	@./$(TEST_MATCHMAKING_QUEUE_BIN)
+
 test-port-reaper: all test-build-port-reaper link-test-port-reaper
 	@./$(TEST_PORT_REAPER_BIN)
 
@@ -128,4 +138,5 @@ clean:
         link-test link-test-orchestrator link-test-matchmaker link-test-port-reaper \
         test-orchestrator test-orchestrator-remote \
         test-matchmaker test-matchmaker-remote \
+        link-test-matchmaking-queue test-matchmaking-queue-remote \
         test-port-reaper clean
