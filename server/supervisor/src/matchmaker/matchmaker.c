@@ -5,9 +5,11 @@
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
 #include <errno.h>
+#include <arpa/inet.h>
 
 #include "server-config.h"
 #include "log_system.h"
+#include "random.h"
 #include "broker.h"
 #include "broker-config.h"
 #include "matchmaker/matchmaker.h"
@@ -45,6 +47,21 @@ static inline int add_fd_epoll( FILE *log_file,
     }
     return 0;
 }
+
+// Spawn a process
+static pid_t spawn_process(FILE *log_file, const char *process_path,
+                           struct Player *players, size_t n_players,
+                           uint8_t *game_id, uint16_t port)
+{
+    // TODO
+    (void)log_file; (void)process_path; (void)players;
+    (void)n_players; (void)game_id; (void)port;
+
+    log_message(log_file, "Match Created");
+
+    return -1;
+}
+
 
 static void process_broker_msg( FILE *log_file,
                                 struct Broker *broker,
@@ -130,12 +147,87 @@ static void form_match( FILE *log_file,
                         int orch_eventfd
                       )
 {
-    // TODO: pm_borrow_port, pop PLAYERS_PER_MATCH players via pop_from_queue
-    // TODO: fork/exec GAME_PROCESS with borrowed port
-    // TODO: pm_register_port on success, pm_return_port on failure
-    // TODO: push BROKER_MSG_MATCH_RESULT to q_orch, signal orch_eventfd
+    while(pq_ready(q_players, PLAYERS_PER_MATCH) && pm_is_port(ports_manager))
+    {
+        struct Player players[PLAYERS_PER_MATCH];
+        uint8_t  game_id[GAME_ID_SIZE] = {0};
+        uint16_t port                  = 0;
+        pid_t    pid                   = -1;
+        uint8_t  result_event          = SV_EVENT_MATCH_NOT_FOUND;
+        bool     do_break              = false;
+        char     log_msg[128];
 
+        for(int i = 0; i < PLAYERS_PER_MATCH; i++)
+        {
+            if(pop_from_queue(q_players, &players[i]) < 0)
+            {
+                log_error(log_file, "[form_match] pop_from_queue failed", 0);
+                return;
+            }
+        }
 
+        if(!secure_random_bytes(game_id, GAME_ID_SIZE))
+        {
+            log_error(log_file, "[form_match] secure_random_bytes failed", 0);
+            do_break = true;
+            goto notify;
+        }
+
+        port = pm_borrow_port(ports_manager);
+        if(port == 0)
+        {
+            log_error(log_file, "[form_match] pm_borrow_port failed", 0);
+            do_break = true;
+            goto notify;
+        }
+
+        pid = spawn_process(log_file, GAME_PROCESS, players, PLAYERS_PER_MATCH,
+                            game_id, port);
+        if(pid < 0)
+        {
+            log_error(log_file, "[form_match] spawn_process failed", 0);
+            pm_return_port(ports_manager, port);
+            do_break = true;
+            goto notify;
+        }
+
+        if(pm_register_port(ports_manager, pid, port) < 0)
+            log_error(log_file, "[form_match] pm_register_port failed", 0);
+
+        snprintf(log_msg, sizeof(log_msg),
+            "[form_match] game process spawned pid=%d port=%u", (int)pid, (unsigned)port);
+        log_message(log_file, log_msg);
+
+        result_event = SV_EVENT_MATCH_FOUND;
+
+    notify:;
+        uint32_t server_ip = 0;
+        inet_pton(AF_INET, PUBLIC_IP_ADDRESS, &server_ip);
+
+        for(int i = 0; i < PLAYERS_PER_MATCH; i++)
+        {
+            struct BrokerMsg resp;
+            resp.kind                     = BROKER_MSG_MATCH_RESULT;
+            resp.match_result.event_type  = result_event;
+            resp.match_result.fd          = players[i].fd;
+            resp.match_result.server_ip   = server_ip;
+            resp.match_result.server_port = port;
+            memcpy(resp.match_result.client_id, players[i].player_id, PLAYER_ID_SIZE);
+            memcpy(resp.match_result.game_id,   game_id,              GAME_ID_SIZE);
+
+            if(push_data_orch(broker, &resp, sizeof(resp)) < 0)
+            {
+                log_error(log_file, "[form_match] push_data_orch failed", 0);
+                continue;
+            }
+
+            uint64_t sig = 1;
+            if(write(orch_eventfd, &sig, sizeof(sig)) < 0)
+                log_error(log_file, "[form_match] orch_eventfd write failed", errno);
+        }
+
+        if(do_break) break;
+    }
 }
 
 static void process_events( FILE *log_file,
@@ -244,7 +336,7 @@ void *matchmaker_run_t(void *args)
         goto exit; 
     }
 
-    form_match_eventfd = eventfd(0, EFD_NONBLOCK);
+    form_match_eventfd = eventfd(0, EFD_NONBLOCK | EFD_SEMAPHORE);
     if(form_match_eventfd < 0)
     {
         log_error(
