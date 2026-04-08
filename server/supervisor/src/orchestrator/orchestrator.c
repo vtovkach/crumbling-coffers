@@ -149,6 +149,7 @@ static void process_broker(FILE *log_file,
     if(msg.match_result.event_type == SV_EVENT_MATCH_FOUND)
     {
         memcpy(pkt->game_id, msg.match_result.game_id, GAME_ID_SIZE);
+        memcpy(pkt->player_id, msg.match_result.client_id, PLAYER_ID_SIZE);
         pkt->server_ip   = msg.match_result.server_ip;
         pkt->server_port = msg.match_result.server_port;
     }
