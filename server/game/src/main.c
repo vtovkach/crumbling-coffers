@@ -11,7 +11,7 @@
 #include "net/net_thread.h"
 #include "signals.h"
 
-#define LOG_PATH "../../../log/game"
+#define LOG_PATH "log/game"
 
 atomic_bool net_stop = false;
 atomic_bool game_stop = false;
