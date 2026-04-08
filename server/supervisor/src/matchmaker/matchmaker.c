@@ -53,15 +53,66 @@ static pid_t spawn_process(FILE *log_file, const char *process_path,
                            struct Player *players, size_t n_players,
                            uint8_t *game_id, uint16_t port)
 {
-    // TODO
-    (void)log_file; (void)process_path; (void)players;
-    (void)n_players; (void)game_id; (void)port;
+    int pipefd[2];
+    if(pipe(pipefd))
+    {
+        log_error(log_file, "[spawn_process] pipe failure", errno);
+        return -1;
+    }
 
-    log_message(log_file, "Match Created");
+    pid_t pid = fork();
 
-    return 0;
+    if(pid == -1)
+    {
+        log_error(log_file, "[spawn_process] fork failure", errno);
+        close(pipefd[0]);
+        close(pipefd[1]);
+        return -1;
+    }
+
+    if(pid == 0)
+    {
+        close(pipefd[1]); // Close writing end of the pipe 
+
+        char pipe_read_fd_str[64]; 
+        snprintf(pipe_read_fd_str, 64, "%d", pipefd[0]);
+
+        char *args[] = {(char *)process_path, pipe_read_fd_str, NULL};
+        execv(process_path, args);
+
+        log_error(log_file, "[spawn_process] execv failed", errno);
+        _exit(1);
+    }
+
+    close(pipefd[0]); // Close reading end of the pipe 
+
+    if(write(pipefd[1], &port, sizeof(port)) < (ssize_t) sizeof(port))
+        goto write_error;
+
+    if(write(pipefd[1], game_id, GAME_ID_SIZE) < GAME_ID_SIZE)
+        goto write_error;
+
+    uint32_t n_players_u32 = (uint32_t)n_players;
+    if(write(pipefd[1], &n_players_u32, sizeof(n_players_u32)) < (ssize_t) sizeof(n_players_u32))
+        goto write_error;
+    
+    // Write players id 
+    for(size_t i = 0; i < n_players; i++)
+    {
+        struct Player cur_player = players[i];
+        if(write(pipefd[1], cur_player.player_id, PLAYER_ID_SIZE) < 0)
+            goto write_error;
+    }
+
+    close(pipefd[1]); // Close writing end of the pipe 
+
+    return pid;
+
+write_error:
+    log_error(log_file, "[spawn_process] write failure", errno);
+    close(pipefd[1]);
+    return -1;
 }
-
 
 static void process_broker_msg( FILE *log_file,
                                 struct Broker *broker,
