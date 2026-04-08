@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <pthread.h>
 #include <stdatomic.h>
+#include <stdbool.h>
 
 struct Mailbox;
 struct PostOffice;
