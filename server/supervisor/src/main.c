@@ -8,6 +8,7 @@
 #include <stdatomic.h>
 #include <sys/eventfd.h>
 #include <pthread.h>
+#include <stdbool.h>
 
 #include "broker.h"
 #include "orchestrator/orchestrator.h"
