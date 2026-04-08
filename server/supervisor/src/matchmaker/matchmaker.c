@@ -5,6 +5,7 @@
 #include <sys/epoll.h>
 #include <sys/eventfd.h>
 #include <errno.h>
+#include <signal.h>
 #include <arpa/inet.h>
 
 #include "server-config.h"
@@ -243,7 +244,13 @@ static void form_match( FILE *log_file,
         }
 
         if(pm_register_port(ports_manager, pid, port) < 0)
+        {
             log_error(log_file, "[form_match] pm_register_port failed", 0);
+            kill(pid, SIGKILL);
+            pm_return_port(ports_manager, port);
+            do_break = true;
+            goto notify;
+        }
 
         snprintf(log_msg, sizeof(log_msg),
             "[form_match] game process spawned pid=%d port=%u", (int)pid, (unsigned)port);

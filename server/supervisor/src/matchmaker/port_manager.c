@@ -100,9 +100,8 @@ static void *reaper_thread(void *args)
                 uint16_t port = pm_retrieve_port(pm, pid);
                 if (port == 0)
                 {
-                    log_error(pm->log_file, "[reaper_thread] pm_retrieve_port failed", 0);
-                    atomic_store(&pm->reaper_active, false);
-                    return NULL;
+                    log_error(pm->log_file, "[reaper_thread] pm_retrieve_port: unknown pid, skipping", 0);
+                    continue;
                 }
 
                 pthread_mutex_lock(&pm->ports_lock);
