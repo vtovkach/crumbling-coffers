@@ -9,7 +9,7 @@ all: dirs $(OBJ)
 dirs:
 	mkdir -p obj
 
-obj/%.o: %.c
+obj/%.o: %.c ../test-config.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
