@@ -14,6 +14,9 @@ TEST_OBJS        := test/supervisor/orchestrator/obj/test_input.o
 TEST_CHUNKS_BIN  := bin/test_orch_input_chunks
 TEST_CHUNKS_OBJS := test/supervisor/orchestrator/obj/test_input_chunks.o
 
+TEST_MATCHMAKING_BIN  := bin/test_matchmaking
+TEST_MATCHMAKING_OBJS := test/supervisor/matchmaker/obj/test_matchmaking.o
+
 all: common supervisor link
 
 common:
@@ -33,13 +36,15 @@ test: all test-build link-test
 
 test-build:
 	$(MAKE) -C test/supervisor/orchestrator
+	$(MAKE) -C test/supervisor/matchmaker
 
 link-test:
 	mkdir -p bin
 	$(CC) $(CFLAGS) $(TEST_OBJS) -o $(TEST_BIN)
 	$(CC) $(CFLAGS) $(TEST_CHUNKS_OBJS) -o $(TEST_CHUNKS_BIN)
+	$(CC) $(CFLAGS) $(TEST_MATCHMAKING_OBJS) -o $(TEST_MATCHMAKING_BIN)
 
-test-run: test
+test-orchestrator: test
 	@FIFO=$$(mktemp -u /tmp/sv_stdin_XXXXXX); \
 	mkfifo $$FIFO; \
 	./$(BIN) < $$FIFO & SPID=$$!; \
@@ -52,10 +57,23 @@ test-run: test
 	rm -f $$FIFO; \
 	[ $$R1 -eq 0 ] && [ $$R2 -eq 0 ]
 
+test-matchmaker: test
+	@FIFO=$$(mktemp -u /tmp/sv_stdin_XXXXXX); \
+	mkfifo $$FIFO; \
+	./$(BIN) < $$FIFO & SPID=$$!; \
+	exec 3>$$FIFO; \
+	./$(TEST_MATCHMAKING_BIN); R1=$$?; \
+	echo exit >&3; \
+	exec 3>&-; \
+	wait $$SPID; \
+	rm -f $$FIFO; \
+	[ $$R1 -eq 0 ]
+
 clean:
 	$(MAKE) -C common clean
 	$(MAKE) -C supervisor clean
 	$(MAKE) -C test/supervisor/orchestrator clean
+	$(MAKE) -C test/supervisor/matchmaker clean
 	rm -rf bin
 
-.PHONY: all common supervisor link run test test-build link-test test-run clean
+.PHONY: all common supervisor link run test test-build link-test test-orchestrator test-matchmaker clean
