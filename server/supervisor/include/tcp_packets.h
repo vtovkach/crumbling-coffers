@@ -23,19 +23,17 @@ struct __attribute__((packed)) IncomingPacket
 
 /*
  * Outgoing TCP packet from client.
- * 4 bytes: Packet Type code 
- *   2 = match found 
- *   3 = match not found 
- * 
- * GAME_ID_SIZE(16 bytes) bytes: Game Id as raw bytes 
- * 
- * 4 bytes: Game Server IP
- * 2 bytes: Game Port 
+ * 4 bytes:             Packet Type code (2 = match found, 3 = match not found)
+ * GAME_ID_SIZE bytes:  Game ID as raw bytes
+ * PLAYER_ID_SIZE bytes: Player ID as raw bytes
+ * 4 bytes:             Game Server IP
+ * 2 bytes:             Game Port
  */
 struct __attribute__((packed)) OutgoingPacket
 {
     uint32_t event_type;
     uint8_t game_id[GAME_ID_SIZE];
+    uint8_t player_id[PLAYER_ID_SIZE];
     uint32_t server_ip;
     uint16_t server_port; 
 };
