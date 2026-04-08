@@ -70,6 +70,11 @@ static void print_result(int client_num, const struct OutgoingPacket *pkt)
     printf("  Client %d:\n", client_num);
     printf("    Result:      %s (event_type=%u)\n", result_str, pkt->event_type);
 
+    printf("    Player ID:   ");
+    for (int i = 0; i < PLAYER_ID_SIZE; i++)
+        printf("%02x", pkt->player_id[i]);
+    printf("\n");
+
     printf("    Game ID:     ");
     for (int i = 0; i < GAME_ID_SIZE; i++)
         printf("%02x", pkt->game_id[i]);
