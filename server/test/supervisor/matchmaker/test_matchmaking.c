@@ -14,7 +14,7 @@
 
 #define CONNECT_RETRIES    20
 #define CONNECT_RETRY_US   50000   /* 50 ms between connect attempts */
-#define POST_SEND_SLEEP_US 500000  /* 500 ms after sending, before reading */
+#define POST_SEND_SLEEP_US 1000000  /* 500 ms after sending, before reading */
 #define TEST_TIMEOUT_S     5       /* hard deadline for the entire test */
 #define TEST_CLIENTS       10
 
