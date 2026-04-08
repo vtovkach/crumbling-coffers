@@ -52,6 +52,7 @@ static void shutdown_controller(FILE *log)
         int rc = poll(&pfd, 1, 2500);
         if(rc < 0)
         {
+            if(errno == EINTR) continue;
             log_error(log, "[shutdown_controller] poll failed", errno);
             goto exit;
         }
