@@ -9,6 +9,7 @@
 #include <sys/eventfd.h>
 #include <pthread.h>
 #include <stdbool.h>
+#include <signal.h>
 
 #include "broker.h"
 #include "orchestrator/orchestrator.h"
@@ -107,6 +108,18 @@ int main(void)
     int rc = -1;
     bool orch_started = false;
     bool matchmaker_started = false;
+
+    // Block SIGCHLD before spawning any threads so all threads inherit
+    // the mask. The reaper thread in PortManager handles it exclusively
+    // via sigtimedwait.
+    sigset_t chld_set;
+    sigemptyset(&chld_set);
+    sigaddset(&chld_set, SIGCHLD);
+    if(pthread_sigmask(SIG_BLOCK, &chld_set, NULL) != 0)
+    {
+        perror("[main] pthread_sigmask failed");
+        return 1;
+    }
 
     // Set up logging file
     log = setup_log();
