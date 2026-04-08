@@ -16,13 +16,6 @@
 
 #define PM_HT_INITIAL_SIZE 100
 
-struct ReaperArgs
-{
-    atomic_bool *reaper_stop;
-    atomic_bool *reaper_active;
-    FILE        *log_file;
-};
-
 struct PortManager
 {
     FILE *log_file;
@@ -33,7 +26,6 @@ struct PortManager
     pthread_t    reaper_thread;
     atomic_bool  reaper_active;
     atomic_bool  reaper_stop;
-    struct ReaperArgs *ra;
 
     HashTable       *pid_port_mapping;
     pthread_mutex_t  ht_lock;
@@ -55,15 +47,15 @@ static unsigned int hash_pid(const void *key, unsigned int table_size)
 
 static void *reaper_thread(void *args)
 {
-    struct ReaperArgs *ra = (struct ReaperArgs *)args;
-    atomic_store(ra->reaper_active, true);
+    struct PortManager *pm = (struct PortManager *) args; 
+    atomic_store(&pm->reaper_active, true);
 
-    while (!atomic_load(ra->reaper_stop))
+    while (!atomic_load(&pm->reaper_stop))
     {
         sleep(1);
     }
 
-    atomic_store(ra->reaper_active, false);
+    atomic_store(&pm->reaper_active, false);
     return NULL;
 }
 
@@ -131,26 +123,9 @@ struct PortManager *pm_create(uint16_t *initial_ports,
     atomic_init(&pm->reaper_active, false);
     atomic_init(&pm->reaper_stop, false);
 
-    pm->ra = malloc(sizeof(*pm->ra));
-    if (!pm->ra)
-    {
-        log_error(log_file, "pm_create: failed to allocate reaper args", errno);
-        pthread_mutex_destroy(&pm->ht_lock);
-        ht_destroy(pm->pid_port_mapping);
-        pthread_mutex_destroy(&pm->ports_lock);
-        spscq_destroy(pm->ports);
-        free(pm);
-        return NULL;
-    }
-
-    pm->ra->reaper_stop   = &pm->reaper_stop;
-    pm->ra->reaper_active = &pm->reaper_active;
-    pm->ra->log_file      = log_file;
-
-    if (pthread_create(&pm->reaper_thread, NULL, reaper_thread, pm->ra) != 0)
+    if (pthread_create(&pm->reaper_thread, NULL, reaper_thread, pm) != 0)
     {
         log_error(log_file, "pm_create: failed to start reaper thread", errno);
-        free(pm->ra);
         pthread_mutex_destroy(&pm->ht_lock);
         ht_destroy(pm->pid_port_mapping);
         pthread_mutex_destroy(&pm->ports_lock);
@@ -169,7 +144,6 @@ void pm_destroy(struct PortManager *pm)
     atomic_store(&pm->reaper_stop, true);
     pthread_join(pm->reaper_thread, NULL);
 
-    free(pm->ra);
     ht_destroy(pm->pid_port_mapping);
     pthread_mutex_destroy(&pm->ht_lock);
     spscq_destroy(pm->ports);
