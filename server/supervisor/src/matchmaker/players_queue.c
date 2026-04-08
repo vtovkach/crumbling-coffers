@@ -95,9 +95,10 @@ void pq_destroy(struct PlayersQueue *pq)
     free(pq);
 }
 
-int pq_add_player(struct PlayersQueue *pq, uint8_t *player_id, int fd)
+int pq_add_player(struct PlayersQueue *pq, const struct Player *player,
+                  bool assign_seq_num)
 {
-    if (!pq || !player_id) return -1;
+    if (!pq || !player) return -1;
 
     if (pq->cur_size >= pq->capacity)
     {
@@ -105,10 +106,9 @@ int pq_add_player(struct PlayersQueue *pq, uint8_t *player_id, int fd)
         return -1;
     }
 
-    struct Player p;
-    p.seq_num = pq->seq_num;
-    p.fd      = fd;
-    memcpy(p.player_id, player_id, PLAYER_ID_SIZE);
+    struct Player p = *player;
+    if (assign_seq_num)
+        p.seq_num = pq->seq_num;
 
     if (avl__insert_internal(pq->players, &p) != 0)
     {
@@ -116,15 +116,15 @@ int pq_add_player(struct PlayersQueue *pq, uint8_t *player_id, int fd)
         return -1;
     }
 
-    uint64_t seq = pq->seq_num;
-    if (ht__insert_internal(pq->fd_seq_mapping, &fd, &seq) < 0)
+    if (ht__insert_internal(pq->fd_seq_mapping, &p.fd, &p.seq_num) < 0)
     {
         log_error(pq->log_file, "pq_add_player: failed to insert into fd_seq_mapping", 0);
         avl__remove_internal(pq->players, &p);
         return -1;
     }
 
-    pq->seq_num++;
+    if (assign_seq_num)
+        pq->seq_num++;
     pq->cur_size++;
     return 0;
 }

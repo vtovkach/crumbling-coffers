@@ -71,7 +71,9 @@ static void process_broker_msg( FILE *log_file,
 
     if(event_type == SV_EVENT_MATCH_REQUEST)
     {
-        if(pq_add_player(q_players, client_id, (int)fd) < 0)
+        struct Player p = { .fd = (int)fd };
+        memcpy(p.player_id, client_id, PLAYER_ID_SIZE);
+        if(pq_add_player(q_players, &p, true) < 0)
         {
             log_error(log_file, "[process_broker_msg] pq_add_player failed", 0);
             return;
