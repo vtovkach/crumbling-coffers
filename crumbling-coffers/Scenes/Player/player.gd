@@ -7,16 +7,18 @@ class_name Player
 
 # Baseline values. Player has this by default.
 const BASE_MAX_SPEED: float = 10000.0
-const BASE_MAX_RUNSPEED: float = 1600.0
+const BASE_MAX_RUNSPEED: float = 1400.0
 const BASE_MAX_FALLINGSPEED: float = 5600.0
 const BASE_ACCEL: float = 8000.0
 const BASE_DECEL: float = 8000.0
 const BASE_BRAKING_DECEL: float = 16000.0
-const BASE_JUMP_VELOCITY: float = -3000.0
+const BASE_JUMP_VELOCITY: float = -3600.0
 const BASE_GRAVITY_STRENGTH: float = 1.0
 const BASE_DASH_COOLDOWN: float = 3 # seconds
-const BASE_DASH_STRENGTH: float = 3600.0
-
+const BASE_DASH_STRENGTH: float = 4800.0
+const BASE_MIDAIR_SLOWDOWN: float = 0.5
+const BASE_AUTOJUMP_WINDOW: float = 0.05 # seconds
+const BASE_MIDAIRJUMP_WINDOW: float = 0.05 # seconds
 
 # Values used in calculation. Can increase or decrease with
 # temporary status effects, can reset to BASE value on expiration.
@@ -30,6 +32,11 @@ const BASE_DASH_STRENGTH: float = 3600.0
 @export var gravity_strength: float = BASE_GRAVITY_STRENGTH
 @export var dash_cooldown: float = 0 # seconds
 @export var dash_strength: float = BASE_DASH_STRENGTH
+@export var midair_slowdown: float = BASE_MIDAIR_SLOWDOWN
+@export var autojump_window: float = 0 # seconds
+@export var midairjump_window: float = 0 # seconds
+
+var dashing = false		# Maybe this will help with animation control too.
 
 @export var is_frozen: bool = false
 @export var freeze_time_left: float = 0.0
@@ -48,6 +55,7 @@ const BASE_FROZEN_DECEL: float = 1000.0
 # Values for states
 @export var direction: float = 0
 @export var jump_pressed: bool = false
+@export var jump_tapped: bool = false
 @export var down_pressed: bool = false
 
 # DO NOT MODIFY outside of set_inverted(bool)
@@ -99,9 +107,19 @@ func _physics_process(delta: float) -> void:
 	# Get inputs
 		direction = _invert_multiplier * Input.get_axis("left", "right")
 		jump_pressed = Input.is_action_pressed("jump")
-		down_pressed = Input.is_action_pressed("down")
+		down_pressed = Input.is_action_pressed("down")		# But, that is best saved for a refactor, and ONLY IF its needed.
 
-		dash_cooldown = move_toward(dash_cooldown, 0, delta)
+		jump_tapped = Input.is_action_just_pressed("jump")	# this jump_tapped is technically unnecessary (only an intermediate for getting autojump_window)
+															# in any case, i would like to keep it because this seems useful to track 
+
+		update_timers(delta)
+
+		if jump_tapped:
+			autojump_window = BASE_AUTOJUMP_WINDOW
+
+		if dashing: 
+			dash_decel(delta)
+
 		if Input.is_action_pressed("dash"):
 			dash()
 	else:
@@ -116,9 +134,14 @@ func _physics_process(delta: float) -> void:
 	# Update position
 	move_and_slide()
 
+func update_timers(delta: float) -> void:
+	autojump_window = move_toward(autojump_window, 0, delta)
+	dash_cooldown = move_toward(dash_cooldown, 0, delta)
+	
 func jump() -> void:
-	if is_on_floor():
+	if midairjump_window:
 		velocity.y = jump_velocity
+		midairjump_window = 0;
 		
 func apply_gravity(gravity_multiplier: float, delta: float) -> void:
 	velocity.y = move_toward(velocity.y, max_fallingspeed, gravity_multiplier * gravity_strength * get_gravity().y * delta)
@@ -129,7 +152,7 @@ func apply_gravity(gravity_multiplier: float, delta: float) -> void:
 # [-1, 0): 	To left.
 # 0: 		Stop 
 # (0, 1]:	To right.
-func move(direction: float, delta: float) -> void:
+func move(direction: float, delta: float, multiplier: float = 1) -> void:
 	if is_frozen:
 		velocity.x = move_toward(velocity.x, 0, frozen_decel * delta)
 		return
@@ -137,23 +160,32 @@ func move(direction: float, delta: float) -> void:
 	
 	if direction:
 		if (velocity.x > 0 and direction < 0) or (velocity.x < 0 and direction > 0):
-			brake(direction, delta)
+			brake(direction, delta, multiplier)
 		else:
-			velocity.x = move_toward(velocity.x, direction * max_runspeed, accel * delta)
+			velocity.x = move_toward(velocity.x, direction * max_runspeed, multiplier * accel * delta)
 	else:
-		velocity.x = move_toward(velocity.x, 0, decel * delta)
+		velocity.x = move_toward(velocity.x, 0, multiplier * decel * delta)
 	
-# Similar to push, but a player-applied dash with cooldown. 
+# Rapidly increase the speed, but increase the deceleration too.
 func dash() -> void:
 	if dash_cooldown > 0 or direction == 0:	# no dash
 		return
 	dash_cooldown = BASE_DASH_COOLDOWN 		# yes dash
-	push(Vector2(direction, 0), dash_strength)
+
+	# dash will handle its own decel instead of being a force applied to player
+	velocity.x += direction * dash_strength	
+	dashing = true	
+	
+func dash_decel(delta) -> void:
+	var vx: float = clamp(velocity.x, -max_runspeed, max_runspeed)
+	velocity.x = move_toward(velocity.x, vx, decel * delta)
+	if vx == velocity.x:
+		dashing = false
 	
 # When acceleration direction is against current velocity
 # May prefer a state to handle this, especially if custom animation
-func brake(direction:float, delta: float) -> void:
-	velocity.x = move_toward(velocity.x, direction * max_runspeed, braking_decel * delta)
+func brake(direction:float, delta: float, multiplier: float = 1) -> void:
+	velocity.x = move_toward(velocity.x, direction * max_runspeed, multiplier * braking_decel * delta)
 
 # handle inversions through this function only
 func set_inverted(inverted:bool) -> void:

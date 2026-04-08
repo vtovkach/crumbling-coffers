@@ -10,7 +10,7 @@ func enter() -> void:
 	jump_released = false
 
 func physics_update(delta: float) -> void:
-	player.move(player.direction, delta)	# could be slower but this refactor aims to to preserve behavior
+	player.move(player.direction, delta, player.midair_slowdown)	# could be slower but this refactor aims to to preserve behavior
 	player.apply_gravity(1, delta)
 	if player.velocity.y >= 0:
 		transitioned.emit(self, "PlayerFall")
