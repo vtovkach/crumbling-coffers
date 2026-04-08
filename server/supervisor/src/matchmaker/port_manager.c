@@ -13,6 +13,8 @@
 #include <string.h>
 #include <errno.h>
 #include <unistd.h>
+#include <signal.h>
+#include <sys/wait.h>
 
 #define PM_HT_INITIAL_SIZE 100
 
@@ -45,14 +47,87 @@ static unsigned int hash_pid(const void *key, unsigned int table_size)
     return x % table_size;
 }
 
+static uint16_t pm_retrieve_port(struct PortManager *pm, pid_t pid)
+{
+    pthread_mutex_lock(&pm->ht_lock);
+
+    uint16_t *port_ptr = ht__get_internal(pm->pid_port_mapping, &pid, sizeof(pid_t));
+    if (!port_ptr)
+    {
+        pthread_mutex_unlock(&pm->ht_lock);
+        return 0;
+    }
+
+    uint16_t port = *port_ptr;
+    ht__remove_internal(pm->pid_port_mapping, &pid);
+    pthread_mutex_unlock(&pm->ht_lock);
+
+    return port;
+}
+
 static void *reaper_thread(void *args)
 {
-    struct PortManager *pm = (struct PortManager *) args; 
+    struct PortManager *pm = (struct PortManager *) args;
     atomic_store(&pm->reaper_active, true);
+
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGCHLD);
+
+    struct timespec ts;
+    ts.tv_sec  = 1;
+    ts.tv_nsec = 0;
 
     while (!atomic_load(&pm->reaper_stop))
     {
-        sleep(1);
+        int sig = sigtimedwait(&set, NULL, &ts);
+        if (sig == SIGCHLD)
+        {
+            for (;;)
+            {
+                pid_t pid = waitpid(-1, NULL, WNOHANG);
+                if (pid == 0) break;
+
+                if (pid < 0)
+                {
+                    if (errno == ECHILD) break;
+
+                    log_error(pm->log_file, "[reaper_thread] waitpid failed", errno);
+                    atomic_store(&pm->reaper_active, false);
+                    return NULL;
+                }
+
+                uint16_t port = pm_retrieve_port(pm, pid);
+                if (port == 0)
+                {
+                    log_error(pm->log_file, "[reaper_thread] pm_retrieve_port failed", 0);
+                    atomic_store(&pm->reaper_active, false);
+                    return NULL;
+                }
+
+                pthread_mutex_lock(&pm->ports_lock);
+                int rc = spscq_push(pm->ports, &port);
+                pthread_mutex_unlock(&pm->ports_lock);
+
+                if (rc != 0)
+                {
+                    log_error(pm->log_file, "[reaper_thread] failed to return port to queue", 0);
+                    atomic_store(&pm->reaper_active, false);
+                    return NULL;
+                }
+
+                char msg[64]; 
+                snprintf(msg, 64, "[reaper_thread] port %u is retrieved back", port);
+                log_message(pm->log_file, msg);
+            }
+        }
+        else if (sig == -1 && (errno == EINTR || errno == EAGAIN)) continue;
+        else
+        {
+            log_error(pm->log_file, "[reaper_thread] sigtimedwait critical failure", errno);
+            atomic_store(&pm->reaper_active, false);
+            return NULL;
+        }
     }
 
     atomic_store(&pm->reaper_active, false);
@@ -63,6 +138,15 @@ struct PortManager *pm_create(uint16_t *initial_ports,
                               size_t init_ports_size,
                               FILE *log_file)
 {
+    sigset_t chld_set;
+    sigemptyset(&chld_set);
+    sigaddset(&chld_set, SIGCHLD);
+    if (pthread_sigmask(SIG_BLOCK, &chld_set, NULL) != 0)
+    {
+        log_error(log_file, "pm_create: failed to block SIGCHLD", errno);
+        return NULL;
+    }
+
     struct PortManager *pm = calloc(1, sizeof(*pm));
     if (!pm)
     {
