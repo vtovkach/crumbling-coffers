@@ -8,6 +8,9 @@ endif
 BIN      := bin/supervisor
 OBJS      = $(wildcard common/obj/*.o) $(wildcard supervisor/obj/*.o)
 
+GAME_BIN  := bin/game
+GAME_OBJS  = $(wildcard common/obj/*.o) $(wildcard game/obj/*.o)
+
 TEST_BIN         := bin/test_orch_input
 TEST_OBJS        := test/supervisor/orchestrator/obj/test_input.o
 
@@ -17,7 +20,7 @@ TEST_CHUNKS_OBJS := test/supervisor/orchestrator/obj/test_input_chunks.o
 TEST_MATCHMAKING_BIN  := bin/test_matchmaking
 TEST_MATCHMAKING_OBJS := test/supervisor/matchmaker/obj/test_matchmaking.o
 
-all: common supervisor link
+all: common supervisor game link link-game
 
 common:
 	$(MAKE) -C common
@@ -25,9 +28,16 @@ common:
 supervisor:
 	$(MAKE) -C supervisor
 
+game:
+	$(MAKE) -C game
+
 link:
 	mkdir -p bin
 	$(CC) $(CFLAGS) $(OBJS) -o $(BIN) -lpthread
+
+link-game:
+	mkdir -p bin
+	$(CC) $(CFLAGS) $(GAME_OBJS) -o $(GAME_BIN) -lpthread
 
 run: all
 	./$(BIN)
@@ -89,11 +99,12 @@ test-matchmaker-remote: link-test-matchmaker
 clean:
 	$(MAKE) -C common clean
 	$(MAKE) -C supervisor clean
+	$(MAKE) -C game clean
 	$(MAKE) -C test/supervisor/orchestrator clean
 	$(MAKE) -C test/supervisor/matchmaker clean
 	rm -rf bin
 
-.PHONY: all common supervisor link run test \
+.PHONY: all common supervisor game link link-game run test \
         test-build test-build-orchestrator test-build-matchmaker \
         link-test link-test-orchestrator link-test-matchmaker \
         test-orchestrator test-orchestrator-remote \
