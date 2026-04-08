@@ -8,6 +8,7 @@
 #include <arpa/inet.h>
 
 #include "server-config.h"
+#include "test-config.h"
 
 #define CONNECT_RETRIES      20
 #define CONNECT_RETRY_US     0   /* 50 ms between connect attempts (1 s total) */
@@ -26,7 +27,7 @@ int main(void)
     struct sockaddr_in addr = {0};
     addr.sin_family      = AF_INET;
     addr.sin_port        = htons(atoi(SERVER_TCP_PORT));
-    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    addr.sin_addr.s_addr = inet_addr(IP_ADDRESS);
 
     /* --- connect with retry (supervisor may still be starting up) --- */
     int sock = -1;

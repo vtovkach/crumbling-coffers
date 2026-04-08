@@ -1,7 +1,8 @@
 CC     := gcc
 CFLAGS := -Wall -Wextra -Wfloat-equal -O2 -D_GNU_SOURCE \
           -I../../../common/include \
-          -I../../../supervisor/include
+          -I../../../supervisor/include \
+          -I..
 
 SRC := $(wildcard *.c)
 OBJ := $(addprefix obj/, $(notdir $(SRC:.c=.o)))

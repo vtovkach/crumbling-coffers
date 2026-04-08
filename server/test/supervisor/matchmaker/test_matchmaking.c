@@ -10,6 +10,7 @@
 
 #include "server-config.h"
 #include "tcp_packets.h"
+#include "test-config.h"
 
 #define CONNECT_RETRIES    20
 #define CONNECT_RETRY_US   50000   /* 50 ms between connect attempts */
@@ -30,12 +31,16 @@ static void die(const char *msg)
     exit(EXIT_FAILURE);
 }
 
-static int connect_client(void)
+static int connect_client(const char *ip)
 {
     struct sockaddr_in addr = {0};
-    addr.sin_family      = AF_INET;
-    addr.sin_port        = htons(atoi(SERVER_TCP_PORT));
-    addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    addr.sin_family = AF_INET;
+    addr.sin_port   = htons(atoi(SERVER_TCP_PORT));
+    if (inet_pton(AF_INET, ip, &addr.sin_addr) != 1)
+    {
+        fprintf(stderr, "invalid IP address: %s\n", ip);
+        exit(EXIT_FAILURE);
+    }
 
     for (int i = 0; i < CONNECT_RETRIES; i++)
     {
@@ -81,16 +86,20 @@ int main(int argc, char *argv[])
     signal(SIGALRM, on_timeout);
     alarm(TEST_TIMEOUT_S);
 
-    int n_clients = TEST_CLIENTS;
+    int         n_clients = TEST_CLIENTS;
+    const char *ip        = IP_ADDRESS;
+
     if (argc >= 2)
     {
         n_clients = atoi(argv[1]);
         if (n_clients <= 0)
         {
-            fprintf(stderr, "usage: %s [num_clients]\n", argv[0]);
+            fprintf(stderr, "usage: %s [num_clients [ip]]\n", argv[0]);
             exit(EXIT_FAILURE);
         }
     }
+    if (argc >= 3)
+        ip = argv[2];
 
     int *socks = malloc((size_t)n_clients * sizeof(int));
     if (!socks) die("malloc");
@@ -98,7 +107,7 @@ int main(int argc, char *argv[])
     /* Connect all clients */
     for (int i = 0; i < n_clients; i++)
     {
-        socks[i] = connect_client();
+        socks[i] = connect_client(ip);
         if (socks[i] < 0)
         {
             fprintf(stderr, "FAIL: client %d could not connect after %d attempts\n",
