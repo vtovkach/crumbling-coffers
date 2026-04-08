@@ -57,6 +57,11 @@ test-orchestrator: test
 	rm -f $$FIFO; \
 	[ $$R1 -eq 0 ] && [ $$R2 -eq 0 ]
 
+test-orchestrator-remote: test-build link-test
+	./$(TEST_BIN); R1=$$?; \
+	./$(TEST_CHUNKS_BIN); R2=$$?; \
+	[ $$R1 -eq 0 ] && [ $$R2 -eq 0 ]
+
 test-matchmaker: test
 	@FIFO=$$(mktemp -u /tmp/sv_stdin_XXXXXX); \
 	mkfifo $$FIFO; \
@@ -69,6 +74,9 @@ test-matchmaker: test
 	rm -f $$FIFO; \
 	[ $$R1 -eq 0 ]
 
+test-matchmaker-remote: test-build link-test
+	./$(TEST_MATCHMAKING_BIN)
+
 clean:
 	$(MAKE) -C common clean
 	$(MAKE) -C supervisor clean
@@ -76,4 +84,6 @@ clean:
 	$(MAKE) -C test/supervisor/matchmaker clean
 	rm -rf bin
 
-.PHONY: all common supervisor link run test test-build link-test test-orchestrator test-matchmaker clean
+.PHONY: all common supervisor link run test test-build link-test \
+        test-orchestrator test-orchestrator-remote \
+        test-matchmaker test-matchmaker-remote clean
