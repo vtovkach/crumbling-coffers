@@ -69,6 +69,10 @@ func _on_quit_confirmation_canceled() -> void:
 
 # Function runs when end game signal is heard
 func _on_match_ended() -> void:
+	
+	# Fix to ensure UI remains active
+	get_tree().paused = false
+	
 	if player:
 		player.set_physics_process(false) # Disables movement
 
