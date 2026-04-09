@@ -8,7 +8,7 @@
 extends Node2D
 class_name TwoPointItemIndicator
 
-@export var source: Player
+@export var source: UserPlayer
 @export var target: PickupBase
 
 var dir: Vector2

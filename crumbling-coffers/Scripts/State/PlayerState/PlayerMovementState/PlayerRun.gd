@@ -1,9 +1,8 @@
-extends State
+extends PlayerState
 class_name PlayerRun
 
-@export var player: Player
-
 func enter() -> void:
+	super()	
 	player.midairjump_window = player.BASE_MIDAIRJUMP_WINDOW
 
 func physics_update(delta: float) -> void:

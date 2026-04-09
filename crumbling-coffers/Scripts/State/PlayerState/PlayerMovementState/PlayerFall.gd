@@ -1,7 +1,5 @@
-extends State
+extends PlayerState
 class_name PlayerFall
-
-@export var player: Player
 
 func physics_update(delta: float) -> void:
 	player.move(player.direction, delta, player.midair_slowdown)	# could be slower but this refactor aims to to preserve behavior

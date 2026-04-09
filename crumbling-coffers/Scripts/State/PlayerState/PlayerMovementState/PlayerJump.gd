@@ -1,11 +1,11 @@
-extends State
+extends PlayerState
 class_name PlayerJump
 
-@export var player: Player
 var jump_released: bool
 const jump_slowdown_multiplier: float = 0.5	
 
 func enter() -> void:
+	super()
 	player.jump()
 	jump_released = false
 

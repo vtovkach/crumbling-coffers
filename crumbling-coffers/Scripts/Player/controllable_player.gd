@@ -1,9 +1,8 @@
-# 	Does not have multiplayer support yet;
-#	Need to differentiate between client player	
-#	and other connected players in same room 
+# This is a controllable player which is NOT the user player
+# Could be good for dummys. It uses state, and player's various flags (direction, jump_pressed, etc), but is NOT controlled through Input
 
-extends CharacterBody2D
-class_name Player
+extends Player
+class_name ControllablePlayer
 
 # Baseline values. Player has this by default.
 const BASE_MAX_SPEED: float = 10000.0
@@ -22,6 +21,7 @@ const BASE_MIDAIRJUMP_WINDOW: float = 0.05 # seconds
 
 # Values used in calculation. Can increase or decrease with
 # temporary status effects, can reset to BASE value on expiration.
+@export var input_direction: float = 0 		# this represents direction of input, so that direction variable isnt used in too many ways   
 @export var max_speed: float = BASE_MAX_SPEED
 @export var max_runspeed: float = BASE_MAX_RUNSPEED
 @export var max_fallingspeed: float = BASE_MAX_FALLINGSPEED
@@ -53,40 +53,19 @@ const BASE_FROZEN_DECEL: float = 1000.0
 
 
 # Values for states
-@export var direction: float = 0
 @export var jump_pressed: bool = false
 @export var jump_tapped: bool = false
 @export var down_pressed: bool = false
+@export var dash_pressed: bool = false # not quite a state but needed regardless
 
 # DO NOT MODIFY outside of set_inverted(bool)
 var _invert_multiplier: int = 1
 
-# Inventory and hotbar variables for "collect" and "hotbar_collect" functions.
-@export var inventory: Inventory
-@export var itemRes: InventoryItem
-@export var hotbar: Hotbar
-@export var hotbar_itemRes: HotbarItem
 
-#Daniel - adding a score to the character for when they pick up the items.
-
-signal score_changed(new_score: int)
-
-var score: int = 0
-
-func _ready() -> void:
-	# Connect signal to func reset_inv_hotbar so is called when the signal is emitted.
-	MatchManager.match_ended.connect(reset_inv_hotbar)
-	add_to_group("freezable")
-	add_to_group("player")
-	add_to_group("disorientable")
-	add_to_group("slowable")
-
-func add_score(amount: int) -> void:
-	score += amount
-	emit_signal("score_changed", score)
-# Daniel - ending here
 
 func _physics_process(delta: float) -> void:
+	update_timers(delta)
+
 	if is_frozen:
 		freeze_time_left -= delta
 		if freeze_time_left <= 0:
@@ -102,35 +81,28 @@ func _physics_process(delta: float) -> void:
 		if slow_time_left <= 0.0:
 			clear_slow()
 			
-			
 	if not is_frozen:
-	# Get inputs
-		direction = _invert_multiplier * Input.get_axis("left", "right")
-		jump_pressed = Input.is_action_pressed("jump")
-		down_pressed = Input.is_action_pressed("down")		# But, that is best saved for a refactor, and ONLY IF its needed.
-
-		jump_tapped = Input.is_action_just_pressed("jump")	# this jump_tapped is technically unnecessary (only an intermediate for getting autojump_window)
-															# in any case, i would like to keep it because this seems useful to track 
-
-		update_timers(delta)
-
+		direction = _invert_multiplier * input_direction
+		
 		if jump_tapped:
 			autojump_window = BASE_AUTOJUMP_WINDOW
 
 		if dashing: 
 			dash_decel(delta)
 
-		if Input.is_action_pressed("dash"):
+		if dash_pressed:
 			dash()
 	else:
 		# Ignore player input while frozen
-		direction = 0
+		input_direction = 0 
+		autojump_window = 0
 		jump_pressed = false
+		jump_tapped = false
+		dash_pressed = false
 		down_pressed = false
+		
 
-		# Optional: still reduce dash cooldown while frozen
-		dash_cooldown = move_toward(dash_cooldown, 0, delta)
-
+	
 	# Update position
 	move_and_slide()
 
@@ -157,7 +129,6 @@ func move(direction: float, delta: float, multiplier: float = 1) -> void:
 		velocity.x = move_toward(velocity.x, 0, frozen_decel * delta)
 		return
 		
-	
 	if direction:
 		if (velocity.x > 0 and direction < 0) or (velocity.x < 0 and direction > 0):
 			brake(direction, delta, multiplier)
@@ -194,8 +165,8 @@ func set_inverted(inverted:bool) -> void:
 # Push this character in a direction, may exceed their max runspeed (but not their max speed)
 # Adds to initial velocity
 # Consider for external force pushing character
-func push(direction: Vector2, pushStrength: float) -> void:
-	velocity += direction.normalized() * pushStrength
+func push(push_direction: Vector2, pushStrength: float) -> void:
+	velocity += push_direction.normalized() * pushStrength
 	velocity.x = clamp(velocity.x, -max_speed, max_speed)
 	velocity.y = clamp(velocity.y, -max_speed, max_speed)
 	
@@ -241,23 +212,3 @@ func update_slow_stats() -> void:
 		accel = BASE_ACCEL
 		decel = BASE_DECEL
 		dash_strength = BASE_DASH_STRENGTH
-
-
-# Function "collect": When player comes across an item, it will call func  "insert" from "inventory_slot.gd"
-# to add the item to the inventory resource (data container). This will update main inventory view to display
-# the collected item.
-func collect(itemRes):
-	inventory.insert(itemRes)
-
-# Consumables will call for this function when Player walks over and collides with the hit/collision box. 
-# This functionality is the same as inventory's.
-func consumable_collect(hotbar_itemRes):
-	hotbar.hotbar_insert(hotbar_itemRes)
-	
-func receive_pickup(pickup: ItemPickup) -> void:
-	pickup.apply_to_player(self)
-
-# Implementing call reset functions for inventory and hotbar when a match ends.
-func reset_inv_hotbar():
-	inventory.reset_inv()
-	hotbar.reset_hotbar()

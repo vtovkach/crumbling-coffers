@@ -1,8 +1,8 @@
 extends BaseLevel
 
 func _ready() -> void:
-	# Assign local $Player node to variable inherited from BaseLevel
-	player = $Player
+	# Assign local $UserPlayer node to variable inherited from BaseLevel
+	player = $UserPlayer
 	# Call base_level's _ready func
 	super._ready()
 	# Link player to HUD

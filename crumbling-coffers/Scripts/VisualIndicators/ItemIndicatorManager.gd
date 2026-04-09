@@ -2,7 +2,7 @@ extends Node
 class_name ItemIndicatorManager
 
 @export var indicator_scene: PackedScene
-var player: Player
+var player: UserPlayer
 
 var indicators: Dictionary[int, TwoPointItemIndicator] = {}	# int: id of pickup
 

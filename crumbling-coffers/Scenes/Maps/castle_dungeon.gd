@@ -9,8 +9,8 @@ func setup_level() -> void:
 	# In multiplayer the networkmanager should spawn players
 	# Just find local player here and link to HUD
 	# The following is for testing alone:
-	if has_node("Player"):
-		player = $Player
+	if has_node("UserPlayer"):
+		player = $UserPlayer
 		
 		# Use base_level helper to move player to spawn
 		var spawn_pos = get_random_spawn()
