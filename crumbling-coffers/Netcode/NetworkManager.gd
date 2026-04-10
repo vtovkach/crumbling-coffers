@@ -31,7 +31,10 @@ var _in_udp: Array[PackedByteArray] = []
 var _out_tcp: Array[PackedByteArray] = []
 var _out_udp: Array[UDPPacket] = []
 
-var _mutex: Mutex
+var _mutex_in_tcp: Mutex
+var _mutex_in_udp: Mutex
+var _mutex_out_tcp: Mutex
+var _mutex_out_udp: Mutex
 var _thread: Thread
 var _running: bool = false
 
@@ -39,7 +42,10 @@ func _ready() -> void:
 	startup()
 
 func startup() -> void:
-	_mutex = Mutex.new()
+	_mutex_in_tcp = Mutex.new()
+	_mutex_in_udp = Mutex.new()
+	_mutex_out_tcp = Mutex.new()
+	_mutex_out_udp = Mutex.new()
 	_in_tcp.clear()
 	_in_udp.clear()
 	_out_tcp.clear()
@@ -86,9 +92,9 @@ func _thread_main() -> void:
 			if frame.size() != PACKET_SIZE:
 				push_error("NetworkManager: Dropping malformed TCP frame of size %d" % frame.size())
 				continue
-			_mutex.lock()
+			_mutex_in_tcp.lock()
 			_in_tcp.append(frame)
-			_mutex.unlock()
+			_mutex_in_tcp.unlock()
 
 		# Read incoming UDP packets into _in_udp
 		while _udp.get_available_packet_count() > 0:
@@ -98,23 +104,23 @@ func _thread_main() -> void:
 			if packet.size() != PACKET_SIZE:
 				push_error("NetworkManager: Dropping UDP packet with wrong size: %d" % packet.size())
 				continue
-			_mutex.lock()
+			_mutex_in_udp.lock()
 			_in_udp.append(packet)
-			_mutex.unlock()
+			_mutex_in_udp.unlock()
 
 		# Drain outgoing TCP queue
-		_mutex.lock()
+		_mutex_out_tcp.lock()
 		var tcp_out := _out_tcp.duplicate()
 		_out_tcp.clear()
-		_mutex.unlock()
+		_mutex_out_tcp.unlock()
 		for pkt in tcp_out:
 			_tcp_framer.send_server_tcp(pkt)
 
 		# Drain outgoing UDP queue
-		_mutex.lock()
+		_mutex_out_udp.lock()
 		var udp_out := _out_udp.duplicate()
 		_out_udp.clear()
-		_mutex.unlock()
+		_mutex_out_udp.unlock()
 		for udp_pkt: UDPPacket in udp_out:
 			_udp.set_dest_address(server_ip, udp_pkt.port)
 			_udp.put_packet(udp_pkt.payload)
@@ -175,20 +181,20 @@ func send_tcp(packet: PackedByteArray) -> int:
 	if packet.size() != PACKET_SIZE:
 		push_error("send_tcp(): Packet size mismatch: %d (expected %d)" % [packet.size(), PACKET_SIZE])
 		return -1
-	_mutex.lock()
+	_mutex_out_tcp.lock()
 	_out_tcp.append(packet)
-	_mutex.unlock()
+	_mutex_out_tcp.unlock()
 	return 0
 
 ## Pops the next received TCP packet. Returns empty PackedByteArray if none available.
 func receive_tcp() -> PackedByteArray:
-	_mutex.lock()
+	_mutex_in_tcp.lock()
 	if _in_tcp.is_empty():
-		_mutex.unlock()
+		_mutex_in_tcp.unlock()
 		return PackedByteArray()
 	var pkt := _in_tcp[0]
 	_in_tcp.remove_at(0)
-	_mutex.unlock()
+	_mutex_in_tcp.unlock()
 	return pkt
 
 ## Queues a UDPPacket (payload + port) to be sent to server_ip:port.
@@ -197,18 +203,18 @@ func send_udp(udp_packet: UDPPacket) -> int:
 	if udp_packet.payload.size() != PACKET_SIZE:
 		push_error("send_udp(): Payload size mismatch: %d (expected %d)" % [udp_packet.payload.size(), PACKET_SIZE])
 		return -1
-	_mutex.lock()
+	_mutex_out_udp.lock()
 	_out_udp.append(udp_packet)
-	_mutex.unlock()
+	_mutex_out_udp.unlock()
 	return 0
 
 ## Pops the next received UDP packet. Returns empty PackedByteArray if none available.
 func receive_udp() -> PackedByteArray:
-	_mutex.lock()
+	_mutex_in_udp.lock()
 	if _in_udp.is_empty():
-		_mutex.unlock()
+		_mutex_in_udp.unlock()
 		return PackedByteArray()
 	var pkt := _in_udp[0]
 	_in_udp.remove_at(0)
-	_mutex.unlock()
+	_mutex_in_udp.unlock()
 	return pkt
