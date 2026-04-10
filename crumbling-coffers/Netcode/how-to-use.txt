@@ -1,42 +1,36 @@
-!!!!!NOTE!!!!!
-# All TCP and UDP send/receive operations require an active connection.
-# If a connection is not established, send functions will return false
-# and receive-related functions will return empty results.
+NetworkManager runs on a dedicated thread and manages all TCP and UDP communication.
+All packets (TCP and UDP) must be exactly 200 bytes. Mismatched sizes are dropped with an error.
 
-# ================================= TCP API ========================================
-# Establishes a TCP connection to the main server.
-# Returns true if the connection was created successfully, otherwise false.
-func connect_server_tcp() -> bool:
+Call startup() once at application launch to establish the connection and begin the thread.
+If the server is unreachable after MAX_RECONNECT_ATTEMPTS, an error dialog appears with a Quit button.
 
-# Closes the current TCP connection and clears related networking state.
-func disconnect_server_tcp() -> void:
+# ========================= Setup =========================
 
-# Sends one TCP packet to the server.
-# Returns true if the packet was handed off successfully, otherwise false.
-func send_server_tcp(packet: PackedByteArray) -> bool:
+# Starts the networking thread and connects to the server via TCP.
+# Call this once at app launch (e.g. from your root node's _ready()).
+func startup() -> void:
 
-# Returns true if at least one complete TCP frame is ready to be read.
-func has_server_tcp_frame() -> bool:
+# ========================= TCP API =========================
 
-# Returns the next complete TCP frame from the receive queue.
-# Returns an empty PackedByteArray if no frame is available.
-func get_server_tcp_frame() -> PackedByteArray:
+# Queues a 200-byte packet to be sent to the server over TCP.
+# Returns 0 on success, -1 if the packet is not exactly 200 bytes.
+func send_tcp(packet: PackedByteArray) -> int:
 
-# Returns true if the TCP connection to the server is currently active.
-func is_server_tcp_connected() -> bool
+# Pops the next complete TCP packet received from the server.
+# Returns an empty PackedByteArray (size 0) if nothing is available.
+func receive_tcp() -> PackedByteArray:
 
-# ================================= UDP API ========================================
-# Initializes UDP communication with the given IP address and port.
-# Returns true if UDP was set up successfully, otherwise false.
-func init_udp(ip: String, port: int) -> bool:
+# ========================= UDP API =========================
 
-# Closes the current UDP connection and clears related state.
-func disconnect_udp() -> void:
+# UDPPacket wraps a 200-byte payload and the destination port on the server.
+# The server IP is taken from NetworkManager.server_ip automatically.
+#
+#   var pkt = NetworkManager.UDPPacket.new(my_bytes, destination_port)
 
-# Sends one UDP packet.
-# Returns true if the packet was sent successfully, otherwise false.
-func udp_send(packet: PackedByteArray) -> bool:
+# Queues a UDPPacket to be sent to server_ip:udp_packet.port.
+# Returns 0 on success, -1 if the payload is not exactly 200 bytes.
+func send_udp(udp_packet: UDPPacket) -> int:
 
-# Returns the next received UDP packet.
-# Returns an empty PackedByteArray if no packet is available.
-func udp_receive() -> PackedByteArray:
+# Pops the next UDP packet received from the server.
+# Returns an empty PackedByteArray (size 0) if nothing is available.
+func receive_udp() -> PackedByteArray:
