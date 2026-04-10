@@ -47,12 +47,9 @@ func _on_back_button_pressed() -> void:
 
 # ========== SEARCH CONTROL ===========
 func start_search() -> void:
-	
-	# Connect to the server 
-	var res = await NetworkManager.connect_server_tcp()
-	if not res:
-		return
-	
+
+	# TODO: send matchmaking request to server via NetworkManager.send_tcp()
+
 	searching = true
 	elapsed_time = 0
 	
@@ -80,8 +77,7 @@ func stop_search() -> void:
 	search_cancel_button.add_theme_stylebox_override("hover", hover_search_style)
 	search_cancel_button.add_theme_stylebox_override("pressed", pressed_search_style)
 	
-	# Disconnect from the server 
-	NetworkManager.disconnect_server_tcp()
+	# TODO: send cancel matchmaking request to server via NetworkManager.send_tcp()
 
 # TIMER UPDATE
 func _on_search_timer_timeout() -> void:
