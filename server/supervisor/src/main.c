@@ -99,8 +99,17 @@ exit:
     free(userInput);
 }
 
+static void handle_sigterm(int sig)
+{
+    (void)sig;
+    exit(0);
+}
+
 int main(void)
 {
+    // Setup signals 
+    signal(SIGTERM, handle_sigterm);
+
     // Declare and initialize variables
     FILE *log = NULL;
     struct Broker *broker = NULL;
