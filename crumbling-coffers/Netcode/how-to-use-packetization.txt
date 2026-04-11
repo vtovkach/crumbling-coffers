@@ -1,0 +1,136 @@
+PacketizationManager is an autoload. You never instantiate it manually.
+It handles all packet construction and parsing so you never touch raw bytes.
+
+# ========================= Matchmaking (TCP) =========================
+
+# --- Sending ---
+
+# Search for a game:
+NetworkManager.send_tcp(PacketizationManager.form_tcp_packet(PacketizationManager.TYPE_SEARCH_GAME, 0))
+
+# Stop searching:
+NetworkManager.send_tcp(PacketizationManager.form_tcp_packet(PacketizationManager.TYPE_STOP_SEARCH, 0))
+
+# --- Receiving ---
+
+# Call this each frame (or whenever you drain the TCP queue).
+# interpret_tcp_packet() returns a TCP_Response with all fields already parsed.
+
+var raw := NetworkManager.receive_tcp()
+if raw.size() == 0:
+    return  # nothing yet
+
+var response := PacketizationManager.interpret_tcp_packet(raw)
+
+if response.response_type == PacketizationManager.TYPE_GAME_FOUND:
+    print("Game found!")
+    print("game_id:   ", response.game_id)    # 32-char uppercase hex string
+    print("player_id: ", response.player_id)  # 32-char uppercase hex string
+    print("server_ip: ", response.server_ip)  # e.g. "129.146.77.151"
+    print("port:      ", response.port)        # integer
+elif response.response_type == PacketizationManager.TYPE_GAME_NOT_FOUND:
+    print("No game found yet.")
+
+# ========================= Gameplay (UDP) =========================
+
+# After receiving a GAME_FOUND response, store game_id, player_id and port.
+# Use them for all UDP calls.
+
+var game_id   := response.game_id    # keep this
+var player_id := response.player_id  # keep this
+var udp_port  := response.port       # keep this
+
+# --- Sending ---
+
+# 1. On match start, send the INIT packet once to register with the game server:
+NetworkManager.send_udp(PacketizationManager.form_udp_init_packet(game_id, player_id, udp_port))
+
+# 2. Every game tick, send a regular packet with the player's current state:
+NetworkManager.send_udp(PacketizationManager.form_udp_reg_packet(
+    game_id,
+    player_id,
+    udp_port,
+    current_tick,           # int — current game tick, used as sequence number
+    player.position,        # Vector2 — x and y are cast to signed 32-bit integers
+    player.velocity,        # Vector2 — x and y are cast to signed 32-bit integers
+    player.score            # int — unsigned 32-bit integer
+))
+
+# --- Receiving ---
+
+# Call this each frame. interpret_udp_packet() returns a UDP_Response.
+# Always check status first, then packet_type.
+
+var raw_udp := NetworkManager.receive_udp()
+if raw_udp.size() == 0:
+    return  # nothing yet
+
+var udp_response := PacketizationManager.interpret_udp_packet(raw_udp)
+
+if udp_response.status == PacketizationManager.UDPStatus.ERROR:
+    push_error("Bad UDP packet received")
+    return
+
+print("server tick: ", udp_response.server_cur_tick)
+print("num players: ", udp_response.num_players)
+
+if udp_response.packet_type == PacketizationManager.UDPPacketType.SERVER_INIT:
+    print("start_tick: ", udp_response.start_tick)
+    print("stop_tick:  ", udp_response.stop_tick)
+
+    # player_init_positions is a Dictionary: player_id hex String -> PlayerInitPos
+    for pid in udp_response.player_init_positions:
+        var pos: PacketizationManager.PlayerInitPos = udp_response.player_init_positions[pid]
+        print("player ", pid, " starts at (", pos.x, ", ", pos.y, ")")
+
+elif udp_response.packet_type == PacketizationManager.UDPPacketType.SERVER_AUTH:
+    # players is a Dictionary: player_id hex String -> PlayerInfo
+    for pid in udp_response.players:
+        var info: PacketizationManager.PlayerInfo = udp_response.players[pid]
+        print("player ", pid)
+        print("  pos:   (", info.pos_x, ", ", info.pos_y, ")")
+        print("  vel:   (", info.vel_x, ", ", info.vel_y, ")")
+        print("  score: ", info.score)
+
+# ========================= Quick reference =========================
+
+# Enums (compare against these after interpret_tcp_packet / interpret_udp_packet):
+#
+#   PacketizationManager.TYPE_GAME_FOUND           (2)
+#   PacketizationManager.TYPE_GAME_NOT_FOUND        (3)
+#
+#   PacketizationManager.UDPStatus.NORMAL           (0)
+#   PacketizationManager.UDPStatus.ERROR            (1)
+#
+#   PacketizationManager.UDPPacketType.SERVER_INIT  (0)
+#   PacketizationManager.UDPPacketType.SERVER_AUTH  (1)
+#
+# Response field types:
+#
+#   TCP_Response:
+#     .response_type  int
+#     .game_id        String  (32-char uppercase hex)
+#     .player_id      String  (32-char uppercase hex)
+#     .server_ip      String  (dotted IPv4, e.g. "129.146.77.151")
+#     .port           int
+#
+#   UDP_Response:
+#     .status              int  (UDPStatus)
+#     .packet_type         int  (UDPPacketType)
+#     .server_cur_tick     int
+#     .num_players         int
+#     .start_tick          int  (SERVER_INIT only)
+#     .stop_tick           int  (SERVER_INIT only)
+#     .player_init_positions  Dictionary[String -> PlayerInitPos]  (SERVER_INIT only)
+#     .players                Dictionary[String -> PlayerInfo]     (SERVER_AUTH only)
+#
+#   PlayerInitPos:
+#     .x  int
+#     .y  int
+#
+#   PlayerInfo:
+#     .pos_x  int
+#     .pos_y  int
+#     .vel_x  int
+#     .vel_y  int
+#     .score  int
