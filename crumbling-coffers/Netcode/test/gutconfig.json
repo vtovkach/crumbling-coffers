@@ -1,7 +1,0 @@
-{
-  "dirs": ["res://Netcode/test"],
-  "prefix": "test_",
-  "suffix": ".gd",
-  "include_subdirs": false,
-  "log_level": 1
-}
