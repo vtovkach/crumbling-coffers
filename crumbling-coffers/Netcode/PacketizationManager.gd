@@ -13,20 +13,12 @@ const TYPE_GAME_NOT_FOUND: int = 3
 # ========================= Inner Classes =========================
 
 class TCP_Response:
-	enum ResponseType { GAME_FOUND, GAME_NOT_FOUND }
-
-	var response_type: int  # TCP_Response.ResponseType value
+	var response_type: int  # Wire value: 2 = GAME_FOUND, 3 = GAME_NOT_FOUND
 	var game_id:    String  # 16-byte identifier encoded as 32-char uppercase hex
 	var player_id:  String  # 16-byte identifier encoded as 32-char uppercase hex
 	var server_ip:  String  # IPv4 dotted-decimal string, e.g. "129.146.77.151"
 	var port:       int
 
-	func _init() -> void:
-		response_type = ResponseType.GAME_NOT_FOUND
-		game_id   = "0"
-		player_id = "0"
-		server_ip = "0"
-		port      = 0
 
 # TODO: Define fields once UDP gameplay packets are specced out.
 class UDP_Response:
@@ -51,13 +43,12 @@ func interpret_tcp_packet(raw: PackedByteArray) -> TCP_Response:
 	var response := TCP_Response.new()
 	var type_id  := _decode_u32_le(raw, 0)
 
+	response.response_type = type_id
 	if type_id == TYPE_GAME_FOUND:
-		response.response_type = TCP_Response.ResponseType.GAME_FOUND
-		response.game_id       = _bytes_to_hex(raw, 4,  16)
-		response.player_id     = _bytes_to_hex(raw, 20, 16)
-		response.server_ip     = _u32_to_ipv4(_decode_u32_le(raw, 36))
-		response.port          = _decode_u16_le(raw, 40)
-	# else: GAME_NOT_FOUND or unknown — all fields remain at zero defaults
+		response.game_id   = _bytes_to_hex(raw, 4,  16)
+		response.player_id = _bytes_to_hex(raw, 20, 16)
+		response.server_ip = _u32_to_ipv4(_decode_u32_le(raw, 36))
+		response.port      = _decode_u16_le(raw, 40)
 
 	return response
 
