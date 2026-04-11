@@ -1,0 +1,28 @@
+{
+  "config_file": "res://Netcode/test/gut_config.json",
+  "dirs": [
+    "res://Netcode/test"
+  ],
+  "tests": [
+    "res://Netcode/test/test_tcp_packetization.gd",
+    "res://Netcode/test/test_udp_packetization.gd"
+  ],
+  "double_strategy": "SCRIPT_ONLY",
+  "ignore_pause": false,
+  "include_subdirs": false,
+  "inner_class": "",
+  "junit_xml_file": "",
+  "junit_xml_timestamp": false,
+  "log_level": 1,
+  "opacity": 100,
+  "paint_after": 0.1,
+  "post_run_script": "",
+  "pre_run_script": "",
+  "prefix": "test_",
+  "selected": "",
+  "should_exit": false,
+  "should_exit_on_success": false,
+  "should_maximize": false,
+  "suffix": ".gd",
+  "unit_test_name": ""
+}
