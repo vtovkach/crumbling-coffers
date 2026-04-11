@@ -204,3 +204,82 @@ func test_form_then_interpret_stop_search() -> void:
 	var sent   := pm.form_tcp_packet(PacketizationManager.TYPE_STOP_SEARCH, 0)
 	var type_id := sent[0] | (sent[1] << 8) | (sent[2] << 16) | (sent[3] << 24)
 	assert_eq(type_id, PacketizationManager.TYPE_STOP_SEARCH)
+
+# ========================= form_tcp_packet: extreme =========================
+
+func test_map_id_boundary_0xFF() -> void:
+	var packet := pm.form_tcp_packet(PacketizationManager.TYPE_SEARCH_GAME, 0xFF)
+	assert_eq(packet[4], 0xFF)
+
+func test_search_game_type_zero_bytes_explicit() -> void:
+	# TYPE_SEARCH_GAME = 0, so all four type bytes must be 0x00 — not just "unset"
+	var packet := pm.form_tcp_packet(PacketizationManager.TYPE_SEARCH_GAME, 0)
+	assert_eq(packet[0], 0x00)
+	assert_eq(packet[1], 0x00)
+	assert_eq(packet[2], 0x00)
+	assert_eq(packet[3], 0x00)
+
+func test_no_state_leak_between_calls() -> void:
+	var p1 := pm.form_tcp_packet(PacketizationManager.TYPE_SEARCH_GAME, 1)
+	var p2 := pm.form_tcp_packet(PacketizationManager.TYPE_STOP_SEARCH, 2)
+	var type1 := p1[0] | (p1[1] << 8) | (p1[2] << 16) | (p1[3] << 24)
+	var type2 := p2[0] | (p2[1] << 8) | (p2[2] << 16) | (p2[3] << 24)
+	assert_eq(type1, PacketizationManager.TYPE_SEARCH_GAME)
+	assert_eq(p1[4], 1)
+	assert_eq(type2, PacketizationManager.TYPE_STOP_SEARCH)
+	assert_eq(p2[4], 2)
+
+# ========================= interpret_tcp_packet: extreme =========================
+
+func test_game_found_max_ip() -> void:
+	# 0xFFFFFFFF → "255.255.255.255"
+	var raw := _make_game_found_packet(
+		"AABBCCDDEEFF00112233445566778899",
+		"00112233445566778899AABBCCDDEEFF",
+		0xFFFFFFFF,
+		80
+	)
+	var response := pm.interpret_tcp_packet(raw)
+	assert_eq(response.server_ip, "255.255.255.255")
+
+func test_game_found_small_ip() -> void:
+	# 0x00000001 → "0.0.0.1"
+	var raw := _make_game_found_packet(
+		"AABBCCDDEEFF00112233445566778899",
+		"00112233445566778899AABBCCDDEEFF",
+		0x00000001,
+		80
+	)
+	var response := pm.interpret_tcp_packet(raw)
+	assert_eq(response.server_ip, "0.0.0.1")
+
+func test_game_found_port_min_nonzero() -> void:
+	var raw := _make_game_found_packet(
+		"AABBCCDDEEFF00112233445566778899",
+		"00112233445566778899AABBCCDDEEFF",
+		0x81924D97,
+		1
+	)
+	var response := pm.interpret_tcp_packet(raw)
+	assert_eq(response.port, 1)
+
+func test_game_found_all_ff_ids() -> void:
+	var raw := _make_game_found_packet(
+		"FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+		"FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+		0x81924D97,
+		7777
+	)
+	var response := pm.interpret_tcp_packet(raw)
+	assert_eq(response.game_id,   "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
+	assert_eq(response.player_id, "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF")
+
+func test_all_zero_packet_unknown_type() -> void:
+	# type_id = 0, not a known response type
+	var raw := _make_raw_packet()
+	var response := pm.interpret_tcp_packet(raw)
+	assert_eq(response.response_type, 0)
+	assert_eq(response.game_id,   "")
+	assert_eq(response.player_id, "")
+	assert_eq(response.server_ip, "")
+	assert_eq(response.port, 0)
