@@ -1,4 +1,4 @@
-extends RefCounted
+extends Node
 
 const PACKET_SIZE: int = 200
 
