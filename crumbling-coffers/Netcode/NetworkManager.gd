@@ -127,7 +127,9 @@ func _thread_main() -> void:
 # Returns true on success, false if _running was set to false.
 func _connect_until_running() -> bool:
 	while _running:
+		print("NetworkManager: Attempting TCP connection to %s:%d..." % [server_ip, server_tcp_port])
 		if _try_connect_tcp():
+			print("NetworkManager: TCP connection established.")
 			return true
 		OS.delay_msec(RECONNECT_INTERVAL_MS)
 	return false
