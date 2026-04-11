@@ -37,7 +37,10 @@ var _mutex_out_udp: Mutex
 var _thread: Thread
 var _running: bool = false
 
+var _disconnect_indicator: Panel
+
 func _ready() -> void:
+	_init_disconnect_indicator()
 	startup()
 
 func startup() -> void:
@@ -71,14 +74,18 @@ func _thread_main() -> void:
 		push_error("NetworkManager: Failed to bind UDP socket: %s" % udp_err)
 		return
 
+	call_deferred("_show_disconnect_indicator")
 	if not _connect_until_running():
 		return
+	call_deferred("_hide_disconnect_indicator")
 
 	while _running:
 		_server_tcp.poll()
 		if _server_tcp.get_status() != StreamPeerTCP.STATUS_CONNECTED:
+			call_deferred("_show_disconnect_indicator")
 			if not _connect_until_running():
 				return
+			call_deferred("_hide_disconnect_indicator")
 
 		# Read incoming TCP frames into _in_tcp
 		_tcp_framer.process()
@@ -156,6 +163,40 @@ func _try_connect_tcp() -> bool:
 		elapsed += 10
 
 	return false
+
+# ========================= Disconnect Indicator =========================
+
+func _init_disconnect_indicator() -> void:
+	var canvas := CanvasLayer.new()
+	canvas.layer = 100
+	add_child(canvas)
+
+	var root := Control.new()
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	canvas.add_child(root)
+
+	_disconnect_indicator = Panel.new()
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.85, 0.08, 0.08, 1.0)
+	_disconnect_indicator.add_theme_stylebox_override("panel", style)
+	_disconnect_indicator.anchor_left = 1.0
+	_disconnect_indicator.anchor_right = 1.0
+	_disconnect_indicator.anchor_top = 0.0
+	_disconnect_indicator.anchor_bottom = 0.0
+	_disconnect_indicator.offset_left = -34.0
+	_disconnect_indicator.offset_right = -10.0
+	_disconnect_indicator.offset_top = 10.0
+	_disconnect_indicator.offset_bottom = 34.0
+	_disconnect_indicator.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_disconnect_indicator.visible = false
+	root.add_child(_disconnect_indicator)
+
+func _show_disconnect_indicator() -> void:
+	_disconnect_indicator.visible = true
+
+func _hide_disconnect_indicator() -> void:
+	_disconnect_indicator.visible = false
 
 # ========================= Public API =========================
 
