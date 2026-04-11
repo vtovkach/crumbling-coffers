@@ -11,10 +11,9 @@ class UDPPacket:
 const FramerTCP = preload("res://Netcode/tcp_framer.gd")
 
 const PACKET_SIZE: int = 200
-const MAX_RECONNECT_ATTEMPTS: int = 3
-const RECONNECT_DELAY_MS: int = 2000
 const TCP_CONNECT_TIMEOUT_MS: int = 5000
 const THREAD_TICK_MS: int = 1
+const RECONNECT_INTERVAL_MS: int = 400
 
 var server_ip: String = "129.146.77.151"
 var server_tcp_port: int = 10000
@@ -38,13 +37,7 @@ var _mutex_out_udp: Mutex
 var _thread: Thread
 var _running: bool = false
 
-var _notification_panel: Panel
-var _notification_panel_style: StyleBoxFlat
-var _notification_label: Label
-var _reconnect_btn: Button
-
 func _ready() -> void:
-	_init_notification_ui()
 	startup()
 
 func startup() -> void:
@@ -76,22 +69,16 @@ func _thread_main() -> void:
 	var udp_err := _udp.bind(0)
 	if udp_err != OK:
 		push_error("NetworkManager: Failed to bind UDP socket: %s" % udp_err)
-		call_deferred("_show_disconnect_notification")
 		return
 
-	if not _connect_with_retries():
-		call_deferred("_show_disconnect_notification")
+	if not _connect_until_running():
 		return
-
-	call_deferred("_on_connection_restored")
 
 	while _running:
 		_server_tcp.poll()
 		if _server_tcp.get_status() != StreamPeerTCP.STATUS_CONNECTED:
-			if not _connect_with_retries():
-				call_deferred("_show_disconnect_notification")
-				break
-			call_deferred("_on_connection_restored")
+			if not _connect_until_running():
+				return
 
 		# Read incoming TCP frames into _in_tcp
 		_tcp_framer.process()
@@ -136,15 +123,13 @@ func _thread_main() -> void:
 
 		OS.delay_msec(THREAD_TICK_MS)
 
-func _connect_with_retries() -> bool:
-	for attempt in range(MAX_RECONNECT_ATTEMPTS):
-		print("NetworkManager: TCP connect attempt %d/%d..." % [attempt + 1, MAX_RECONNECT_ATTEMPTS])
+# Retries TCP connection every RECONNECT_INTERVAL_MS until connected or shutdown.
+# Returns true on success, false if _running was set to false.
+func _connect_until_running() -> bool:
+	while _running:
 		if _try_connect_tcp():
-			print("NetworkManager: TCP connected.")
 			return true
-		if attempt < MAX_RECONNECT_ATTEMPTS - 1:
-			OS.delay_msec(RECONNECT_DELAY_MS)
-	push_error("NetworkManager: All reconnection attempts failed.")
+		OS.delay_msec(RECONNECT_INTERVAL_MS)
 	return false
 
 func _try_connect_tcp() -> bool:
@@ -169,123 +154,6 @@ func _try_connect_tcp() -> bool:
 		elapsed += 10
 
 	return false
-
-# ========================= Notification UI =========================
-
-func _init_notification_ui() -> void:
-	var canvas := CanvasLayer.new()
-	canvas.layer = 100
-	add_child(canvas)
-
-	var root_control := Control.new()
-	root_control.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root_control.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	canvas.add_child(root_control)
-
-	_notification_panel = Panel.new()
-	_notification_panel_style = StyleBoxFlat.new()
-	_notification_panel_style.set_corner_radius_all(4)
-	_notification_panel_style.set_content_margin_all(12.0)
-	_notification_panel_style.set_border_width_all(2)
-	_set_panel_error_style()
-	_notification_panel.add_theme_stylebox_override("panel", _notification_panel_style)
-	_notification_panel.anchor_left = 1.0
-	_notification_panel.anchor_right = 1.0
-	_notification_panel.anchor_top = 0.0
-	_notification_panel.anchor_bottom = 0.0
-	_notification_panel.offset_left = -300.0
-	_notification_panel.offset_right = -12.0
-	_notification_panel.offset_top = 12.0
-	_notification_panel.offset_bottom = 115.0
-	_notification_panel.visible = false
-	root_control.add_child(_notification_panel)
-
-	var margin := MarginContainer.new()
-	margin.set_anchors_preset(Control.PRESET_FULL_RECT)
-	margin.add_theme_constant_override("margin_left", 12)
-	margin.add_theme_constant_override("margin_right", 12)
-	margin.add_theme_constant_override("margin_top", 10)
-	margin.add_theme_constant_override("margin_bottom", 10)
-	_notification_panel.add_child(margin)
-
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 8)
-	margin.add_child(vbox)
-
-	_notification_label = Label.new()
-	_notification_label.text = "CONNECTION DISRUPTED"
-	_notification_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.85, 1.0))
-	_notification_label.add_theme_color_override("font_shadow_color", Color(0.0, 0.0, 0.0, 0.8))
-	_notification_label.add_theme_constant_override("shadow_offset_x", 1)
-	_notification_label.add_theme_constant_override("shadow_offset_y", 1)
-	_notification_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_notification_label.add_theme_font_size_override("font_size", 15)
-	vbox.add_child(_notification_label)
-
-	_reconnect_btn = Button.new()
-	_reconnect_btn.text = "Reconnect"
-	var btn_style := StyleBoxFlat.new()
-	btn_style.bg_color = Color(0.85, 0.15, 0.15, 1.0)
-	btn_style.set_corner_radius_all(3)
-	btn_style.set_content_margin_all(6.0)
-	btn_style.border_color = Color(1.0, 0.5, 0.5, 1.0)
-	btn_style.set_border_width_all(1)
-	var btn_style_hover := btn_style.duplicate() as StyleBoxFlat
-	btn_style_hover.bg_color = Color(1.0, 0.2, 0.2, 1.0)
-	_reconnect_btn.add_theme_stylebox_override("normal", btn_style)
-	_reconnect_btn.add_theme_stylebox_override("hover", btn_style_hover)
-	_reconnect_btn.add_theme_stylebox_override("pressed", btn_style)
-	_reconnect_btn.add_theme_stylebox_override("disabled", btn_style)
-	_reconnect_btn.add_theme_color_override("font_color", Color.WHITE)
-	_reconnect_btn.add_theme_color_override("font_hover_color", Color.WHITE)
-	_reconnect_btn.add_theme_color_override("font_pressed_color", Color.WHITE)
-	_reconnect_btn.add_theme_color_override("font_disabled_color", Color(1.0, 1.0, 1.0, 0.5))
-	_reconnect_btn.focus_mode = Control.FOCUS_NONE
-	_reconnect_btn.pressed.connect(_on_reconnect_pressed)
-	vbox.add_child(_reconnect_btn)
-
-func _unhandled_input(event: InputEvent) -> void:
-	if not _notification_panel.visible or _reconnect_btn.disabled:
-		return
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
-			get_viewport().set_input_as_handled()
-			_on_reconnect_pressed()
-
-func _set_panel_error_style() -> void:
-	_notification_panel_style.bg_color = Color(0.45, 0.04, 0.04, 1.0)
-	_notification_panel_style.border_color = Color(0.95, 0.25, 0.25, 1.0)
-
-func _set_panel_success_style() -> void:
-	_notification_panel_style.bg_color = Color(0.07, 0.38, 0.1, 1.0)
-	_notification_panel_style.border_color = Color(0.3, 0.85, 0.35, 1.0)
-
-func _show_disconnect_notification() -> void:
-	_set_panel_error_style()
-	_notification_label.text = "CONNECTION DISRUPTED"
-	_notification_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.85, 1.0))
-	_reconnect_btn.visible = true
-	_reconnect_btn.disabled = false
-	_notification_panel.visible = true
-
-func _on_connection_restored() -> void:
-	if not _notification_panel.visible:
-		return
-	_set_panel_success_style()
-	_notification_label.text = "CONNECTED"
-	_notification_label.add_theme_color_override("font_color", Color(0.85, 1.0, 0.87, 1.0))
-	_reconnect_btn.visible = false
-	await get_tree().create_timer(2.5).timeout
-	_notification_panel.visible = false
-	_set_panel_error_style()
-
-func _on_reconnect_pressed() -> void:
-	_notification_label.text = "Reconnecting..."
-	_notification_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.85, 1.0))
-	_reconnect_btn.disabled = true
-	if _thread and _thread.is_started():
-		_thread.wait_to_finish()
-	startup()
 
 # ========================= Public API =========================
 
