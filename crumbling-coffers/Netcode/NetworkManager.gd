@@ -83,6 +83,8 @@ func _thread_main() -> void:
 		call_deferred("_show_disconnect_notification")
 		return
 
+	call_deferred("_on_connection_restored")
+
 	while _running:
 		_server_tcp.poll()
 		if _server_tcp.get_status() != StreamPeerTCP.STATUS_CONNECTED:
