@@ -179,15 +179,16 @@ func _init_disconnect_indicator() -> void:
 	_disconnect_indicator = Panel.new()
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.85, 0.08, 0.08, 1.0)
+	style.set_corner_radius_all(2)
 	_disconnect_indicator.add_theme_stylebox_override("panel", style)
 	_disconnect_indicator.anchor_left = 1.0
 	_disconnect_indicator.anchor_right = 1.0
 	_disconnect_indicator.anchor_top = 0.0
 	_disconnect_indicator.anchor_bottom = 0.0
-	_disconnect_indicator.offset_left = -34.0
-	_disconnect_indicator.offset_right = -10.0
-	_disconnect_indicator.offset_top = 10.0
-	_disconnect_indicator.offset_bottom = 34.0
+	_disconnect_indicator.offset_left = -7.0
+	_disconnect_indicator.offset_right = -4.0
+	_disconnect_indicator.offset_top = 4.0
+	_disconnect_indicator.offset_bottom = 7.0
 	_disconnect_indicator.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_disconnect_indicator.visible = false
 	root.add_child(_disconnect_indicator)
