@@ -37,7 +37,7 @@ var _mutex_out_udp: Mutex
 var _thread: Thread
 var _running: bool = false
 
-var _disconnect_indicator: Panel
+var _disconnect_indicator: TextureRect
 
 func _ready() -> void:
 	_init_disconnect_indicator()
@@ -176,19 +176,18 @@ func _init_disconnect_indicator() -> void:
 	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	canvas.add_child(root)
 
-	_disconnect_indicator = Panel.new()
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.85, 0.08, 0.08, 1.0)
-	style.set_corner_radius_all(2)
-	_disconnect_indicator.add_theme_stylebox_override("panel", style)
+	_disconnect_indicator = TextureRect.new()
+	_disconnect_indicator.texture = load("res://Assets/Icons/no-inet-icon.png")
+	_disconnect_indicator.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_disconnect_indicator.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_disconnect_indicator.anchor_left = 1.0
 	_disconnect_indicator.anchor_right = 1.0
 	_disconnect_indicator.anchor_top = 0.0
 	_disconnect_indicator.anchor_bottom = 0.0
-	_disconnect_indicator.offset_left = -7.0
+	_disconnect_indicator.offset_left = -36.0
 	_disconnect_indicator.offset_right = -4.0
 	_disconnect_indicator.offset_top = 4.0
-	_disconnect_indicator.offset_bottom = 7.0
+	_disconnect_indicator.offset_bottom = 36.0
 	_disconnect_indicator.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_disconnect_indicator.visible = false
 	root.add_child(_disconnect_indicator)
