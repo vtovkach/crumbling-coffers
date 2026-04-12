@@ -1,417 +1,334 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 2560" font-family="monospace" font-size="13">
-
-  <defs>
-    <marker id="arr" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#555"/>
-    </marker>
-    <marker id="arr-yellow" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#ffcc44"/>
-    </marker>
-    <marker id="arr-blue" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#7070ff"/>
-    </marker>
-    <marker id="arr-green" markerWidth="8" markerHeight="6" refX="6" refY="3" orient="auto">
-      <polygon points="0 0, 8 3, 0 6" fill="#70ff70"/>
-    </marker>
-  </defs>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1160" font-family="monospace" font-size="13">
 
   <!-- Background -->
-  <rect width="1400" height="2560" fill="#0f0f0f"/>
+  <rect width="1400" height="1160" fill="#0f0f0f"/>
 
+  <!-- Title -->
+  <text x="700" y="42" fill="#aaa" font-size="17" font-weight="bold" text-anchor="middle" letter-spacing="2">PACKET STRUCTURE REFERENCE</text>
+  <text x="700" y="64" fill="#444" font-size="10" text-anchor="middle">All packets are 200 bytes  ·  integers little-endian  ·  IDs are 32-char uppercase hex strings</text>
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- SECTION 1: BIG PICTURE                                         -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- 01  TCP PACKETS                                                        -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
 
-  <text x="50" y="55" fill="#555" font-size="11" letter-spacing="3">01  PACKET  —  BIG PICTURE  (200 bytes total)</text>
-  <line x1="50" y1="62" x2="1350" y2="62" stroke="#222" stroke-width="1"/>
+  <text x="50" y="89" fill="#555" font-size="11" letter-spacing="3">01  TCP PACKETS</text>
+  <line x1="50" y1="96" x2="1350" y2="96" stroke="#222" stroke-width="1"/>
 
-  <!-- Outer packet box -->
-  <rect x="50" y="85" width="1300" height="130" rx="5" fill="#111" stroke="#444" stroke-width="1.5"/>
-  <text x="700" y="108" fill="#666" font-size="11" letter-spacing="2" text-anchor="middle">struct Packet</text>
+  <!-- ── Client → Server ──────────────────────────────────────────────────── -->
+  <text x="50" y="114" fill="#3a3a3a" font-size="10">CLIENT → SERVER  ·  SEARCH_GAME (type=0) or STOP_SEARCH (type=1)</text>
 
-  <!-- Header segment -->
-  <rect x="70" y="118" width="390" height="75" rx="4" fill="#1a1a2e" stroke="#4a4aaa" stroke-width="1.5"/>
-  <text x="265" y="151" fill="#7070ff" font-size="14" font-weight="bold" text-anchor="middle">HEADER</text>
-  <text x="265" y="172" fill="#aaa" font-size="12" text-anchor="middle">40 bytes</text>
+  <!-- type [0–3] -->
+  <rect x="50"  y="122" width="95"   height="52" rx="3" fill="#2a0808" stroke="#883333" stroke-width="1"/>
+  <text x="97"  y="144" fill="#cc5555" font-size="11" font-weight="bold" text-anchor="middle">type</text>
+  <text x="97"  y="159" fill="#773333" font-size="9"  text-anchor="middle">uint32</text>
+  <text x="97"  y="186" fill="#333"    font-size="9"  text-anchor="middle">0 – 3</text>
 
-  <!-- Payload segment -->
-  <rect x="480" y="118" width="840" height="75" rx="4" fill="#1a2e1a" stroke="#4aaa4a" stroke-width="1.5"/>
-  <text x="900" y="151" fill="#70ff70" font-size="14" font-weight="bold" text-anchor="middle">PAYLOAD</text>
-  <text x="900" y="172" fill="#aaa" font-size="12" text-anchor="middle">160 bytes</text>
+  <!-- map_id [4] -->
+  <rect x="145" y="122" width="55"   height="52" rx="3" fill="#1a1200" stroke="#887722" stroke-width="1"/>
+  <text x="172" y="144" fill="#bbaa33" font-size="10" font-weight="bold" text-anchor="middle">map_id</text>
+  <text x="172" y="159" fill="#776611" font-size="9"  text-anchor="middle">uint8</text>
+  <text x="172" y="186" fill="#333"    font-size="9"  text-anchor="middle">4</text>
 
+  <!-- padding [5–199] -->
+  <rect x="200" y="122" width="1150" height="52" rx="3" fill="#111" stroke="#2a2a2a" stroke-width="1" stroke-dasharray="8,5"/>
+  <text x="775" y="151" fill="#2d2d2d" font-size="11" text-anchor="middle">· · · · · · · · · · · · · · · · padding (195 bytes) · · · · · · · · · · · · · · · ·</text>
+  <text x="775" y="186" fill="#2d2d2d" font-size="9"  text-anchor="middle">5 – 199</text>
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- SECTION 2: HEADER ZOOM                                         -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- ── Server → Client: GAME_FOUND ─────────────────────────────────────── -->
+  <text x="50" y="210" fill="#3a3a3a" font-size="10">SERVER → CLIENT  ·  GAME_FOUND (type=2)</text>
 
-  <text x="50" y="268" fill="#555" font-size="11" letter-spacing="3">02  HEADER  —  ZOOM IN  (40 bytes)</text>
-  <line x1="50" y1="275" x2="1350" y2="275" stroke="#222" stroke-width="1"/>
+  <!-- type [0–3] -->
+  <rect x="50"  y="218" width="95"   height="52" rx="3" fill="#2a0808" stroke="#883333" stroke-width="1"/>
+  <text x="97"  y="240" fill="#cc5555" font-size="11" font-weight="bold" text-anchor="middle">type</text>
+  <text x="97"  y="255" fill="#773333" font-size="9"  text-anchor="middle">uint32</text>
+  <text x="97"  y="282" fill="#333"    font-size="9"  text-anchor="middle">0 – 3</text>
 
-  <!-- Connector line from section 1 header box -->
-  <line x1="265" y1="193" x2="265" y2="240" stroke="#333" stroke-width="1" stroke-dasharray="5,4"/>
-  <line x1="265" y1="240" x2="700" y2="240" stroke="#333" stroke-width="1" stroke-dasharray="5,4"/>
-  <line x1="700" y1="240" x2="700" y2="295" stroke="#333" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+  <!-- game_id [4–19] -->
+  <rect x="145" y="218" width="155"  height="52" rx="3" fill="#081a08" stroke="#337733" stroke-width="1"/>
+  <text x="222" y="240" fill="#44aa44" font-size="11" font-weight="bold" text-anchor="middle">game_id</text>
+  <text x="222" y="255" fill="#226622" font-size="9"  text-anchor="middle">16 bytes</text>
+  <text x="222" y="282" fill="#333"    font-size="9"  text-anchor="middle">4 – 19</text>
 
-  <!-- Header fields row -->
-  <rect x="50" y="295" width="1300" height="175" rx="5" fill="#111" stroke="#4a4aaa" stroke-width="1.5"/>
+  <!-- player_id [20–35] -->
+  <rect x="300" y="218" width="155"  height="52" rx="3" fill="#081a08" stroke="#337733" stroke-width="1"/>
+  <text x="377" y="240" fill="#44aa44" font-size="11" font-weight="bold" text-anchor="middle">player_id</text>
+  <text x="377" y="255" fill="#226622" font-size="9"  text-anchor="middle">16 bytes</text>
+  <text x="377" y="282" fill="#333"    font-size="9"  text-anchor="middle">20 – 35</text>
 
-  <!-- Field: game_id -->
-  <rect x="70" y="320" width="320" height="80" rx="4" fill="#1a1a2e" stroke="#4a4aaa" stroke-width="1"/>
-  <text x="230" y="348" fill="#7070ff" font-size="13" font-weight="bold" text-anchor="middle">game_id</text>
-  <text x="230" y="362" fill="#aaa" font-size="12" text-anchor="middle">uint8_t[16]  ·  16 bytes</text>
+  <!-- server_ip [36–39] -->
+  <rect x="455" y="218" width="95"   height="52" rx="3" fill="#1a1500" stroke="#aaaa22" stroke-width="1"/>
+  <text x="502" y="240" fill="#cccc33" font-size="11" font-weight="bold" text-anchor="middle">server_ip</text>
+  <text x="502" y="255" fill="#888822" font-size="9"  text-anchor="middle">uint32</text>
+  <text x="502" y="282" fill="#333"    font-size="9"  text-anchor="middle">36 – 39</text>
 
-  <!-- Field: player_id -->
-  <rect x="410" y="320" width="320" height="80" rx="4" fill="#1a1a2e" stroke="#4a4aaa" stroke-width="1"/>
-  <text x="570" y="348" fill="#7070ff" font-size="13" font-weight="bold" text-anchor="middle">player_id</text>
-  <text x="570" y="362" fill="#aaa" font-size="12" text-anchor="middle">uint8_t[16]  ·  16 bytes</text>
+  <!-- port [40–41] -->
+  <rect x="550" y="218" width="70"   height="52" rx="3" fill="#1a1500" stroke="#aaaa22" stroke-width="1"/>
+  <text x="585" y="240" fill="#cccc33" font-size="11" font-weight="bold" text-anchor="middle">port</text>
+  <text x="585" y="255" fill="#888822" font-size="9"  text-anchor="middle">uint16</text>
+  <text x="585" y="282" fill="#333"    font-size="9"  text-anchor="middle">40 – 41</text>
 
-  <!-- Field: control -->
-  <rect x="750" y="320" width="160" height="80" rx="4" fill="#2e1a1a" stroke="#aa4444" stroke-width="1.5"/>
-  <text x="830" y="348" fill="#ff7070" font-size="13" font-weight="bold" text-anchor="middle">control</text>
-  <text x="830" y="362" fill="#aaa" font-size="12" text-anchor="middle">uint16_t  ·  2 bytes</text>
+  <!-- padding [42–199] -->
+  <rect x="620" y="218" width="730"  height="52" rx="3" fill="#111" stroke="#2a2a2a" stroke-width="1" stroke-dasharray="8,5"/>
+  <text x="985" y="247" fill="#2d2d2d" font-size="11" text-anchor="middle">· · · · · · · · · · · · padding (158 bytes) · · · · · · · · · · · ·</text>
+  <text x="985" y="282" fill="#2d2d2d" font-size="9"  text-anchor="middle">42 – 199</text>
 
-  <!-- Field: payload_size -->
-  <rect x="930" y="320" width="175" height="80" rx="4" fill="#1a1a1a" stroke="#555" stroke-width="1"/>
-  <text x="1017" y="348" fill="#aaa" font-size="13" font-weight="bold" text-anchor="middle">payload_size</text>
-  <text x="1017" y="362" fill="#aaa" font-size="12" text-anchor="middle">uint16_t  ·  2 bytes</text>
+  <!-- ── Server → Client: GAME_NOT_FOUND ──────────────────────────────────── -->
+  <text x="50" y="306" fill="#3a3a3a" font-size="10">SERVER → CLIENT  ·  GAME_NOT_FOUND (type=3)</text>
 
-  <!-- Field: seq_num -->
-  <rect x="1125" y="320" width="205" height="80" rx="4" fill="#1a1a1a" stroke="#555" stroke-width="1"/>
-  <text x="1227" y="348" fill="#aaa" font-size="13" font-weight="bold" text-anchor="middle">seq_num</text>
-  <text x="1227" y="362" fill="#aaa" font-size="12" text-anchor="middle">uint32_t  ·  4 bytes</text>
+  <!-- type [0–3] -->
+  <rect x="50"  y="314" width="95"   height="52" rx="3" fill="#2a0808" stroke="#883333" stroke-width="1"/>
+  <text x="97"  y="336" fill="#cc5555" font-size="11" font-weight="bold" text-anchor="middle">type</text>
+  <text x="97"  y="351" fill="#773333" font-size="9"  text-anchor="middle">uint32</text>
+  <text x="97"  y="378" fill="#333"    font-size="9"  text-anchor="middle">0 – 3</text>
 
-  <!-- Byte offset ruler -->
-  <text x="70"   y="440" fill="#333" font-size="10">offset 0</text>
-  <text x="370"  y="440" fill="#333" font-size="10">+16</text>
-  <text x="710"  y="440" fill="#333" font-size="10">+32</text>
-  <text x="870"  y="440" fill="#333" font-size="10">+34</text>
-  <text x="1055" y="440" fill="#333" font-size="10">+36</text>
-  <text x="1290" y="440" fill="#333" font-size="10">+40</text>
+  <!-- padding [4–199] -->
+  <rect x="145" y="314" width="1205" height="52" rx="3" fill="#111" stroke="#2a2a2a" stroke-width="1" stroke-dasharray="8,5"/>
+  <text x="747" y="343" fill="#2d2d2d" font-size="11" text-anchor="middle">· · · · · · · · · · · · · · · �� · · · · padding (196 bytes) · · · · · · · · · · · · · · · · · · · ·</text>
+  <text x="747" y="378" fill="#2d2d2d" font-size="9"  text-anchor="middle">4 – 199</text>
 
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- 02  UDP PACKETS                                                        -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- SECTION 3: CONTROL BITFIELD ZOOM                               -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <text x="50" y="414" fill="#555" font-size="11" letter-spacing="3">02  UDP PACKETS</text>
+  <line x1="50" y1="421" x2="1350" y2="421" stroke="#222" stroke-width="1"/>
 
-  <text x="50" y="510" fill="#555" font-size="11" letter-spacing="3">03  CONTROL BITFIELD  —  ZOOM IN  (uint16_t  ·  16 bits)</text>
-  <line x1="50" y1="517" x2="1350" y2="517" stroke="#222" stroke-width="1"/>
+  <!-- ── Common Header ─────────────────────────────────────────────────────── -->
+  <text x="50" y="439" fill="#3a3a3a" font-size="10">COMMON HEADER  ·  bytes 0–39  ·  present in every UDP packet</text>
 
-  <!-- Connector from control field -->
-  <line x1="830" y1="400" x2="830" y2="465" stroke="#333" stroke-width="1" stroke-dasharray="5,4"/>
-  <line x1="830" y1="465" x2="700" y2="465" stroke="#333" stroke-width="1" stroke-dasharray="5,4"/>
-  <line x1="700" y1="465" x2="700" y2="537" stroke="#333" stroke-width="1" stroke-dasharray="5,4" marker-end="url(#arr)"/>
+  <!-- game_id [0–15] -->
+  <rect x="50"   y="447" width="320" height="52" rx="3" fill="#081a08" stroke="#337733" stroke-width="1"/>
+  <text x="210"  y="469" fill="#44aa44" font-size="11" font-weight="bold" text-anchor="middle">game_id</text>
+  <text x="210"  y="484" fill="#226622" font-size="9"  text-anchor="middle">16 bytes</text>
+  <text x="210"  y="511" fill="#333"    font-size="9"  text-anchor="middle">0 – 15</text>
 
-  <!-- 16-bit grid -->
-  <!-- Bit boxes: 16 bits, each 78px wide, total 1248px, starting at x=76 -->
+  <!-- player_id [16–31] -->
+  <rect x="370"  y="447" width="320" height="52" rx="3" fill="#081a08" stroke="#337733" stroke-width="1"/>
+  <text x="530"  y="469" fill="#44aa44" font-size="11" font-weight="bold" text-anchor="middle">player_id</text>
+  <text x="530"  y="484" fill="#226622" font-size="9"  text-anchor="middle">16 bytes</text>
+  <text x="530"  y="511" fill="#333"    font-size="9"  text-anchor="middle">16 – 31</text>
 
-  <!-- Row label -->
-  <text x="50" y="590" fill="#444" font-size="10">bit</text>
-  <text x="50" y="615" fill="#444" font-size="10">15</text>
+  <!-- ctrl [32–33] -->
+  <rect x="690"  y="447" width="150" height="52" rx="3" fill="#2a0808" stroke="#883333" stroke-width="1"/>
+  <text x="765"  y="469" fill="#cc5555" font-size="11" font-weight="bold" text-anchor="middle">ctrl</text>
+  <text x="765"  y="484" fill="#773333" font-size="9"  text-anchor="middle">uint16</text>
+  <text x="765"  y="511" fill="#333"    font-size="9"  text-anchor="middle">32 – 33</text>
 
-  <!-- Bits 15..12: reserved -->
-  <rect x="76"  y="548" width="78" height="55" rx="2" fill="#141414" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="154" y="548" width="78" height="55" rx="2" fill="#141414" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="232" y="548" width="78" height="55" rx="2" fill="#141414" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="310" y="548" width="78" height="55" rx="2" fill="#141414" stroke="#2a2a2a" stroke-width="1"/>
-  <text x="115"  y="570" fill="#333" font-size="11" text-anchor="middle">15</text>
-  <text x="193"  y="570" fill="#333" font-size="11" text-anchor="middle">14</text>
-  <text x="271"  y="570" fill="#333" font-size="11" text-anchor="middle">13</text>
-  <text x="349"  y="570" fill="#333" font-size="11" text-anchor="middle">12</text>
-  <text x="115"  y="593" fill="#333" font-size="10" text-anchor="middle">—</text>
-  <text x="193"  y="593" fill="#333" font-size="10" text-anchor="middle">—</text>
-  <text x="271"  y="593" fill="#333" font-size="10" text-anchor="middle">—</text>
-  <text x="349"  y="593" fill="#333" font-size="10" text-anchor="middle">—</text>
+  <!-- payload_size [34–35] -->
+  <rect x="840"  y="447" width="180" height="52" rx="3" fill="#1a1200" stroke="#887722" stroke-width="1"/>
+  <text x="930"  y="469" fill="#bbaa33" font-size="11" font-weight="bold" text-anchor="middle">payload_size</text>
+  <text x="930"  y="484" fill="#776611" font-size="9"  text-anchor="middle">uint16</text>
+  <text x="930"  y="511" fill="#333"    font-size="9"  text-anchor="middle">34 – 35</text>
 
-  <!-- Bit 11: PICK_EVENT -->
-  <rect x="388" y="548" width="78" height="55" rx="2" fill="#1a2e1a" stroke="#4aaa4a" stroke-width="1.5"/>
-  <text x="427" y="570" fill="#70ff70" font-size="11" text-anchor="middle">11</text>
-  <text x="427" y="590" fill="#70ff70" font-size="10" text-anchor="middle">PICK</text>
+  <!-- seq_num [36–39] -->
+  <rect x="1020" y="447" width="330" height="52" rx="3" fill="#08081a" stroke="#444488" stroke-width="1"/>
+  <text x="1185" y="469" fill="#6666cc" font-size="11" font-weight="bold" text-anchor="middle">seq_num</text>
+  <text x="1185" y="484" fill="#333366" font-size="9"  text-anchor="middle">uint32</text>
+  <text x="1185" y="511" fill="#333"    font-size="9"  text-anchor="middle">36 – 39</text>
 
-  <!-- Bit 10: HIT_EVENT -->
-  <rect x="466" y="548" width="78" height="55" rx="2" fill="#2e1a1a" stroke="#aa4444" stroke-width="1.5"/>
-  <text x="505" y="570" fill="#ff7070" font-size="11" text-anchor="middle">10</text>
-  <text x="505" y="590" fill="#ff7070" font-size="10" text-anchor="middle">HIT</text>
+  <!-- ctrl reference -->
+  <text x="50" y="529" fill="#333" font-size="10">ctrl:  0x0003 = INIT (client)  ·  0x0000 = REGULAR (client)  ·  0x0002 = SERVER_INIT  ·  0x0008 = SERVER_AUTH</text>
 
-  <!-- Bits 9..4: reserved -->
-  <rect x="544" y="548" width="78" height="55" rx="2" fill="#141414" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="622" y="548" width="78" height="55" rx="2" fill="#141414" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="700" y="548" width="78" height="55" rx="2" fill="#141414" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="778" y="548" width="78" height="55" rx="2" fill="#141414" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="856" y="548" width="78" height="55" rx="2" fill="#141414" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="934" y="548" width="78" height="55" rx="2" fill="#141414" stroke="#2a2a2a" stroke-width="1"/>
-  <text x="583"  y="570" fill="#333" font-size="11" text-anchor="middle">9</text>
-  <text x="661"  y="570" fill="#333" font-size="11" text-anchor="middle">8</text>
-  <text x="739"  y="570" fill="#333" font-size="11" text-anchor="middle">7</text>
-  <text x="817"  y="570" fill="#333" font-size="11" text-anchor="middle">6</text>
-  <text x="895"  y="570" fill="#333" font-size="11" text-anchor="middle">5</text>
-  <text x="973"  y="570" fill="#333" font-size="11" text-anchor="middle">4</text>
-  <text x="583"  y="593" fill="#333" font-size="10" text-anchor="middle">—</text>
-  <text x="661"  y="593" fill="#333" font-size="10" text-anchor="middle">—</text>
-  <text x="739"  y="593" fill="#333" font-size="10" text-anchor="middle">—</text>
-  <text x="817"  y="593" fill="#333" font-size="10" text-anchor="middle">—</text>
-  <text x="895"  y="593" fill="#333" font-size="10" text-anchor="middle">—</text>
-  <text x="973"  y="593" fill="#333" font-size="10" text-anchor="middle">—</text>
+  <!-- ── Client → Server: INIT ─────────────────────────────────────────────── -->
+  <text x="50" y="551" fill="#3a3a3a" font-size="10">CLIENT → SERVER</text>
+  <text x="50" y="565" fill="#444" font-size="10" font-style="italic">INIT  (ctrl=0x0003, payload_size=0)</text>
 
-  <!-- Bit 3: AUTH -->
-  <rect x="1012" y="548" width="78" height="55" rx="2" fill="#1a1a2e" stroke="#4a4aaa" stroke-width="1.5"/>
-  <text x="1051" y="570" fill="#7070ff" font-size="11" text-anchor="middle">3</text>
-  <text x="1051" y="590" fill="#7070ff" font-size="10" text-anchor="middle">AUTH</text>
+  <!-- header ref -->
+  <rect x="50"  y="573" width="260"  height="52" rx="3" fill="#080d1a" stroke="#334488" stroke-width="1"/>
+  <text x="180" y="595" fill="#4466bb" font-size="11" font-weight="bold" text-anchor="middle">UDP Header</text>
+  <text x="180" y="610" fill="#223355" font-size="9"  text-anchor="middle">40 bytes</text>
+  <text x="180" y="637" fill="#333"    font-size="9"  text-anchor="middle">0 – 39</text>
 
-  <!-- Bit 2: ACK -->
-  <rect x="1090" y="548" width="78" height="55" rx="2" fill="#1a1a2e" stroke="#4a4aaa" stroke-width="1.5"/>
-  <text x="1129" y="570" fill="#7070ff" font-size="11" text-anchor="middle">2</text>
-  <text x="1129" y="590" fill="#7070ff" font-size="10" text-anchor="middle">ACK</text>
+  <!-- padding [40–199] -->
+  <rect x="310" y="573" width="1040" height="52" rx="3" fill="#111" stroke="#2a2a2a" stroke-width="1" stroke-dasharray="8,5"/>
+  <text x="830" y="602" fill="#2d2d2d" font-size="11" text-anchor="middle">· · · · · · · · · · · · · · padding (160 bytes — no payload) · · · · · · · · · · · · · ·</text>
+  <text x="830" y="637" fill="#2d2d2d" font-size="9"  text-anchor="middle">40 – 199</text>
 
-  <!-- Bit 1: INIT -->
-  <rect x="1168" y="548" width="78" height="55" rx="2" fill="#1a1a2e" stroke="#4a4aaa" stroke-width="1.5"/>
-  <text x="1207" y="570" fill="#7070ff" font-size="11" text-anchor="middle">1</text>
-  <text x="1207" y="590" fill="#7070ff" font-size="10" text-anchor="middle">INIT</text>
+  <!-- ── Client → Server: REGULAR ──────────────────────────────────────────── -->
+  <text x="50" y="657" fill="#444" font-size="10" font-style="italic">REGULAR  (ctrl=0x0000, payload_size=20)</text>
 
-  <!-- Bit 0: RELIABLE -->
-  <rect x="1246" y="548" width="78" height="55" rx="2" fill="#2e2a1a" stroke="#aa8844" stroke-width="1.5"/>
-  <text x="1285" y="570" fill="#ffcc44" font-size="11" text-anchor="middle">0</text>
-  <text x="1285" y="590" fill="#ffcc44" font-size="10" text-anchor="middle">RELIABLE</text>
+  <!-- header ref -->
+  <rect x="50"  y="665" width="260"  height="52" rx="3" fill="#080d1a" stroke="#334488" stroke-width="1"/>
+  <text x="180" y="687" fill="#4466bb" font-size="11" font-weight="bold" text-anchor="middle">UDP Header</text>
+  <text x="180" y="702" fill="#223355" font-size="9"  text-anchor="middle">40 bytes</text>
+  <text x="180" y="729" fill="#333"    font-size="9"  text-anchor="middle">0 – 39</text>
 
+  <!-- pos_x [40–43] -->
+  <rect x="310" y="665" width="80"   height="52" rx="3" fill="#08101a" stroke="#335577" stroke-width="1"/>
+  <text x="350" y="687" fill="#4477aa" font-size="11" font-weight="bold" text-anchor="middle">pos_x</text>
+  <text x="350" y="702" fill="#223344" font-size="9"  text-anchor="middle">int32</text>
+  <text x="350" y="729" fill="#333"    font-size="9"  text-anchor="middle">40–43</text>
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- FLAG EXPLANATIONS                                              -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- pos_y [44–47] -->
+  <rect x="390" y="665" width="80"   height="52" rx="3" fill="#08101a" stroke="#335577" stroke-width="1"/>
+  <text x="430" y="687" fill="#4477aa" font-size="11" font-weight="bold" text-anchor="middle">pos_y</text>
+  <text x="430" y="702" fill="#223344" font-size="9"  text-anchor="middle">int32</text>
+  <text x="430" y="729" fill="#333"    font-size="9"  text-anchor="middle">44–47</text>
 
-  <text x="50" y="660" fill="#555" font-size="11" letter-spacing="3">     FLAG DESCRIPTIONS</text>
+  <!-- vel_x [48–51] -->
+  <rect x="470" y="665" width="80"   height="52" rx="3" fill="#081808" stroke="#337733" stroke-width="1"/>
+  <text x="510" y="687" fill="#44aa44" font-size="11" font-weight="bold" text-anchor="middle">vel_x</text>
+  <text x="510" y="702" fill="#226622" font-size="9"  text-anchor="middle">int32</text>
+  <text x="510" y="729" fill="#333"    font-size="9"  text-anchor="middle">48–51</text>
 
-  <!-- RELIABLE -->
-  <rect x="50" y="678" width="1300" height="82" rx="4" fill="#111" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="50" y="678" width="5" height="82" rx="2" fill="#aa8844"/>
-  <text x="75"  y="703" fill="#ffcc44" font-size="13" font-weight="bold">bit 0  —  RELIABLE</text>
-  <text x="310" y="703" fill="#555"    font-size="12">CTRL_FLAG_RELIABLE  =  (1 &lt;&lt; 0)</text>
-  <text x="75"  y="727" fill="#aaa"    font-size="12">Marks packet as requiring acknowledgement. Receiver must send back an ACK packet with the same seq_num.</text>
-  <text x="75"  y="747" fill="#555"    font-size="11">Used for event packets (HIT, ITEM_PICKED_UP). Normal state packets are never reliable.</text>
+  <!-- vel_y [52–55] -->
+  <rect x="550" y="665" width="80"   height="52" rx="3" fill="#081808" stroke="#337733" stroke-width="1"/>
+  <text x="590" y="687" fill="#44aa44" font-size="11" font-weight="bold" text-anchor="middle">vel_y</text>
+  <text x="590" y="702" fill="#226622" font-size="9"  text-anchor="middle">int32</text>
+  <text x="590" y="729" fill="#333"    font-size="9"  text-anchor="middle">52–55</text>
 
-  <!-- INIT -->
-  <rect x="50" y="778" width="1300" height="82" rx="4" fill="#111" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="50" y="778" width="5" height="82" rx="2" fill="#4a4aaa"/>
-  <text x="75"  y="803" fill="#7070ff" font-size="13" font-weight="bold">bit 1  —  INIT</text>
-  <text x="270" y="803" fill="#555"    font-size="12">CTRL_FLAG_INIT  =  (1 &lt;&lt; 1)</text>
-  <text x="75"  y="827" fill="#aaa"    font-size="12">First packet sent by a client when joining the game session. Carries no payload.</text>
-  <text x="75"  y="847" fill="#555"    font-size="11">Server uses this to register the player and begin accepting their state packets.</text>
+  <!-- score [56–59] -->
+  <rect x="630" y="665" width="80"   height="52" rx="3" fill="#1a1500" stroke="#aaaa22" stroke-width="1"/>
+  <text x="670" y="687" fill="#cccc33" font-size="11" font-weight="bold" text-anchor="middle">score</text>
+  <text x="670" y="702" fill="#888822" font-size="9"  text-anchor="middle">uint32</text>
+  <text x="670" y="729" fill="#333"    font-size="9"  text-anchor="middle">56–59</text>
 
-  <!-- ACK -->
-  <rect x="50" y="878" width="1300" height="82" rx="4" fill="#111" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="50" y="878" width="5" height="82" rx="2" fill="#4a4aaa"/>
-  <text x="75"  y="903" fill="#7070ff" font-size="13" font-weight="bold">bit 2  —  ACK</text>
-  <text x="265" y="903" fill="#555"    font-size="12">CTRL_FLAG_ACK  =  (1 &lt;&lt; 2)</text>
-  <text x="75"  y="927" fill="#aaa"    font-size="12">Acknowledgement packet. seq_num field echoes the seq_num of the RELIABLE packet being confirmed.</text>
-  <text x="75"  y="947" fill="#555"    font-size="11">Sender stops retrying once ACK with matching seq_num is received. Payload is empty.</text>
+  <!-- padding [60–199] -->
+  <rect x="710" y="665" width="640"  height="52" rx="3" fill="#111" stroke="#2a2a2a" stroke-width="1" stroke-dasharray="8,5"/>
+  <text x="1030" y="694" fill="#2d2d2d" font-size="11" text-anchor="middle">· · · · · · · · · · · · padding (140 bytes) · · · · · · · · · · · ·</text>
+  <text x="1030" y="729" fill="#2d2d2d" font-size="9"  text-anchor="middle">60 – 199</text>
 
-  <!-- AUTH -->
-  <rect x="50" y="978" width="1300" height="82" rx="4" fill="#111" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="50" y="978" width="5" height="82" rx="2" fill="#4a4aaa"/>
-  <text x="75"  y="1003" fill="#7070ff" font-size="13" font-weight="bold">bit 3  —  AUTH</text>
-  <text x="270" y="1003" fill="#555"    font-size="12">CTRL_FLAG_AUTH  =  (1 &lt;&lt; 3)</text>
-  <text x="75"  y="1027" fill="#aaa"    font-size="12">This packet carries the authoritative game state. Set only on server snapshot broadcasts.</text>
-  <text x="75"  y="1047" fill="#555"    font-size="11">Clients use this to identify world state updates and distinguish them from ACKs or other control packets.</text>
+  <!-- ── Server → Client: SERVER_INIT ──────────────────────────────────────── -->
+  <text x="50" y="749" fill="#3a3a3a" font-size="10">SERVER → CLIENT</text>
+  <text x="50" y="763" fill="#444" font-size="10" font-style="italic">SERVER_INIT  (ctrl=0x0002)</text>
 
-  <!-- HIT_EVENT -->
-  <rect x="50" y="1078" width="1300" height="82" rx="4" fill="#111" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="50" y="1078" width="5" height="82" rx="2" fill="#aa4444"/>
-  <text x="75"  y="1103" fill="#ff7070" font-size="13" font-weight="bold">bit 10  —  HIT_EVENT</text>
-  <text x="310" y="1103" fill="#555"    font-size="12">CTRL_FLAG_HIT_EVENT  =  (1 &lt;&lt; 10)</text>
-  <text x="75"  y="1127" fill="#aaa"    font-size="12">Reliable event: a player hit another player. Always combined with RELIABLE (bit 0).</text>
-  <text x="75"  y="1147" fill="#555"    font-size="11">Payload: { target_id: u8[16],  client_tick: uint32 }  —  sender is in header.player_id</text>
+  <!-- header ref -->
+  <rect x="50"  y="771" width="260"  height="52" rx="3" fill="#080d1a" stroke="#334488" stroke-width="1"/>
+  <text x="180" y="793" fill="#4466bb" font-size="11" font-weight="bold" text-anchor="middle">UDP Header</text>
+  <text x="180" y="808" fill="#223355" font-size="9"  text-anchor="middle">40 bytes</text>
+  <text x="180" y="835" fill="#333"    font-size="9"  text-anchor="middle">0 – 39</text>
 
-  <!-- PICK_EVENT -->
-  <rect x="50" y="1178" width="1300" height="82" rx="4" fill="#111" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="50" y="1178" width="5" height="82" rx="2" fill="#4aaa4a"/>
-  <text x="75"  y="1203" fill="#70ff70" font-size="13" font-weight="bold">bit 11  —  PICK_EVENT</text>
-  <text x="315" y="1203" fill="#555"    font-size="12">CTRL_FLAG_PICK_EVENT  =  (1 &lt;&lt; 11)</text>
-  <text x="75"  y="1227" fill="#aaa"    font-size="12">Reliable event: a player picked up an item. Always combined with RELIABLE (bit 0).</text>
-  <text x="75"  y="1247" fill="#555"    font-size="11">Payload: { item_id: u8,  client_tick: uint32 }  —  player is in header.player_id</text>
+  <!-- start_tick [40–43] -->
+  <rect x="310" y="771" width="100"  height="52" rx="3" fill="#08081a" stroke="#444488" stroke-width="1"/>
+  <text x="360" y="793" fill="#6666cc" font-size="11" font-weight="bold" text-anchor="middle">start_tick</text>
+  <text x="360" y="808" fill="#333366" font-size="9"  text-anchor="middle">uint32</text>
+  <text x="360" y="835" fill="#333"    font-size="9"  text-anchor="middle">40 – 43</text>
 
-  <!-- Reserved -->
-  <rect x="50" y="1278" width="1300" height="65" rx="4" fill="#111" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="50" y="1278" width="5" height="65" rx="2" fill="#222"/>
-  <text x="75"  y="1303" fill="#444" font-size="13" font-weight="bold">bits 4–9,  12–15  —  reserved</text>
-  <text x="75"  y="1327" fill="#333" font-size="12">Unused. Must be 0. Reserved for future packet types and flags.</text>
+  <!-- stop_tick [44–47] -->
+  <rect x="410" y="771" width="100"  height="52" rx="3" fill="#08081a" stroke="#444488" stroke-width="1"/>
+  <text x="460" y="793" fill="#6666cc" font-size="11" font-weight="bold" text-anchor="middle">stop_tick</text>
+  <text x="460" y="808" fill="#333366" font-size="9"  text-anchor="middle">uint32</text>
+  <text x="460" y="835" fill="#333"    font-size="9"  text-anchor="middle">44 – 47</text>
 
+  <!-- N [48] -->
+  <rect x="510" y="771" width="55"   height="52" rx="3" fill="#1a1200" stroke="#887722" stroke-width="1"/>
+  <text x="537" y="793" fill="#bbaa33" font-size="11" font-weight="bold" text-anchor="middle">N</text>
+  <text x="537" y="808" fill="#776611" font-size="9"  text-anchor="middle">uint8</text>
+  <text x="537" y="835" fill="#333"    font-size="9"  text-anchor="middle">48</text>
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- SECTION 4: AUTHORITATIVE PAYLOAD                               -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- per-player block [49+] -->
+  <rect x="565" y="771" width="785"  height="52" rx="3" fill="#0c180c" stroke="#2a6a2a" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="957" y="793" fill="#3a8a3a" font-size="11" text-anchor="middle">player record × N  —  24 bytes each</text>
+  <text x="957" y="835" fill="#2a2a2a" font-size="9"  text-anchor="middle">49 + i×24  ...</text>
 
-  <text x="50" y="1415" fill="#555" font-size="11" letter-spacing="3">04  AUTHORITATIVE PAYLOAD  —  server → client  (AUTH packet)</text>
-  <line x1="50" y1="1422" x2="1350" y2="1422" stroke="#222" stroke-width="1"/>
+  <!-- per-player SERVER_INIT sub-row -->
+  <text x="572" y="851" fill="#2a2a2a" font-size="9">↳ per-player (24 B):</text>
 
-  <!-- Payload byte map -->
-  <rect x="50" y="1445" width="1300" height="100" rx="5" fill="#111" stroke="#4aaa4a" stroke-width="1.5"/>
+  <!-- player_id -->
+  <rect x="565" y="857" width="524"  height="38" rx="3" fill="#081a08" stroke="#2a6a2a" stroke-width="1"/>
+  <text x="827" y="873" fill="#44aa44" font-size="11" font-weight="bold" text-anchor="middle">player_id</text>
+  <text x="827" y="886" fill="#226622" font-size="9"  text-anchor="middle">16 bytes</text>
 
-  <!-- Byte 0: player_count -->
-  <rect x="70" y="1465" width="120" height="55" rx="3" fill="#2e2e1a" stroke="#aaaa44" stroke-width="1.5"/>
-  <text x="130" y="1488" fill="#ffff70" font-size="12" font-weight="bold" text-anchor="middle">byte 0</text>
-  <text x="130" y="1506" fill="#ffff70" font-size="11" text-anchor="middle">player_count</text>
-  <text x="130" y="1520" fill="#666"   font-size="10" text-anchor="middle">uint8</text>
+  <!-- x -->
+  <rect x="1089" y="857" width="131"  height="38" rx="3" fill="#08101a" stroke="#2a5577" stroke-width="1"/>
+  <text x="1154" y="873" fill="#4477aa" font-size="11" font-weight="bold" text-anchor="middle">x</text>
+  <text x="1154" y="886" fill="#223344" font-size="9"  text-anchor="middle">int32</text>
 
-  <!-- Arrow -->
-  <line x1="190" y1="1492" x2="225" y2="1492" stroke="#444" stroke-width="1.5" marker-end="url(#arr)"/>
+  <!-- y -->
+  <rect x="1220" y="857" width="130"  height="38" rx="3" fill="#08101a" stroke="#2a5577" stroke-width="1"/>
+  <text x="1285" y="873" fill="#4477aa" font-size="11" font-weight="bold" text-anchor="middle">y</text>
+  <text x="1285" y="886" fill="#223344" font-size="9"  text-anchor="middle">int32</text>
 
-  <!-- Player structs block -->
-  <rect x="225" y="1465" width="1095" height="55" rx="3" fill="#1a2e1a" stroke="#4aaa4a" stroke-width="1.5"/>
-  <text x="772" y="1488" fill="#70ff70" font-size="12" font-weight="bold" text-anchor="middle">player_count  ×  PlayerState  (variable size — depends on items_count per player)</text>
-  <text x="772" y="1508" fill="#555"   font-size="11" text-anchor="middle">structures packed back to back, no padding</text>
+  <!-- ── Server → Client: SERVER_AUTH ──────────────────────────────────────── -->
+  <text x="50" y="917" fill="#444" font-size="10" font-style="italic">SERVER_AUTH  (ctrl=0x0008)</text>
 
-  <!-- Byte offset labels -->
-  <text x="70"  y="1535" fill="#333" font-size="10">offset 0</text>
-  <text x="225" y="1535" fill="#333" font-size="10">offset 1</text>
+  <!-- header ref -->
+  <rect x="50"  y="925" width="260"  height="52" rx="3" fill="#080d1a" stroke="#334488" stroke-width="1"/>
+  <text x="180" y="947" fill="#4466bb" font-size="11" font-weight="bold" text-anchor="middle">UDP Header</text>
+  <text x="180" y="962" fill="#223355" font-size="9"  text-anchor="middle">40 bytes</text>
+  <text x="180" y="989" fill="#333"    font-size="9"  text-anchor="middle">0 – 39</text>
 
+  <!-- N [40] -->
+  <rect x="310" y="925" width="55"   height="52" rx="3" fill="#1a1200" stroke="#887722" stroke-width="1"/>
+  <text x="337" y="947" fill="#bbaa33" font-size="11" font-weight="bold" text-anchor="middle">N</text>
+  <text x="337" y="962" fill="#776611" font-size="9"  text-anchor="middle">uint8</text>
+  <text x="337" y="989" fill="#333"    font-size="9"  text-anchor="middle">40</text>
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- PLAYER STRUCTURE ZOOM                                          -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <!-- per-player block [41+] -->
+  <rect x="365" y="925" width="985"  height="52" rx="3" fill="#0c180c" stroke="#2a6a2a" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="857" y="947" fill="#3a8a3a" font-size="11" text-anchor="middle">player record × N  —  36 bytes each</text>
+  <text x="857" y="989" fill="#2a2a2a" font-size="9"  text-anchor="middle">41 + i×36  ...</text>
 
-  <text x="50" y="1590" fill="#555" font-size="11" letter-spacing="3">     PLAYERSTATE STRUCTURE  (variable size)</text>
+  <!-- per-player SERVER_AUTH sub-row -->
+  <text x="372" y="1005" fill="#2a2a2a" font-size="9">↳ per-player (36 B):</text>
 
-  <rect x="50" y="1608" width="1300" height="100" rx="5" fill="#111" stroke="#4aaa4a" stroke-width="1"/>
+  <!-- player_id -->
+  <rect x="365" y="1011" width="438"  height="38" rx="3" fill="#081a08" stroke="#2a6a2a" stroke-width="1"/>
+  <text x="584" y="1027" fill="#44aa44" font-size="11" font-weight="bold" text-anchor="middle">player_id</text>
+  <text x="584" y="1040" fill="#226622" font-size="9"  text-anchor="middle">16 bytes</text>
 
   <!-- pos_x -->
-  <rect x="70"  y="1628" width="140" height="55" rx="3" fill="#1a1a2e" stroke="#4a4aaa" stroke-width="1"/>
-  <text x="140" y="1650" fill="#7070ff" font-size="12" font-weight="bold" text-anchor="middle">pos_x</text>
-  <text x="140" y="1667" fill="#aaa"   font-size="11" text-anchor="middle">int32  ·  4 bytes</text>
-  <text x="140" y="1681" fill="#555"   font-size="10" text-anchor="middle">offset +0</text>
+  <rect x="803" y="1011" width="109"  height="38" rx="3" fill="#08101a" stroke="#2a5577" stroke-width="1"/>
+  <text x="857" y="1027" fill="#4477aa" font-size="11" font-weight="bold" text-anchor="middle">pos_x</text>
+  <text x="857" y="1040" fill="#223344" font-size="9"  text-anchor="middle">int32</text>
 
   <!-- pos_y -->
-  <rect x="220" y="1628" width="140" height="55" rx="3" fill="#1a1a2e" stroke="#4a4aaa" stroke-width="1"/>
-  <text x="290" y="1650" fill="#7070ff" font-size="12" font-weight="bold" text-anchor="middle">pos_y</text>
-  <text x="290" y="1667" fill="#aaa"   font-size="11" text-anchor="middle">int32  ·  4 bytes</text>
-  <text x="290" y="1681" fill="#555"   font-size="10" text-anchor="middle">offset +4</text>
+  <rect x="912" y="1011" width="109"  height="38" rx="3" fill="#08101a" stroke="#2a5577" stroke-width="1"/>
+  <text x="966" y="1027" fill="#4477aa" font-size="11" font-weight="bold" text-anchor="middle">pos_y</text>
+  <text x="966" y="1040" fill="#223344" font-size="9"  text-anchor="middle">int32</text>
 
   <!-- vel_x -->
-  <rect x="370" y="1628" width="140" height="55" rx="3" fill="#1a1a2e" stroke="#4a4aaa" stroke-width="1"/>
-  <text x="440" y="1650" fill="#7070ff" font-size="12" font-weight="bold" text-anchor="middle">vel_x</text>
-  <text x="440" y="1667" fill="#aaa"   font-size="11" text-anchor="middle">int32  ·  4 bytes</text>
-  <text x="440" y="1681" fill="#555"   font-size="10" text-anchor="middle">offset +8</text>
+  <rect x="1021" y="1011" width="109" height="38" rx="3" fill="#081808" stroke="#2a6633" stroke-width="1"/>
+  <text x="1075" y="1027" fill="#44aa44" font-size="11" font-weight="bold" text-anchor="middle">vel_x</text>
+  <text x="1075" y="1040" fill="#226622" font-size="9"  text-anchor="middle">int32</text>
 
   <!-- vel_y -->
-  <rect x="520" y="1628" width="140" height="55" rx="3" fill="#1a1a2e" stroke="#4a4aaa" stroke-width="1"/>
-  <text x="590" y="1650" fill="#7070ff" font-size="12" font-weight="bold" text-anchor="middle">vel_y</text>
-  <text x="590" y="1667" fill="#aaa"   font-size="11" text-anchor="middle">int32  ·  4 bytes</text>
-  <text x="590" y="1681" fill="#555"   font-size="10" text-anchor="middle">offset +12</text>
-
-  <!-- state -->
-  <rect x="670" y="1628" width="120" height="55" rx="3" fill="#1a1a1a" stroke="#555" stroke-width="1"/>
-  <text x="730" y="1650" fill="#aaa"   font-size="12" font-weight="bold" text-anchor="middle">state</text>
-  <text x="730" y="1667" fill="#aaa"   font-size="11" text-anchor="middle">uint8  ·  1 byte</text>
-  <text x="730" y="1681" fill="#555"   font-size="10" text-anchor="middle">offset +16</text>
-
-  <!-- items_count -->
-  <rect x="800" y="1628" width="140" height="55" rx="3" fill="#2e2a1a" stroke="#aa8844" stroke-width="1"/>
-  <text x="870" y="1650" fill="#ffcc44" font-size="12" font-weight="bold" text-anchor="middle">items_count</text>
-  <text x="870" y="1667" fill="#aaa"   font-size="11" text-anchor="middle">uint8  ·  1 byte</text>
-  <text x="870" y="1681" fill="#555"   font-size="10" text-anchor="middle">offset +17</text>
-
-  <!-- items[] -->
-  <rect x="950"  y="1628" width="220" height="55" rx="3" fill="#2e2a1a" stroke="#aa8844" stroke-width="1.5" stroke-dasharray="5,3"/>
-  <text x="1060" y="1650" fill="#ffcc44" font-size="12" font-weight="bold" text-anchor="middle">items[ ]</text>
-  <text x="1060" y="1667" fill="#aaa"   font-size="11" text-anchor="middle">uint8  ·  items_count bytes</text>
-  <text x="1060" y="1681" fill="#555"   font-size="10" text-anchor="middle">offset +18  (variable)</text>
+  <rect x="1130" y="1011" width="109" height="38" rx="3" fill="#081808" stroke="#2a6633" stroke-width="1"/>
+  <text x="1184" y="1027" fill="#44aa44" font-size="11" font-weight="bold" text-anchor="middle">vel_y</text>
+  <text x="1184" y="1040" fill="#226622" font-size="9"  text-anchor="middle">int32</text>
 
   <!-- score -->
-  <rect x="1180" y="1628" width="150" height="55" rx="3" fill="#1a1a1a" stroke="#555" stroke-width="1"/>
-  <text x="1255" y="1650" fill="#aaa"   font-size="12" font-weight="bold" text-anchor="middle">score</text>
-  <text x="1255" y="1667" fill="#aaa"   font-size="11" text-anchor="middle">uint16  ·  2 bytes</text>
-  <text x="1255" y="1681" fill="#555"   font-size="10" text-anchor="middle">offset +18+N</text>
+  <rect x="1239" y="1011" width="111" height="38" rx="3" fill="#1a1500" stroke="#aaaa22" stroke-width="1"/>
+  <text x="1294" y="1027" fill="#cccc33" font-size="11" font-weight="bold" text-anchor="middle">score</text>
+  <text x="1294" y="1040" fill="#888822" font-size="9"  text-anchor="middle">uint32</text>
 
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
+  <!-- LEGEND                                                                 -->
+  <!-- ═══════════════════════════════════════════════════════════════════════ -->
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- FIELD NOTES                                                     -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <text x="50" y="1072" fill="#555" font-size="11" letter-spacing="3">LEGEND</text>
+  <line x1="50" y1="1079" x2="1350" y2="1079" stroke="#222" stroke-width="1"/>
 
-  <text x="50" y="1760" fill="#555" font-size="11" letter-spacing="3">     FIELD NOTES</text>
+  <!-- row 1 -->
+  <rect x="50"   y="1088" width="12" height="12" rx="2" fill="#2a0808" stroke="#883333" stroke-width="1"/>
+  <text x="70"   y="1099" fill="#444" font-size="10">Packet type / ctrl</text>
 
-  <!-- pos -->
-  <rect x="50" y="1778" width="1300" height="65" rx="4" fill="#111" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="50" y="1778" width="5" height="65" rx="2" fill="#4a4aaa"/>
-  <text x="75"  y="1803" fill="#7070ff" font-size="13" font-weight="bold">pos_x,  pos_y</text>
-  <text x="75"  y="1827" fill="#aaa"   font-size="12">World position of the player. Signed 32-bit to support large maps and negative coordinates.</text>
-  <text x="75"  y="1833" fill="#555"   font-size="0">.</text>
+  <rect x="220"  y="1088" width="12" height="12" rx="2" fill="#081a08" stroke="#337733" stroke-width="1"/>
+  <text x="240"  y="1099" fill="#444" font-size="10">Game / player ID (16 B hex)</text>
 
-  <!-- vel -->
-  <rect x="50" y="1861" width="1300" height="65" rx="4" fill="#111" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="50" y="1861" width="5" height="65" rx="2" fill="#4a4aaa"/>
-  <text x="75"  y="1886" fill="#7070ff" font-size="13" font-weight="bold">vel_x,  vel_y</text>
-  <text x="75"  y="1910" fill="#aaa"   font-size="12">Player velocity. Used by clients for dead-reckoning and interpolation between snapshots.</text>
+  <rect x="460"  y="1088" width="12" height="12" rx="2" fill="#1a1500" stroke="#aaaa22" stroke-width="1"/>
+  <text x="480"  y="1099" fill="#444" font-size="10">Network (IP / port / score)</text>
 
-  <!-- state -->
-  <rect x="50" y="1944" width="1300" height="65" rx="4" fill="#111" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="50" y="1944" width="5" height="65" rx="2" fill="#555"/>
-  <text x="75"  y="1969" fill="#aaa"   font-size="13" font-weight="bold">state</text>
-  <text x="75"  y="1993" fill="#aaa"   font-size="12">Movement / animation state enum: idle, run, jump, fall. Drives state machine on receiving client.</text>
+  <rect x="700"  y="1088" width="12" height="12" rx="2" fill="#08081a" stroke="#444488" stroke-width="1"/>
+  <text x="720"  y="1099" fill="#444" font-size="10">Tick / sequence</text>
 
-  <!-- items_count + items[] -->
-  <rect x="50" y="2027" width="1300" height="80" rx="4" fill="#111" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="50" y="2027" width="5" height="80" rx="2" fill="#aa8844"/>
-  <text x="75"  y="2052" fill="#ffcc44" font-size="13" font-weight="bold">items_count  +  items[ ]</text>
-  <text x="75"  y="2076" fill="#aaa"   font-size="12">items_count says how many uint8 item entries follow immediately after. May be 0.</text>
-  <text x="75"  y="2096" fill="#555"   font-size="11">Because this is variable length, score always sits at offset  +18 + items_count  within the structure.</text>
+  <rect x="890"  y="1088" width="12" height="12" rx="2" fill="#080d1a" stroke="#334488" stroke-width="1"/>
+  <text x="910"  y="1099" fill="#444" font-size="10">UDP Header ref (40 B)</text>
 
-  <!-- score -->
-  <rect x="50" y="2125" width="1300" height="65" rx="4" fill="#111" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="50" y="2125" width="5" height="65" rx="2" fill="#555"/>
-  <text x="75"  y="2150" fill="#aaa"   font-size="13" font-weight="bold">score</text>
-  <text x="75"  y="2174" fill="#aaa"   font-size="12">Player's current score. Unsigned 16-bit, max 65535.</text>
+  <rect x="1090" y="1088" width="12" height="12" rx="2" fill="#1a1200" stroke="#887722" stroke-width="1"/>
+  <text x="1110" y="1099" fill="#444" font-size="10">Size / count</text>
 
+  <!-- row 2 -->
+  <rect x="50"   y="1110" width="12" height="12" rx="2" fill="#08101a" stroke="#335577" stroke-width="1"/>
+  <text x="70"   y="1121" fill="#444" font-size="10">Position (x / y)</text>
 
-  <!-- ═══════════════════════════════════════════════════════════════ -->
-  <!-- SECTION 5: NORMAL PACKET PAYLOAD                               -->
-  <!-- ═══════════════════════════════════════════════════════════════ -->
+  <rect x="220"  y="1110" width="12" height="12" rx="2" fill="#081808" stroke="#337733" stroke-width="1"/>
+  <text x="240"  y="1121" fill="#444" font-size="10">Velocity (x / y)</text>
 
-  <text x="50" y="2255" fill="#555" font-size="11" letter-spacing="3">05  NORMAL PACKET PAYLOAD  —  client → server  (unreliable, 17 bytes)</text>
-  <line x1="50" y1="2262" x2="1350" y2="2262" stroke="#222" stroke-width="1"/>
+  <rect x="460"  y="1110" width="12" height="12" rx="2" fill="#111" stroke="#2a2a2a" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="480"  y="1121" fill="#444" font-size="10">Padding (unused bytes)</text>
 
-  <!-- Payload byte strip -->
-  <rect x="50" y="2285" width="1300" height="100" rx="5" fill="#111" stroke="#aa8800" stroke-width="1.5"/>
-
-  <!-- pos_x -->
-  <rect x="70"  y="2305" width="220" height="55" rx="3" fill="#1a1a2e" stroke="#4a4aaa" stroke-width="1"/>
-  <text x="180" y="2327" fill="#7070ff" font-size="12" font-weight="bold" text-anchor="middle">pos_x</text>
-  <text x="180" y="2344" fill="#aaa"   font-size="11" text-anchor="middle">int32  ·  4 bytes</text>
-  <text x="180" y="2358" fill="#555"   font-size="10" text-anchor="middle">offset +0</text>
-
-  <!-- pos_y -->
-  <rect x="300" y="2305" width="220" height="55" rx="3" fill="#1a1a2e" stroke="#4a4aaa" stroke-width="1"/>
-  <text x="410" y="2327" fill="#7070ff" font-size="12" font-weight="bold" text-anchor="middle">pos_y</text>
-  <text x="410" y="2344" fill="#aaa"   font-size="11" text-anchor="middle">int32  ·  4 bytes</text>
-  <text x="410" y="2358" fill="#555"   font-size="10" text-anchor="middle">offset +4</text>
-
-  <!-- vel_x -->
-  <rect x="530" y="2305" width="220" height="55" rx="3" fill="#1a1a2e" stroke="#4a4aaa" stroke-width="1"/>
-  <text x="640" y="2327" fill="#7070ff" font-size="12" font-weight="bold" text-anchor="middle">vel_x</text>
-  <text x="640" y="2344" fill="#aaa"   font-size="11" text-anchor="middle">int32  ·  4 bytes</text>
-  <text x="640" y="2358" fill="#555"   font-size="10" text-anchor="middle">offset +8</text>
-
-  <!-- vel_y -->
-  <rect x="760" y="2305" width="220" height="55" rx="3" fill="#1a1a2e" stroke="#4a4aaa" stroke-width="1"/>
-  <text x="870" y="2327" fill="#7070ff" font-size="12" font-weight="bold" text-anchor="middle">vel_y</text>
-  <text x="870" y="2344" fill="#aaa"   font-size="11" text-anchor="middle">int32  ·  4 bytes</text>
-  <text x="870" y="2358" fill="#555"   font-size="10" text-anchor="middle">offset +12</text>
-
-  <!-- state -->
-  <rect x="990" y="2305" width="340" height="55" rx="3" fill="#1a1a1a" stroke="#555" stroke-width="1"/>
-  <text x="1160" y="2327" fill="#aaa"   font-size="12" font-weight="bold" text-anchor="middle">state</text>
-  <text x="1160" y="2344" fill="#aaa"   font-size="11" text-anchor="middle">uint8  ·  1 byte</text>
-  <text x="1160" y="2358" fill="#555"   font-size="10" text-anchor="middle">offset +16</text>
-
-  <!-- Notes -->
-  <text x="50" y="2415" fill="#555" font-size="11" letter-spacing="3">     NOTES</text>
-
-  <rect x="50" y="2433" width="1300" height="65" rx="4" fill="#111" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="50" y="2433" width="5" height="65" rx="2" fill="#aa8800"/>
-  <text x="75" y="2458" fill="#ffcc44" font-size="13" font-weight="bold">pos_x,  pos_y,  vel_x,  vel_y</text>
-  <text x="75" y="2482" fill="#aaa"   font-size="12">Godot float values truncated to int32 before packing. Server treats them as fixed-point integers.</text>
-
-  <rect x="50" y="2516" width="1300" height="65" rx="4" fill="#111" stroke="#2a2a2a" stroke-width="1"/>
-  <rect x="50" y="2516" width="5" height="65" rx="2" fill="#555"/>
-  <text x="75" y="2541" fill="#aaa"   font-size="13" font-weight="bold">state</text>
-  <text x="75" y="2565" fill="#aaa"   font-size="12">Movement state enum value: idle, run, jump, fall. Server copies this into the snapshot unchanged.</text>
-
+  <rect x="700"  y="1110" width="12" height="12" rx="2" fill="#0c180c" stroke="#2a6a2a" stroke-width="1" stroke-dasharray="3,2"/>
+  <text x="720"  y="1121" fill="#444" font-size="10">Repeating per-player record</text>
 
 </svg>
