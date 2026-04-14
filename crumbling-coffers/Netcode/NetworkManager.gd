@@ -35,10 +35,15 @@ var _in_udp: Array[PackedByteArray] = []
 var _out_tcp: Array[PackedByteArray] = []
 var _out_udp: Array[UDPPacket] = []
 
+# Reliable layer (game thread writes _reliable_packets_to_send; network thread owns _sent_reliable_packets)
+var _reliable_packets_to_send: Array[UDPPacket] = []
+var _sent_reliable_packets: Dictionary = {}  # seq_num (int) -> {"packet": UDPPacket, "time_sent": int}
+
 var _mutex_in_tcp: Mutex
 var _mutex_in_udp: Mutex
 var _mutex_out_tcp: Mutex
 var _mutex_out_udp: Mutex
+var _mutex_reliable_out: Mutex
 var _thread: Thread
 var _running: bool = false
 
@@ -53,10 +58,13 @@ func startup() -> void:
 	_mutex_in_udp = Mutex.new()
 	_mutex_out_tcp = Mutex.new()
 	_mutex_out_udp = Mutex.new()
+	_mutex_reliable_out = Mutex.new()
 	_in_tcp.clear()
 	_in_udp.clear()
 	_out_tcp.clear()
 	_out_udp.clear()
+	_reliable_packets_to_send.clear()
+	_sent_reliable_packets.clear()
 	_running = true
 	_thread = Thread.new()
 	_thread.start(_thread_main)
@@ -85,6 +93,8 @@ func _thread_main() -> void:
 	call_deferred("_hide_disconnect_indicator")
 
 	while _running:
+		var cur_time := Time.get_ticks_msec()
+
 		_server_tcp.poll()
 		if _server_tcp.get_status() != StreamPeerTCP.STATUS_CONNECTED:
 			call_deferred("_show_disconnect_indicator")
