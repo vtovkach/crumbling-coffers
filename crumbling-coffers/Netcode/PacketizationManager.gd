@@ -34,7 +34,7 @@ const UDP_REG_PAYLOAD_SIZE:  int = 20
 enum UDPStatus     { NORMAL = 0, ERROR  = 1 }
 enum UDPPacketType { SERVER_INIT = 0, SERVER_AUTH = 1 }
 
-var _seq_num: int = 0
+var seq_num: int = 0
 
 # ========================= Inner Classes =========================
 
