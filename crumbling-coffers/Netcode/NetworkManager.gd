@@ -115,12 +115,18 @@ func _thread_main() -> void:
 			_mutex_in_tcp.unlock()
 
 		# Read incoming UDP packets into _in_udp
+		# ACK packets are consumed internally and dropped — not forwarded to the game.
 		while _udp.get_available_packet_count() > 0:
 			var packet := _udp.get_packet()
 			if _udp.get_packet_error() != OK:
 				continue
 			if packet.size() != PACKET_SIZE:
 				push_error("NetworkManager: Dropping UDP packet with wrong size: %d" % packet.size())
+				continue
+			var ctrl := _decode_u16_le(packet, UDP_HDR_CTRL_OFFSET)
+			if ctrl & UDP_CTRL_ACK:
+				var seq := _decode_u32_le(packet, UDP_HDR_SEQ_NUM_OFFSET)
+				_sent_reliable_packets.erase(seq)
 				continue
 			_mutex_in_udp.lock()
 			_in_udp.append(packet)
