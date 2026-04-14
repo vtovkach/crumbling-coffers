@@ -258,3 +258,23 @@ func receive_udp() -> PackedByteArray:
 	_in_udp.remove_at(0)
 	_mutex_in_udp.unlock()
 	return pkt
+
+## Queues a UDPPacket for reliable delivery. The packet is retransmitted every
+## RETRANSMIT_TIMEOUT_MS until the server sends back an ACK carrying the same seq_num.
+## Returns -1 if the payload is not exactly PACKET_SIZE bytes.
+func send_udp_reliable(udp_packet: UDPPacket) -> int:
+	if udp_packet.payload.size() != PACKET_SIZE:
+		push_error("send_udp_reliable(): Payload size mismatch: %d (expected %d)" % [udp_packet.payload.size(), PACKET_SIZE])
+		return -1
+	_mutex_reliable_out.lock()
+	_reliable_packets_to_send.append(udp_packet)
+	_mutex_reliable_out.unlock()
+	return 0
+
+# ========================= Private Helpers =========================
+
+func _decode_u16_le(buf: PackedByteArray, offset: int) -> int:
+	return buf[offset] | (buf[offset + 1] << 8)
+
+func _decode_u32_le(buf: PackedByteArray, offset: int) -> int:
+	return buf[offset] | (buf[offset + 1] << 8) | (buf[offset + 2] << 16) | (buf[offset + 3] << 24)
