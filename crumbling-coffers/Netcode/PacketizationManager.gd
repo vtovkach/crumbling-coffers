@@ -15,6 +15,7 @@ const UDP_CTRL_REGULAR:     int = 0x0000  # client regular packet  — all bits 
 const UDP_CTRL_INIT:        int = 0x0003  # client INIT packet     — bits 0 and 1 set
 const UDP_CTRL_SERVER_INIT: int = 0x0002  # server SERVER_INIT     — bit 1 only
 const UDP_CTRL_SERVER_AUTH: int = 0x0008  # server SERVER_AUTH     — bit 3 only
+const UDP_CTRL_ACK:         int = 0x0004  # ACK packet             — bit 2 only
 
 # UDP header layout (offsets in bytes)
 const UDP_HDR_GAME_ID_OFFSET:      int = 0   # 16 bytes
