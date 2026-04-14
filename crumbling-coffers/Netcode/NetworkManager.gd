@@ -149,6 +149,26 @@ func _thread_main() -> void:
 			_udp.set_dest_address(server_ip, udp_pkt.port)
 			_udp.put_packet(udp_pkt.payload)
 
+		# Drain reliable queue: send each packet and record it in _sent_reliable_packets
+		_mutex_reliable_out.lock()
+		var reliable_out := _reliable_packets_to_send.duplicate()
+		_reliable_packets_to_send.clear()
+		_mutex_reliable_out.unlock()
+		for udp_pkt: UDPPacket in reliable_out:
+			_udp.set_dest_address(server_ip, udp_pkt.port)
+			_udp.put_packet(udp_pkt.payload)
+			var seq := _decode_u32_le(udp_pkt.payload, UDP_HDR_SEQ_NUM_OFFSET)
+			_sent_reliable_packets[seq] = {"packet": udp_pkt, "time_sent": cur_time}
+
+		# Retransmit any reliable packet whose ACK has not arrived within the timeout
+		for seq in _sent_reliable_packets:
+			var entry: Dictionary = _sent_reliable_packets[seq]
+			if cur_time - entry["time_sent"] > RETRANSMIT_TIMEOUT_MS:
+				var udp_pkt: UDPPacket = entry["packet"]
+				_udp.set_dest_address(server_ip, udp_pkt.port)
+				_udp.put_packet(udp_pkt.payload)
+				entry["time_sent"] = cur_time
+
 		OS.delay_msec(THREAD_TICK_MS)
 
 # Retries TCP connection every RECONNECT_INTERVAL_MS until connected or shutdown.
