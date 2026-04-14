@@ -14,6 +14,11 @@ const PACKET_SIZE: int = 200
 const TCP_CONNECT_TIMEOUT_MS: int = 5000
 const THREAD_TICK_MS: int = 1
 const RECONNECT_INTERVAL_MS: int = 400
+const RETRANSMIT_TIMEOUT_MS: int = 200
+
+const UDP_CTRL_ACK:           int = 0x0004  # ACK packet — bit 2
+const UDP_HDR_CTRL_OFFSET:    int = 32      # 2 bytes (uint16)
+const UDP_HDR_SEQ_NUM_OFFSET: int = 36      # 4 bytes (uint32)
 
 var server_ip: String = "129.146.77.151"
 var server_tcp_port: int = 10000
