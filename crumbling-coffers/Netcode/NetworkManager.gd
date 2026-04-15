@@ -14,6 +14,11 @@ const PACKET_SIZE: int = 200
 const TCP_CONNECT_TIMEOUT_MS: int = 5000
 const THREAD_TICK_MS: int = 1
 const RECONNECT_INTERVAL_MS: int = 400
+const RETRANSMIT_TIMEOUT_MS: int = 200
+
+const UDP_CTRL_ACK:           int = 0x0004  # ACK packet — bit 2
+const UDP_HDR_CTRL_OFFSET:    int = 32      # 2 bytes (uint16)
+const UDP_HDR_SEQ_NUM_OFFSET: int = 36      # 4 bytes (uint32)
 
 var server_ip: String = "129.146.77.151"
 var server_tcp_port: int = 10000
@@ -30,10 +35,15 @@ var _in_udp: Array[PackedByteArray] = []
 var _out_tcp: Array[PackedByteArray] = []
 var _out_udp: Array[UDPPacket] = []
 
+# Reliable layer (game thread writes _reliable_packets_to_send; network thread owns _sent_reliable_packets)
+var _reliable_packets_to_send: Array[UDPPacket] = []
+var _sent_reliable_packets: Dictionary = {}  # seq_num (int) -> {"packet": UDPPacket, "time_sent": int}
+
 var _mutex_in_tcp: Mutex
 var _mutex_in_udp: Mutex
 var _mutex_out_tcp: Mutex
 var _mutex_out_udp: Mutex
+var _mutex_reliable_out: Mutex
 var _thread: Thread
 var _running: bool = false
 
@@ -48,10 +58,13 @@ func startup() -> void:
 	_mutex_in_udp = Mutex.new()
 	_mutex_out_tcp = Mutex.new()
 	_mutex_out_udp = Mutex.new()
+	_mutex_reliable_out = Mutex.new()
 	_in_tcp.clear()
 	_in_udp.clear()
 	_out_tcp.clear()
 	_out_udp.clear()
+	_reliable_packets_to_send.clear()
+	_sent_reliable_packets.clear()
 	_running = true
 	_thread = Thread.new()
 	_thread.start(_thread_main)
@@ -80,6 +93,8 @@ func _thread_main() -> void:
 	call_deferred("_hide_disconnect_indicator")
 
 	while _running:
+		var cur_time := Time.get_ticks_msec()
+
 		_server_tcp.poll()
 		if _server_tcp.get_status() != StreamPeerTCP.STATUS_CONNECTED:
 			call_deferred("_show_disconnect_indicator")
@@ -100,12 +115,18 @@ func _thread_main() -> void:
 			_mutex_in_tcp.unlock()
 
 		# Read incoming UDP packets into _in_udp
+		# ACK packets are consumed internally and dropped — not forwarded to the game.
 		while _udp.get_available_packet_count() > 0:
 			var packet := _udp.get_packet()
 			if _udp.get_packet_error() != OK:
 				continue
 			if packet.size() != PACKET_SIZE:
 				push_error("NetworkManager: Dropping UDP packet with wrong size: %d" % packet.size())
+				continue
+			var ctrl := _decode_u16_le(packet, UDP_HDR_CTRL_OFFSET)
+			if ctrl & UDP_CTRL_ACK:
+				var seq := _decode_u32_le(packet, UDP_HDR_SEQ_NUM_OFFSET)
+				_sent_reliable_packets.erase(seq)
 				continue
 			_mutex_in_udp.lock()
 			_in_udp.append(packet)
@@ -127,6 +148,26 @@ func _thread_main() -> void:
 		for udp_pkt: UDPPacket in udp_out:
 			_udp.set_dest_address(server_ip, udp_pkt.port)
 			_udp.put_packet(udp_pkt.payload)
+
+		# Drain reliable queue: send each packet and record it in _sent_reliable_packets
+		_mutex_reliable_out.lock()
+		var reliable_out := _reliable_packets_to_send.duplicate()
+		_reliable_packets_to_send.clear()
+		_mutex_reliable_out.unlock()
+		for udp_pkt: UDPPacket in reliable_out:
+			_udp.set_dest_address(server_ip, udp_pkt.port)
+			_udp.put_packet(udp_pkt.payload)
+			var seq := _decode_u32_le(udp_pkt.payload, UDP_HDR_SEQ_NUM_OFFSET)
+			_sent_reliable_packets[seq] = {"packet": udp_pkt, "time_sent": cur_time}
+
+		# Retransmit any reliable packet whose ACK has not arrived within the timeout
+		for seq in _sent_reliable_packets:
+			var entry: Dictionary = _sent_reliable_packets[seq]
+			if cur_time - entry["time_sent"] > RETRANSMIT_TIMEOUT_MS:
+				var udp_pkt: UDPPacket = entry["packet"]
+				_udp.set_dest_address(server_ip, udp_pkt.port)
+				_udp.put_packet(udp_pkt.payload)
+				entry["time_sent"] = cur_time
 
 		OS.delay_msec(THREAD_TICK_MS)
 
@@ -243,3 +284,23 @@ func receive_udp() -> PackedByteArray:
 	_in_udp.remove_at(0)
 	_mutex_in_udp.unlock()
 	return pkt
+
+## Queues a UDPPacket for reliable delivery. The packet is retransmitted every
+## RETRANSMIT_TIMEOUT_MS until the server sends back an ACK carrying the same seq_num.
+## Returns -1 if the payload is not exactly PACKET_SIZE bytes.
+func send_udp_reliable(udp_packet: UDPPacket) -> int:
+	if udp_packet.payload.size() != PACKET_SIZE:
+		push_error("send_udp_reliable(): Payload size mismatch: %d (expected %d)" % [udp_packet.payload.size(), PACKET_SIZE])
+		return -1
+	_mutex_reliable_out.lock()
+	_reliable_packets_to_send.append(udp_packet)
+	_mutex_reliable_out.unlock()
+	return 0
+
+# ========================= Private Helpers =========================
+
+func _decode_u16_le(buf: PackedByteArray, offset: int) -> int:
+	return buf[offset] | (buf[offset + 1] << 8)
+
+func _decode_u32_le(buf: PackedByteArray, offset: int) -> int:
+	return buf[offset] | (buf[offset + 1] << 8) | (buf[offset + 2] << 16) | (buf[offset + 3] << 24)

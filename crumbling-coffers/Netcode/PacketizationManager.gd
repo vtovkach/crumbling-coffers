@@ -15,6 +15,7 @@ const UDP_CTRL_REGULAR:     int = 0x0000  # client regular packet  — all bits 
 const UDP_CTRL_INIT:        int = 0x0003  # client INIT packet     — bits 0 and 1 set
 const UDP_CTRL_SERVER_INIT: int = 0x0002  # server SERVER_INIT     — bit 1 only
 const UDP_CTRL_SERVER_AUTH: int = 0x0008  # server SERVER_AUTH     — bit 3 only
+const UDP_CTRL_ACK:         int = 0x0004  # ACK packet             — bit 2 only
 
 # UDP header layout (offsets in bytes)
 const UDP_HDR_GAME_ID_OFFSET:      int = 0   # 16 bytes
@@ -32,6 +33,8 @@ const UDP_REG_PAYLOAD_SIZE:  int = 20
 # PacketizationManager.UDPStatus.NORMAL / PacketizationManager.UDPPacketType.SERVER_INIT
 enum UDPStatus     { NORMAL = 0, ERROR  = 1 }
 enum UDPPacketType { SERVER_INIT = 0, SERVER_AUTH = 1 }
+
+var seq_num: int = 0
 
 # ========================= Inner Classes =========================
 
@@ -140,7 +143,6 @@ func form_udp_init_packet(game_id: String, player_id: String, port: int) -> Obje
 ##   game_id   – 32-char uppercase hex string representing a 16-byte game identifier
 ##   player_id – 32-char uppercase hex string representing a 16-byte player identifier
 ##   port      – destination UDP port
-##   seq_num   – current game tick used as sequence number
 ##   position  – player position (x, y encoded as signed 32-bit integers)
 ##   velocity  – player velocity (x, y encoded as signed 32-bit integers)
 ##   score     – player score (unsigned 32-bit integer)
@@ -148,7 +150,6 @@ func form_udp_reg_packet(
 	game_id:   String,
 	player_id: String,
 	port:      int,
-	seq_num:   int,
 	position:  Vector2,
 	velocity:  Vector2,
 	score:     int
@@ -160,7 +161,7 @@ func form_udp_reg_packet(
 	_hex_to_bytes(player_id, packet, UDP_HDR_PLAYER_ID_OFFSET)
 	_encode_u16_le(UDP_CTRL_REGULAR,    packet, UDP_HDR_CTRL_OFFSET)
 	_encode_u16_le(UDP_REG_PAYLOAD_SIZE, packet, UDP_HDR_PAYLOAD_SIZE_OFFSET)
-	_encode_u32_le(seq_num,             packet, UDP_HDR_SEQ_NUM_OFFSET)
+	_encode_u32_le(0,                   packet, UDP_HDR_SEQ_NUM_OFFSET)
 	_encode_i32_le(int(position.x), packet, UDP_HDR_SIZE)
 	_encode_i32_le(int(position.y), packet, UDP_HDR_SIZE + 4)
 	_encode_i32_le(int(velocity.x), packet, UDP_HDR_SIZE + 8)

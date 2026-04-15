@@ -35,6 +35,25 @@ func send_udp(udp_packet: UDPPacket) -> int:
 # Returns an empty PackedByteArray (size 0) if nothing is available.
 func receive_udp() -> PackedByteArray:
 
+# ========================= Reliable UDP API =========================
+
+# Like send_udp(), but the packet is retransmitted every RETRANSMIT_TIMEOUT_MS (200 ms)
+# until the server acknowledges it by sending back a packet with UDP_CTRL_ACK set and the
+# same seq_num in the header. The ACK packet is consumed internally and never forwarded to
+# the game. Returns 0 on success, -1 if the payload is not exactly 200 bytes.
+func send_udp_reliable(udp_packet: UDPPacket) -> int:
+
+# ── Example: sending the UDP INIT packet reliably ──────────────────────────────
+#
+# The INIT packet registers the client with the game server and must be
+# delivered exactly once, so send it via send_udp_reliable().
+#
+#   var init_pkt = PacketizationManager.form_udp_init_packet(game_id, player_id, port)
+#   NetworkManager.send_udp_reliable(init_pkt)
+#
+# NetworkManager will keep resending every 200 ms until the server ACKs it.
+# No further action is required from the caller.
+
 # ========================= Examples =========================
 
 # --- Send a TCP packet (search for a game) ---

@@ -141,57 +141,57 @@ func test_init_packet_seq_num_is_zero() -> void:
 
 func test_reg_packet_is_correct_size() -> void:
 	var udp_pkt := PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
-		1, Vector2(10, 20), Vector2(3, -4), 99)
+		Vector2(10, 20), Vector2(3, -4), 99)
 	assert_eq(udp_pkt.payload.size(), PacketizationManager.PACKET_SIZE,
 		"Regular packet payload must be PACKET_SIZE bytes")
 
 func test_reg_packet_ctrl_field() -> void:
 	var udp_pkt := PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
-		1, Vector2.ZERO, Vector2.ZERO, 0)
+		Vector2.ZERO, Vector2.ZERO, 0)
 	var ctrl := _decode_u16_le(udp_pkt.payload, PacketizationManager.UDP_HDR_CTRL_OFFSET)
 	assert_eq(ctrl, PacketizationManager.UDP_CTRL_REGULAR,
 		"ctrl field must be UDP_CTRL_REGULAR")
 
 func test_reg_packet_payload_size_field() -> void:
 	var udp_pkt := PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
-		1, Vector2.ZERO, Vector2.ZERO, 0)
+		Vector2.ZERO, Vector2.ZERO, 0)
 	var payload_size := _decode_u16_le(udp_pkt.payload, PacketizationManager.UDP_HDR_PAYLOAD_SIZE_OFFSET)
 	assert_eq(payload_size, PacketizationManager.UDP_REG_PAYLOAD_SIZE,
 		"payload_size must be UDP_REG_PAYLOAD_SIZE")
 
-func test_reg_packet_seq_num() -> void:
+func test_reg_packet_seq_num_is_zero() -> void:
 	var udp_pkt := PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
-		999, Vector2.ZERO, Vector2.ZERO, 0)
+		Vector2.ZERO, Vector2.ZERO, 0)
 	var seq := _decode_u32_le(udp_pkt.payload, PacketizationManager.UDP_HDR_SEQ_NUM_OFFSET)
-	assert_eq(seq, 999, "seq_num must match the supplied tick")
+	assert_eq(seq, 0, "seq_num must be 0 (managed internally, not supplied by caller)")
 
 func test_reg_packet_game_id_bytes() -> void:
 	var udp_pkt := PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
-		1, Vector2.ZERO, Vector2.ZERO, 0)
+		Vector2.ZERO, Vector2.ZERO, 0)
 	assert_true(_hex_bytes_match(udp_pkt.payload, PacketizationManager.UDP_HDR_GAME_ID_OFFSET, GAME_ID),
 		"game_id bytes must match")
 
 func test_reg_packet_player_id_bytes() -> void:
 	var udp_pkt := PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
-		1, Vector2.ZERO, Vector2.ZERO, 0)
+		Vector2.ZERO, Vector2.ZERO, 0)
 	assert_true(_hex_bytes_match(udp_pkt.payload, PacketizationManager.UDP_HDR_PLAYER_ID_OFFSET, PLAYER_ID),
 		"player_id bytes must match")
 
 func test_reg_packet_position_x() -> void:
 	var udp_pkt := PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
-		1, Vector2(123, 0), Vector2.ZERO, 0)
+		Vector2(123, 0), Vector2.ZERO, 0)
 	var px := _decode_i32_le(udp_pkt.payload, PacketizationManager.UDP_HDR_SIZE)
 	assert_eq(px, 123, "position.x must be encoded at HDR_SIZE offset")
 
 func test_reg_packet_position_y() -> void:
 	var udp_pkt := PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
-		1, Vector2(0, 456), Vector2.ZERO, 0)
+		Vector2(0, 456), Vector2.ZERO, 0)
 	var py := _decode_i32_le(udp_pkt.payload, PacketizationManager.UDP_HDR_SIZE + 4)
 	assert_eq(py, 456, "position.y must be encoded at HDR_SIZE+4 offset")
 
 func test_reg_packet_negative_velocity() -> void:
 	var udp_pkt := PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
-		1, Vector2.ZERO, Vector2(-7, -8), 0)
+		Vector2.ZERO, Vector2(-7, -8), 0)
 	var vx := _decode_i32_le(udp_pkt.payload, PacketizationManager.UDP_HDR_SIZE + 8)
 	var vy := _decode_i32_le(udp_pkt.payload, PacketizationManager.UDP_HDR_SIZE + 12)
 	assert_eq(vx, -7, "negative velocity.x must survive two's complement encoding")
@@ -199,7 +199,7 @@ func test_reg_packet_negative_velocity() -> void:
 
 func test_reg_packet_score() -> void:
 	var udp_pkt := PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
-		1, Vector2.ZERO, Vector2.ZERO, 42)
+		Vector2.ZERO, Vector2.ZERO, 42)
 	var score := _decode_u32_le(udp_pkt.payload, PacketizationManager.UDP_HDR_SIZE + 16)
 	assert_eq(score, 42, "score must be encoded at HDR_SIZE+16 offset")
 

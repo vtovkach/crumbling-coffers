@@ -131,7 +131,6 @@ Send this every game tick to report the local player's state.
         game_id,           # String — 32-char hex
         player_id,         # String — 32-char hex
         port,              # int
-        current_tick,      # int — used as sequence number
         player.position,   # Vector2
         player.velocity,   # Vector2
         player.score       # int
