@@ -34,3 +34,83 @@ func send_udp(udp_packet: UDPPacket) -> int:
 # Pops the next UDP packet received from the server.
 # Returns an empty PackedByteArray (size 0) if nothing is available.
 func receive_udp() -> PackedByteArray:
+
+# ========================= Examples =========================
+
+# --- Send a TCP packet (search for a game) ---
+# Use PacketizationManager to build the packet, then hand it to NetworkManager.
+
+var pkt := PacketizationManager.form_tcp_packet(
+    PacketizationManager.TYPE_SEARCH_GAME,
+    0  # map_id (pass 0 for now)
+)
+NetworkManager.send_tcp(pkt)
+
+
+# --- Receive and parse a TCP response (poll each frame) ---
+
+func _process(_delta):
+    var raw := NetworkManager.receive_tcp()
+    if raw.is_empty():
+        return
+
+    var resp := PacketizationManager.interpret_tcp_packet(raw)
+
+    if resp.response_type == PacketizationManager.TYPE_GAME_FOUND:
+        print("game_id:   ", resp.game_id)
+        print("player_id: ", resp.player_id)
+        print("server:    ", resp.server_ip, ":", resp.port)
+        _start_udp_session(resp)
+    elif resp.response_type == PacketizationManager.TYPE_GAME_NOT_FOUND:
+        print("No game found.")
+
+
+# --- Send a UDP INIT packet (once, when the match starts) ---
+# Use the game_id, player_id, and port from the TCP GAME_FOUND response.
+
+func _start_udp_session(resp: PacketizationManager.TCP_Response) -> void:
+    var udp_pkt := PacketizationManager.form_udp_init_packet(
+        resp.game_id,
+        resp.player_id,
+        resp.port
+    )
+    NetworkManager.send_udp(udp_pkt)
+
+
+# --- Send a UDP regular packet (every game tick) ---
+
+var udp_pkt := PacketizationManager.form_udp_reg_packet(
+    game_id,          # String — 32-char hex from TCP GAME_FOUND
+    player_id,        # String — 32-char hex from TCP GAME_FOUND
+    port,             # int    — from TCP GAME_FOUND
+    player.position,  # Vector2
+    player.velocity,  # Vector2
+    player.score      # int
+)
+NetworkManager.send_udp(udp_pkt)
+
+
+# --- Receive and parse a UDP response (poll each frame) ---
+
+func _process(_delta):
+    var raw := NetworkManager.receive_udp()
+    if raw.is_empty():
+        return
+
+    var resp := PacketizationManager.interpret_udp_packet(raw)
+    if resp.status == PacketizationManager.UDPStatus.ERROR:
+        return
+
+    if resp.packet_type == PacketizationManager.UDPPacketType.SERVER_INIT:
+        print("Game runs from tick ", resp.start_tick, " to ", resp.stop_tick)
+        for pid in resp.player_init_positions:
+            var pos: PacketizationManager.PlayerInitPos = resp.player_init_positions[pid]
+            print("Player ", pid, " starts at (", pos.x, ", ", pos.y, ")")
+
+    elif resp.packet_type == PacketizationManager.UDPPacketType.SERVER_AUTH:
+        print("Tick: ", resp.server_cur_tick)
+        for pid in resp.players:
+            var info: PacketizationManager.PlayerInfo = resp.players[pid]
+            print("Player ", pid, " pos=(", info.pos_x, ",", info.pos_y,
+                  ") vel=(", info.vel_x, ",", info.vel_y,
+                  ") score=", info.score)
