@@ -71,9 +71,11 @@ class UDP_Response:
 	var num_players:     int
 	var server_cur_tick: int
 
-	# Populated for SERVER_INIT only
+	# Populated for SERVER_INIT and SERVER_AUTH
 	var start_tick: int
 	var stop_tick:  int
+
+	# Populated for SERVER_INIT only
 	var player_init_positions: Dictionary  # hex String → PacketizationManager.PlayerInitPos
 
 	# Populated for SERVER_AUTH only
@@ -182,10 +184,12 @@ func interpret_udp_packet(raw: PackedByteArray) -> UDP_Response:
 
 	if ctrl & UDP_CTRL_SERVER_AUTH:
 		response.packet_type = UDPPacketType.SERVER_AUTH
-		var num := raw[UDP_HDR_SIZE]
+		response.start_tick  = _decode_u32_le(raw, UDP_HDR_SIZE)
+		response.stop_tick   = _decode_u32_le(raw, UDP_HDR_SIZE + 4)
+		var num := raw[UDP_HDR_SIZE + 8]
 		response.num_players = num
 		for i in range(num):
-			var base      := UDP_HDR_SIZE + 1 + i * 36
+			var base      := UDP_HDR_SIZE + 9 + i * 36
 			var pid_hex   := _bytes_to_hex(raw, base, 16)
 			var info      := PlayerInfo.new(
 				_decode_i32_le(raw, base + 16),
