@@ -43,14 +43,22 @@ class TCP_Response:
 	var port:       int
 
 class PlayerInitPos:
+<<<<<<< HEAD
 	var x: float
 	var y: float
 
 	func _init(ix: float, iy: float) -> void:
+=======
+	var x: int
+	var y: int
+
+	func _init(ix: int, iy: int) -> void:
+>>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
 		x = ix
 		y = iy
 
 class PlayerInfo:
+<<<<<<< HEAD
 	var pos_x: float
 	var pos_y: float
 	var vel_x: float
@@ -58,6 +66,15 @@ class PlayerInfo:
 	var score: int
 
 	func _init(px: float, py: float, vx: float, vy: float, sc: int) -> void:
+=======
+	var pos_x: int
+	var pos_y: int
+	var vel_x: int
+	var vel_y: int
+	var score: int
+
+	func _init(px: int, py: int, vx: int, vy: int, sc: int) -> void:
+>>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
 		pos_x = px
 		pos_y = py
 		vel_x = vx
@@ -140,8 +157,14 @@ func form_udp_init_packet(game_id: String, player_id: String, port: int) -> Obje
 ##   game_id   – 32-char uppercase hex string representing a 16-byte game identifier
 ##   player_id – 32-char uppercase hex string representing a 16-byte player identifier
 ##   port      – destination UDP port
+<<<<<<< HEAD
 ##   position  – player position (x, y encoded as 32-bit floats)
 ##   velocity  – player velocity (x, y encoded as 32-bit floats)
+=======
+##   seq_num   – current game tick used as sequence number
+##   position  – player position (x, y encoded as signed 32-bit integers)
+##   velocity  – player velocity (x, y encoded as signed 32-bit integers)
+>>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
 ##   score     – player score (unsigned 32-bit integer)
 func form_udp_reg_packet(
 	game_id:   String,
@@ -159,11 +182,19 @@ func form_udp_reg_packet(
 	_hex_to_bytes(player_id, packet, UDP_HDR_PLAYER_ID_OFFSET)
 	_encode_u16_le(UDP_CTRL_REGULAR,    packet, UDP_HDR_CTRL_OFFSET)
 	_encode_u16_le(UDP_REG_PAYLOAD_SIZE, packet, UDP_HDR_PAYLOAD_SIZE_OFFSET)
+<<<<<<< HEAD
 	_encode_u32_le(0,                   packet, UDP_HDR_SEQ_NUM_OFFSET)
 	_encode_f32_le(position.x, packet, UDP_HDR_SIZE)
 	_encode_f32_le(position.y, packet, UDP_HDR_SIZE + 4)
 	_encode_f32_le(velocity.x, packet, UDP_HDR_SIZE + 8)
 	_encode_f32_le(velocity.y, packet, UDP_HDR_SIZE + 12)
+=======
+	_encode_u32_le(seq_num,             packet, UDP_HDR_SEQ_NUM_OFFSET)
+	_encode_i32_le(int(position.x), packet, UDP_HDR_SIZE)
+	_encode_i32_le(int(position.y), packet, UDP_HDR_SIZE + 4)
+	_encode_i32_le(int(velocity.x), packet, UDP_HDR_SIZE + 8)
+	_encode_i32_le(int(velocity.y), packet, UDP_HDR_SIZE + 12)
+>>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
 	_encode_u32_le(score,           packet, UDP_HDR_SIZE + 16)
 	return NetworkManager.UDPPacket.new(packet, port)
 
@@ -191,10 +222,17 @@ func interpret_udp_packet(raw: PackedByteArray) -> UDP_Response:
 			var base      := UDP_HDR_SIZE + 9 + i * 36
 			var pid_hex   := _bytes_to_hex(raw, base, 16)
 			var info      := PlayerInfo.new(
+<<<<<<< HEAD
 				_decode_f32_le(raw, base + 16),
 				_decode_f32_le(raw, base + 20),
 				_decode_f32_le(raw, base + 24),
 				_decode_f32_le(raw, base + 28),
+=======
+				_decode_i32_le(raw, base + 16),
+				_decode_i32_le(raw, base + 20),
+				_decode_i32_le(raw, base + 24),
+				_decode_i32_le(raw, base + 28),
+>>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
 				_decode_u32_le(raw, base + 32)
 			)
 			response.players[pid_hex] = info
@@ -209,8 +247,13 @@ func interpret_udp_packet(raw: PackedByteArray) -> UDP_Response:
 			var base    := UDP_HDR_SIZE + 9 + i * 24
 			var pid_hex := _bytes_to_hex(raw, base, 16)
 			var pos     := PlayerInitPos.new(
+<<<<<<< HEAD
 				_decode_f32_le(raw, base + 16),
 				_decode_f32_le(raw, base + 20)
+=======
+				_decode_i32_le(raw, base + 16),
+				_decode_i32_le(raw, base + 20)
+>>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
 			)
 			response.player_init_positions[pid_hex] = pos
 
@@ -248,6 +291,7 @@ func _decode_i32_le(bytes: PackedByteArray, offset: int) -> int:
 	var u := _decode_u32_le(bytes, offset)
 	return u if u < 0x80000000 else u - 0x100000000
 
+<<<<<<< HEAD
 func _encode_f32_le(value: float, packet: PackedByteArray, offset: int) -> void:
 	var tmp := PackedFloat32Array([value]).to_byte_array()
 	packet[offset]     = tmp[0]
@@ -259,6 +303,8 @@ func _decode_f32_le(bytes: PackedByteArray, offset: int) -> float:
 	var tmp := PackedByteArray([bytes[offset], bytes[offset + 1], bytes[offset + 2], bytes[offset + 3]])
 	return tmp.to_float32_array()[0]
 
+=======
+>>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
 ## Reads 'length' bytes from 'offset' and returns them as an uppercase hex string.
 func _bytes_to_hex(bytes: PackedByteArray, offset: int, length: int) -> String:
 	var result := ""
