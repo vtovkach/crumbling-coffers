@@ -30,3 +30,9 @@
 ## Create a separate standalone module for event tracking to abstract epoll internals and reduce repetitive code
 
 ## Design logic to ensure the client is notified of errors and always receives a response
+
+## Implement heartbeat to detect silent connection loss
+- Client sends a ping packet every ~5 seconds; server responds with pong
+- NetworkManager tracks last pong time and declares disconnect if timeout exceeded
+- Requires a packet type field (e.g. 1 byte) in the 200-byte packet format
+- Both client (NetworkManager.gd) and server dispatch logic need updating
