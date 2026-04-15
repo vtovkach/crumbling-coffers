@@ -61,7 +61,7 @@ func _make_server_init_raw(start_tick: int, stop_tick: int,
 	return raw
 
 # Builds a raw SERVER_AUTH packet for interpret_udp_packet tests.
-func _make_server_auth_raw(seq_num: int, players: Array) -> PackedByteArray:
+func _make_server_auth_raw(seq_num: int, players: Array, start_tick: int = 0, stop_tick: int = 0) -> PackedByteArray:
 	# players: Array of {id: String, pos_x, pos_y, vel_x, vel_y, score}
 	var HDR := PacketizationManager.UDP_HDR_SIZE
 	var raw := PackedByteArray()
@@ -73,9 +73,17 @@ func _make_server_auth_raw(seq_num: int, players: Array) -> PackedByteArray:
 	raw[PacketizationManager.UDP_HDR_SEQ_NUM_OFFSET + 1] = (seq_num >>  8) & 0xFF
 	raw[PacketizationManager.UDP_HDR_SEQ_NUM_OFFSET + 2] = (seq_num >> 16) & 0xFF
 	raw[PacketizationManager.UDP_HDR_SEQ_NUM_OFFSET + 3] = (seq_num >> 24) & 0xFF
-	raw[HDR] = players.size()
+	raw[HDR    ] =  start_tick        & 0xFF
+	raw[HDR + 1] = (start_tick >>  8) & 0xFF
+	raw[HDR + 2] = (start_tick >> 16) & 0xFF
+	raw[HDR + 3] = (start_tick >> 24) & 0xFF
+	raw[HDR + 4] =  stop_tick        & 0xFF
+	raw[HDR + 5] = (stop_tick >>  8) & 0xFF
+	raw[HDR + 6] = (stop_tick >> 16) & 0xFF
+	raw[HDR + 7] = (stop_tick >> 24) & 0xFF
+	raw[HDR + 8] = players.size()
 	for i in range(players.size()):
-		var base := HDR + 1 + i * 36
+		var base := HDR + 9 + i * 36
 		var pid: String = players[i].id
 		for j in range(16):
 			raw[base + j] = pid.substr(j * 2, 2).hex_to_int()
@@ -320,3 +328,13 @@ func test_server_auth_player_info_values() -> void:
 	assert_eq(info.vel_x,  -1, "PlayerInfo.vel_x must decode correctly (negative)")
 	assert_eq(info.vel_y,  -2, "PlayerInfo.vel_y must decode correctly (negative)")
 	assert_eq(info.score,  99, "PlayerInfo.score must decode correctly")
+
+func test_server_auth_start_tick() -> void:
+	var raw := _make_server_auth_raw(1, [], 100, 200)
+	var resp := PacketizationManager.interpret_udp_packet(raw)
+	assert_eq(resp.start_tick, 100, "start_tick must decode correctly from SERVER_AUTH")
+
+func test_server_auth_stop_tick() -> void:
+	var raw := _make_server_auth_raw(1, [], 100, 200)
+	var resp := PacketizationManager.interpret_udp_packet(raw)
+	assert_eq(resp.stop_tick, 200, "stop_tick must decode correctly from SERVER_AUTH")
