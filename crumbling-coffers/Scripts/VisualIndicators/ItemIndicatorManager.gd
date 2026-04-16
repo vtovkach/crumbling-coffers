@@ -27,6 +27,10 @@ func _process(_delta: float) -> void:
 	var items = get_tree().get_nodes_in_group("pickups")
 	_update_indicators_list(items)
 
+	# this is not safety checked, because _update_indicators_list that runs before ensures all indicators are safe to access
+	for indicator in indicators.values():
+		indicator.apply_fade(inner_rect, outer_rect)
+
 func _update_indicators_list(items: Array) -> void:
 	var valid_ids: Dictionary[int, bool] = {}
 

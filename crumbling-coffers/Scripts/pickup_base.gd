@@ -4,7 +4,7 @@ class_name PickupBase
 @export var points: int = 1
 @export var float_amplitude: float = 10
 @export var float_speed: float = 2.0
-var color = Color("#FFFFFF")	# default
+@export var color = Color("#FFFFFF")	# default
 
 var initial_y: float
 var random_offset: float
