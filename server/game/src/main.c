@@ -7,7 +7,7 @@
 #include <errno.h>
 #include <stdatomic.h>
 
-#include "game.h"
+#include "game_thread.h"
 #include "net/net_thread.h"
 #include "signals.h"
 

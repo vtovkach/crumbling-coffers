@@ -10,7 +10,7 @@
 #include <sys/types.h>
 
 #include "server-config.h"
-#include "game.h"
+#include "game_thread.h"
 #include "post_office.h"
 #include "herald.h"
 #include "packet.h"
