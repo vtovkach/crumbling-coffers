@@ -21,6 +21,8 @@ signal time_updated(time: int)
 signal match_ended() 
 signal state_changed(new_state: MatchState)
 signal match_ready
+signal countdown_tick(number: int)
+signal countdown_finished
 
 # Broadcasts end of match to all clients
 @rpc("authority", "call_local", "reliable")
@@ -64,13 +66,21 @@ func set_time(new_time: int) -> void:
 
 func start_countdown() -> void:
 	set_state(MatchState.COUNTDOWN)
+	
+	# Move loop so level script doesn't handle it
+	var count = 3 
+	while count > 0:
+		countdown_tick.emit(count)
+		await get_tree().create_timer(1.0).timeout
+		count -= 1
+	countdown_finished.emit()
 
 func start_match(match_duration: int) -> void:
 	set_time(match_duration)
 	set_state(MatchState.RUNNING)
 	
 	# check mode to see if need to start timer or not when countdown ends.
-	if mode == MatchMode.SINGLEPLAYER:
+	if mode == MatchMode.SINGLEPLAYER or multiplayer.is_server():
 		timer.start()
 
 # Note: Multiplayer mode distinction will be defined in a later task. For right now, only handling Singleplayer. 
@@ -96,3 +106,15 @@ func _on_game_timer_timeout() -> void:
 	# decrement time by 1 second.
 	set_time(time_left - 1)
 	
+# Make matchmanager responsible for transition
+func go_to_score_page() -> void:
+	# Ensure game isn't stuck in paused state
+	get_tree().paused = false
+	get_tree().change_scene_to_file("res://Scenes/Menu/score_page.tscn")
+	print("Redirecting to Score Page...")
+	
+# Quit logic
+func quit_to_main_menu() -> void:
+	get_tree().paused = false
+	set_state(MatchState.WAITING)
+	get_tree().change_scene_to_file("res://Scenes/Menu/main_menu.tscn")

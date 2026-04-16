@@ -302,7 +302,7 @@ process_mode = 3
 oversampling_override = 1.0
 title = "Quit training?"
 position = Vector2i(0, 36)
-size = Vector2i(297, 100)
+size = Vector2i(397, 100)
 dialog_text = "You'll be returned to the Main Menu"
 
 [node name="ItemSpawnManager" parent="." unique_id=899288004 instance=ExtResource("8_ntwnh")]

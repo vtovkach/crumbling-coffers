@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://b7wt1e8dxpe3"]
+
+[ext_resource type="Script" uid="uid://gljnh731bqdw" path="res://Scenes/Maps/base_level.gd" id="1_5hhq6"]
+[ext_resource type="PackedScene" uid="uid://xbf2l3fnxo71" path="res://Scenes/Maps/HUD.tscn" id="2_ag0uq"]
+
+[node name="BaseLevel" type="Node2D" unique_id=311415213]
+script = ExtResource("1_5hhq6")
+
+[node name="HUD" parent="." unique_id=265116575 instance=ExtResource("2_ag0uq")]
+
+[node name="QuitConfirmation" type="ConfirmationDialog" parent="." unique_id=885741129]
+process_mode = 3
+oversampling_override = 1.0
+title = "Quit training?"
+position = Vector2i(0, 36)
+size = Vector2i(397, 100)
+dialog_text = "You'll be returned to the Main Menu"
