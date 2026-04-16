@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://xofahnso8j72"]
 
-[ext_resource type="Script" path="res://Scripts/item_pickup.gd" id="1_04iyg"]
+[ext_resource type="Script" uid="uid://cxacuqa36wvix" path="res://Scripts/item_pickup.gd" id="1_04iyg"]
 [ext_resource type="Resource" uid="uid://cw3fxhea5uqf1" path="res://Inventory/items/rareItem.tres" id="2_5gj40"]
 [ext_resource type="Texture2D" uid="uid://bmbxy8kdalfcy" path="res://Assets/Items/PNG/shiny/16.png" id="2_26p0y"]
 

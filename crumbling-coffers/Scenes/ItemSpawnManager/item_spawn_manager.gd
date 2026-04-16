@@ -20,12 +20,14 @@ extends Node2D
 @export var rare_items: Array[PackedScene] = []
 @export var legendary_items: Array[PackedScene] = []
 
-@onready var items_container = $"../Items"
+@onready var items_container = get_node_or_null("../Items")
 
 var spawn_timer: float = 0.0
 
 func _ready():
 	randomize()
+	if items_container == null:
+		push_error("ItemSpawnManager: ../Items node not found")
 
 func _process(delta):
 	spawn_timer += delta
@@ -35,6 +37,9 @@ func _process(delta):
 		try_spawn_item()
 
 func try_spawn_item():
+	if items_container == null:
+		return
+
 	if get_active_item_count() >= max_active_items:
 		return
 
@@ -53,6 +58,8 @@ func try_spawn_item():
 		return
 
 func get_active_item_count() -> int:
+	if items_container == null:
+		return 0
 	return items_container.get_child_count()
 
 func pick_item_scene() -> PackedScene:
@@ -93,7 +100,6 @@ func find_valid_spawn_position():
 
 	return null
 
-
 func is_position_valid(pos: Vector2) -> bool:
 	if is_overlapping_wall(pos):
 		return false
@@ -105,7 +111,6 @@ func is_position_valid(pos: Vector2) -> bool:
 		return false
 
 	return true
-
 
 func has_support_below(pos: Vector2) -> bool:
 	var space_state = get_world_2d().direct_space_state
@@ -140,6 +145,9 @@ func is_overlapping_wall(pos: Vector2) -> bool:
 	return results.size() > 0
 
 func is_overlapping_item(pos: Vector2) -> bool:
+	if items_container == null:
+		return false
+
 	for item in items_container.get_children():
 		if item.global_position.distance_to(pos) < min_distance_between_items:
 			return true

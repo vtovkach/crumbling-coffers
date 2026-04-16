@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dgg4u7btgypj7"]
 
 [ext_resource type="Texture2D" uid="uid://bkc2xl3a4kdas" path="res://Assets/Items/PNG/shiny/19.png" id="1_3plsd"]
-[ext_resource type="Script" path="res://Scripts/item_pickup.gd" id="1_ldn3d"]
+[ext_resource type="Script" uid="uid://cxacuqa36wvix" path="res://Scripts/item_pickup.gd" id="1_ldn3d"]
 [ext_resource type="Resource" uid="uid://ihi734jyxixf" path="res://Inventory/items/commonItem.tres" id="2_uy2ql"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ldn3d"]

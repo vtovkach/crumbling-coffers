@@ -29,17 +29,33 @@ func hotbar_insert(item: HotbarItem):
 func reset_hotbar() -> void:
 	for hotbar_slot in hotbar_slots:
 		hotbar_slot.hotbar_item = null
+		hotbar_slot.amount = 0
 	update.emit()
+	
+	
+func use_item(index: int, scene_tree: SceneTree) -> void:
+	if index < 0 or index >= hotbar_slots.size():
+		return
+
+	var slot = hotbar_slots[index]
+	if slot == null or slot.hotbar_item == null:
+		return
+
+	var item = slot.hotbar_item
+
+	if item.resource_path.ends_with("freeze_staff.tres"):
+		apply_freeze(scene_tree)
+	elif item.resource_path.ends_with("disorientation_staff.tres"):
+		apply_disorientation(scene_tree)
+	elif item.resource_path.ends_with("slow_staff.tres"):
+		apply_slow(scene_tree)
+	else:
+		return
+
+	item_used.emit(index)
 
 
 func _on_item_used(index):
-	# !!!
-	# PLACE FUNCTIONS TO CHECK WHAT TYPE OF ITEM WAS USED IN ORDER TO APPLY CORRECT ABILITIES/PROPERTIES>
-	# var item = hotbar_slots[index].hotbar_item
-	# item.apply_effect()
-	# ^^ CALL THIS FUNCTION AND FLUSH OUT 
-	# !!!
-	
 	var slot = hotbar_slots[index]
 	# check if the slot's hotbar_item is null, then just return (DO NOTHING).
 	if (slot == null) || (slot.hotbar_item == null):
@@ -52,3 +68,28 @@ func _on_item_used(index):
 		slot.amount = 0
 	
 	update.emit()
+
+
+func apply_freeze(scene_tree: SceneTree) -> void:
+	var targets = scene_tree.get_nodes_in_group("freezable")
+	for target in targets:
+		if target.is_in_group("player"):
+			continue
+		if target.has_method("apply_freeze"):
+			target.apply_freeze(5.0)
+
+func apply_disorientation(scene_tree: SceneTree) -> void:
+	var targets = scene_tree.get_nodes_in_group("disorientable")
+	for target in targets:
+		if target.is_in_group("player"):
+			continue
+		if target.has_method("apply_disorientation"):
+			target.apply_disorientation(5.0)
+
+func apply_slow(scene_tree: SceneTree) -> void:
+	var targets = scene_tree.get_nodes_in_group("slowable")
+	for target in targets:
+		if target.is_in_group("player"):
+			continue
+		if target.has_method("apply_slow"):
+			target.apply_slow(3.0, 0.4)
