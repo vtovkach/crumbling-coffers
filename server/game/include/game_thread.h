@@ -1,5 +1,5 @@
-#ifndef __GAME_H
-#define __GAME_H
+#ifndef __GAME_T_H
+#define __GAME_T_H
 #include <stdint.h>
 
 #include "herald.h"
