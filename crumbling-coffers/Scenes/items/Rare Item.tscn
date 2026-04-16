@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://xofahnso8j72"]
 
-[ext_resource type="Script" uid="uid://c4q4rq7sy28wv" path="res://Scripts/Item_classes/Collectibles/Rare_item.gd" id="1_04iyg"]
-[ext_resource type="Resource" uid="uid://cw3fxhea5uqf1" path="res://Inventory/items/new_gem2.tres" id="2_5gj40"]
+[ext_resource type="Script" uid="uid://cxacuqa36wvix" path="res://Scripts/item_pickup.gd" id="1_04iyg"]
+[ext_resource type="Resource" uid="uid://cw3fxhea5uqf1" path="res://Inventory/items/rareItem.tres" id="2_5gj40"]
 [ext_resource type="Texture2D" uid="uid://bmbxy8kdalfcy" path="res://Assets/Items/PNG/shiny/16.png" id="2_26p0y"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_ldn3d"]
@@ -9,7 +9,8 @@ radius = 65.37584
 
 [node name="RareItem" type="Area2D" unique_id=438378661]
 script = ExtResource("1_04iyg")
-itemRes = ExtResource("2_5gj40")
+inventory_item = ExtResource("2_5gj40")
+points = 15
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=570691080]
 position = Vector2(0, -64)

@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cjn27mygahs0q"]
 
-[ext_resource type="Script" uid="uid://br7hexnds6dhu" path="res://Scripts/Item_classes/Collectibles/Legendary_item.gd" id="1_e1pl7"]
+[ext_resource type="Script" uid="uid://cxacuqa36wvix" path="res://Scripts/item_pickup.gd" id="1_24kju"]
 [ext_resource type="Resource" uid="uid://bpwcnqecbbqtm" path="res://Inventory/items/starGem.tres" id="2_24kju"]
 [ext_resource type="Texture2D" uid="uid://ctpwuuapxfjt4" path="res://Assets/Items/PNG/simple/11.png" id="2_e1pl7"]
 
@@ -8,8 +8,9 @@
 radius = 65.37584
 
 [node name="LegendaryItem" type="Area2D" unique_id=438378661]
-script = ExtResource("1_e1pl7")
-itemRes = ExtResource("2_24kju")
+script = ExtResource("1_24kju")
+inventory_item = ExtResource("2_24kju")
+points = 40
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=570691080]
 position = Vector2(0, -64)

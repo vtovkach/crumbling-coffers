@@ -253,6 +253,9 @@ func collect(itemRes):
 # This functionality is the same as inventory's.
 func consumable_collect(hotbar_itemRes):
 	hotbar.hotbar_insert(hotbar_itemRes)
+	
+func receive_pickup(pickup: ItemPickup) -> void:
+	pickup.apply_to_player(self)
 
 # Implementing call reset functions for inventory and hotbar when a match ends.
 func reset_inv_hotbar():
