@@ -84,6 +84,16 @@ void update_game(struct Game *game, const struct Packet *pkt)
     }
 }
 
+void update_game_tick(struct Game *game, uint32_t game_tick)
+{
+    game->game_tick = game_tick;
+}
+
+void update_game_status(struct Game *game, enum GameStatus status)
+{
+    game->status = status;
+}
+
 void form_auth_packet(struct Game *game, uint32_t start_tick, uint32_t stop_tick, struct AuthPacket *dst)
 {
     memset(dst, 0, UDP_DATAGRAM_SIZE);
