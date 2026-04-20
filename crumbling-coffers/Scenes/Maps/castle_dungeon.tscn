@@ -3,7 +3,6 @@
 [ext_resource type="Texture2D" uid="uid://cxedwjb0fdl5" path="res://Assets/Maps/Castle Tileset/Castle-Dungeon-Platforms.png" id="1_k1h8p"]
 [ext_resource type="Script" uid="uid://cmadgxjy7yvmc" path="res://Scenes/Maps/castle_dungeon.gd" id="1_ljwly"]
 [ext_resource type="Texture2D" uid="uid://ycqhop67q7tp" path="res://Assets/Maps/Castle Tileset/Dungeon-Tile-Set-export.png" id="2_cf6dh"]
-[ext_resource type="PackedScene" uid="uid://clcxxpfe1pdy7" path="res://Scenes/Player/user_player.tscn" id="4_31roo"]
 [ext_resource type="PackedScene" uid="uid://xbf2l3fnxo71" path="res://Scenes/Maps/HUD.tscn" id="5_31roo"]
 
 [sub_resource type="TileMapPattern" id="TileMapPattern_cf6dh"]
@@ -472,8 +471,6 @@ position = Vector2(0, 2368)
 
 [node name="Spawn4" type="Marker2D" parent="SpawnPoints" unique_id=1735346235]
 position = Vector2(16640, -3776)
-
-[node name="UserPlayer" parent="." unique_id=380576489 instance=ExtResource("4_31roo")]
 
 [node name="HUD" parent="." unique_id=401163621 instance=ExtResource("5_31roo")]
 
