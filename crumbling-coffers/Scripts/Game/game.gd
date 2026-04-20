@@ -27,6 +27,7 @@ var stop_tick:   int = 0
 var game_status: GameStatus
 
 var _send_accumulator: float = 0.0
+var render_time:       float = 0.0
 
 # ============================================================
 # PLAYERS
@@ -43,9 +44,14 @@ func _ready() -> void:
 	pass
 
 func _process(delta: float) -> void:
+	render_time += delta
 	_process_network(delta)
 
 	if game_status == GameStatus.RUNNING:
+		for player_id in remote_players:
+			var r_player = remote_players[player_id]
+			r_player.render_remote_player(render_time)
+
 		_send_accumulator += delta
 		if _send_accumulator >= SEND_INTERVAL:
 			_send_accumulator -= SEND_INTERVAL
