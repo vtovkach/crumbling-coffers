@@ -3,33 +3,13 @@
 
 #include "server-config.h"
 #include "packet.h"
+#include "player.h"
+#include "item.h"
 #include "ds/hashmap.h"
 
 #include <stdint.h>
 #include <stddef.h>
-
-struct PlayerInfo
-{
-    uint8_t player_id[PLAYER_ID_SIZE];
-
-    uint32_t pos_x; 
-    uint32_t pos_y;
-    uint32_t vel_x;
-    uint32_t vel_y;
-
-    size_t items_num;
-    struct Item *items;
-
-    uint32_t score; 
-};
-
-struct Item
-{
-    uint8_t item_id;
-
-    uint32_t pos_x;
-    uint32_t pos_y;
-};
+#include <stdio.h>
 
 struct Game
 {
@@ -37,20 +17,20 @@ struct Game
     uint16_t map_id;
 
     size_t players_num;
-    struct PlayerInfo *players;
+    struct Player *players;
 
     size_t items_num;
-    HashTable *items; 
+    HashTable *items;
 };
 
-struct Game *create_game(uin8_t *game_id, uin16_t map_id, size_t players_num, FILE *log_file);
+struct Game *create_game(uint8_t *game_id, uint16_t map_id, size_t players_num, FILE *log_file);
 
 void destroy_game(struct Game *game, FILE *log_file);
 
-void add_player();
+void add_player(struct Game *game, struct Player *player);
 
-void update_player();
+void update_game(struct Game *game);
 
-struct Packet *get_auth_packet(struct Game *game);
+struct Packet *form_auth_packet(struct Game *game);
 
 #endif
