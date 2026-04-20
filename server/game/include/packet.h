@@ -63,8 +63,8 @@ struct __attribute__((packed)) ClientRegularPacket
     struct Header header;
     float         pos_x;
     float         pos_y;
-    int32_t       vel_x;
-    int32_t       vel_y;
+    float         vel_x;
+    float         vel_y;
     uint32_t      score;
 };
 
@@ -75,8 +75,8 @@ struct __attribute__((packed)) AuthPlayerRecord
     uint8_t  player_id[PLAYER_ID_SIZE];
     float    pos_x;
     float    pos_y;
-    int32_t  vel_x;
-    int32_t  vel_y;
+    float    vel_x;
+    float    vel_y;
     uint32_t score;
 };
 

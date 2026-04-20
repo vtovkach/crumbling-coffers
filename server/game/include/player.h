@@ -16,8 +16,8 @@ struct Player
     
     float pos_x;
     float pos_y;
-    uint32_t vel_x;
-    uint32_t vel_y;
+    float vel_x;
+    float vel_y;
 
     size_t items_num;
     struct Item *items;

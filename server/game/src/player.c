@@ -20,8 +20,8 @@ void update_player(struct Player *player, const struct ClientRegularPacket *pkt)
 {
     player->pos_x = pkt->pos_x;
     player->pos_y = pkt->pos_y;
-    player->vel_x = (uint32_t)pkt->vel_x;
-    player->vel_y = (uint32_t)pkt->vel_y;
+    player->vel_x = pkt->vel_x;
+    player->vel_y = pkt->vel_y;
     player->score = pkt->score;
 }
 

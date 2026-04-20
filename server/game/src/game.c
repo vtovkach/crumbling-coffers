@@ -17,8 +17,6 @@ struct Game *create_game(uint8_t *game_id, uint16_t map_id, size_t players_num, 
     game->players_num = players_num;
     game->status      = NOT_READY;
 
-    game->status = NOT_READY;
-
     game->players = calloc(players_num, sizeof(struct Player *));
     if (!game->players)
     {
@@ -40,7 +38,10 @@ struct Game *create_game(uint8_t *game_id, uint16_t map_id, size_t players_num, 
         if (fscanf(map_file, "%f %f",
                    &game->initial_positions[i].pos_x,
                    &game->initial_positions[i].pos_y) != 2)
+        {
+            log_message(log_file, "[create_game] failed to read all initial positions from map file\n");
             break;
+        }
     }
 
     fclose(map_file);
@@ -114,8 +115,8 @@ void form_auth_packet(struct Game *game, uint32_t start_tick, uint32_t stop_tick
         memcpy(dst->players[i].player_id, p->player_id, PLAYER_ID_SIZE);
         dst->players[i].pos_x = p->pos_x;
         dst->players[i].pos_y = p->pos_y;
-        dst->players[i].vel_x = (int32_t)p->vel_x;
-        dst->players[i].vel_y = (int32_t)p->vel_y;
+        dst->players[i].vel_x = p->vel_x;
+        dst->players[i].vel_y = p->vel_y;
         dst->players[i].score = p->score;
     }
 }

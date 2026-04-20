@@ -59,7 +59,7 @@ static void handle_init_packet( FILE *log_file,
     {
         log_message(
             log_file, 
-            "[handle_init_packet] drop INIT packet nauthorized player"
+            "[handle_init_packet] drop INIT packet unauthorized player"
         );
         return;
     }
