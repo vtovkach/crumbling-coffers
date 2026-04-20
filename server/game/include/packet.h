@@ -45,8 +45,43 @@ struct __attribute__((packed)) Header
 
 struct Packet
 {
-    struct Header header; 
+    struct Header header;
     uint8_t payload[UDP_DATAGRAM_PAYLOAD_SIZE];
 };
 
-#endif 
+struct __attribute__((packed)) AuthPlayerRecord
+{
+    uint8_t  player_id[PLAYER_ID_SIZE];
+    int32_t  pos_x;
+    int32_t  pos_y;
+    int32_t  vel_x;
+    int32_t  vel_y;
+    uint32_t score;
+};
+
+struct __attribute__((packed)) InitPlayerRecord
+{
+    uint8_t player_id[PLAYER_ID_SIZE];
+    int32_t x;
+    int32_t y;
+};
+
+struct __attribute__((packed)) AuthPacket
+{
+    struct Header           header;
+    uint32_t                start_tick;
+    uint32_t                stop_tick;
+    uint8_t                 n;
+    struct AuthPlayerRecord players[];
+};
+
+struct __attribute__((packed)) InitPacket
+{
+    struct Header           header;
+    uint32_t                start_tick;
+    uint32_t                stop_tick;
+    uint8_t                 n;
+    struct InitPlayerRecord players[];
+};
+
+#endif
