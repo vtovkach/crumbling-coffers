@@ -13,8 +13,8 @@
 
 #define LOG_PATH "log/game"
 
-atomic_bool net_stop = false;
-atomic_bool game_stop = false;
+static atomic_bool net_stop = false;
+static atomic_bool game_stop = false;
 
 static ssize_t read_full(int fd, void *buf, size_t size)
 {
