@@ -313,10 +313,10 @@ static void validate_auth_packet(const uint8_t *buf, int check)
         if (pidx < 0)
             fail("AuthPacket: unrecognised player_id in record");
 
-        if (rec->pos_x != last_pos_x[pidx] ||
-            rec->pos_y != last_pos_y[pidx] ||
-            rec->vel_x != last_vel_x[pidx] ||
-            rec->vel_y != last_vel_y[pidx] ||
+        if (memcmp(&rec->pos_x, &last_pos_x[pidx], sizeof(float)) != 0 ||
+            memcmp(&rec->pos_y, &last_pos_y[pidx], sizeof(float)) != 0 ||
+            memcmp(&rec->vel_x, &last_vel_x[pidx], sizeof(float)) != 0 ||
+            memcmp(&rec->vel_y, &last_vel_y[pidx], sizeof(float)) != 0 ||
             rec->score != last_score[pidx])
         {
             fprintf(stderr,
@@ -394,18 +394,27 @@ int main(void)
         round++;
 
         /*
-         * Send each player's updated data, then wait long enough for the server
-         * to process the packets and form a fresh AuthPacket.
+         * Send updated data from every player, then wait long enough for the
+         * server to process all packets and start broadcasting fresh AuthPackets.
+         * Player 1's packet is sent INTER_SEND_DELAY_US after player 0, so the
+         * settle must cover that delay plus at least one server tick (16 ms).
          */
         send_regular_packets(seq_nums, round);
         usleep(AUTH_SETTLE_US);
 
-        /* Drain receive buffer, take the freshest AuthPacket */
-        if (drain_for_latest(CTRL_FLAG_AUTH, pkt_buf) != 0)
+        /*
+         * Drain all packets buffered during the settle period — they may include
+         * partially-updated state (e.g. player 0 at round N but player 1 still
+         * at N-1 if the tick fired between the two sends).  The next packet we
+         * receive after the drain is guaranteed to post-date both sends.
+         */
         {
-            if (poll_for_ctrl(CTRL_FLAG_AUTH, pkt_buf, 500) != 0)
-                fail("no AuthPacket received during validation phase");
+            uint8_t scratch[UDP_DATAGRAM_SIZE];
+            drain_for_latest(CTRL_FLAG_AUTH, scratch);
         }
+
+        if (poll_for_ctrl(CTRL_FLAG_AUTH, pkt_buf, 500) != 0)
+            fail("no AuthPacket received during validation phase");
 
         validate_auth_packet(pkt_buf, check);
     }
