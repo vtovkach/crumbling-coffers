@@ -175,11 +175,6 @@ int main(int argc, char *argv[])
         goto failure; 
     }
 
-    sleep(5);
-
-    atomic_store(&game_stop, true);
-    atomic_store(&net_stop, true);
-
     pthread_join(game_t, NULL);
     pthread_join(network_t, NULL);
 
