@@ -48,7 +48,11 @@ func _on_back_button_pressed() -> void:
 # ========== SEARCH CONTROL ===========
 func start_search() -> void:
 
-	# TODO: send matchmaking request to server via NetworkManager.send_tcp()
+	var search_packet := PacketizationManager.form_tcp_packet(PacketizationManager.TYPE_SEARCH_GAME, 0)
+	if NetworkManager.send_tcp(search_packet) != 0:
+		push_error("lobby: failed to send SEARCH_GAME request")
+		return
+	print("lobby: SEARCH_GAME request sent")
 
 	searching = true
 	elapsed_time = 0
@@ -64,20 +68,24 @@ func start_search() -> void:
 	search_timer.start()
 	
 func stop_search() -> void:
+	var stop_packet := PacketizationManager.form_tcp_packet(PacketizationManager.TYPE_STOP_SEARCH, 0)
+	if NetworkManager.send_tcp(stop_packet) != 0:
+		push_error("lobby: failed to send STOP_SEARCH request")
+		return
+	print("lobby: STOP_SEARCH request sent")
+
 	searching = false
-	
+
 	search_timer.stop()
 	elapsed_time = 0
-	
+
 	search_panel.visible = false
 	timer_label.visible = false
 	timer_label.text = "00:00"
-	
+
 	search_cancel_button.text = "Find Match"
 	search_cancel_button.add_theme_stylebox_override("hover", hover_search_style)
 	search_cancel_button.add_theme_stylebox_override("pressed", pressed_search_style)
-	
-	# TODO: send cancel matchmaking request to server via NetworkManager.send_tcp()
 
 # TIMER UPDATE
 func _on_search_timer_timeout() -> void:
