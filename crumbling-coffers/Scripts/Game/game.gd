@@ -28,6 +28,7 @@ var game_status: GameStatus
 
 var _send_accumulator: float = 0.0
 var render_time:       float = 0.0
+var server_tick:       int   = 0
 
 # ============================================================
 # PLAYERS
@@ -99,6 +100,8 @@ func _process_network(_delta: float) -> void:
 		if response.status == PacketizationManager.UDPStatus.ERROR:
 			raw = NetworkManager.receive_udp()
 			continue
+
+		server_tick = response.server_cur_tick
 
 		if response.packet_type == PacketizationManager.UDPPacketType.SERVER_INIT:
 			raw = NetworkManager.receive_udp()
