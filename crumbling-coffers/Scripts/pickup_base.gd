@@ -8,6 +8,7 @@ class_name PickupBase
 
 var initial_y: float
 var random_offset: float
+var is_collection_pending: bool = false
 
 func _ready() -> void:
 	initial_y = position.y
@@ -22,10 +23,34 @@ func _process(delta: float) -> void:
 	position.y = initial_y + y_offset
 
 func _on_body_entered(body: Node) -> void:
-	on_collected(body)
-	remove_from_group("pickups") # remove this item from that group of pickups. this is technically "on_collected" behavior but it may not be worth it to place this there
+	if is_collection_pending:
+		return
+		
+	if not can_be_collected_by(body):
+		return
+	
+	is_collection_pending = true
+	
+	if try_collect(body):
+		finalize_collection()
+	else:
+		is_collection_pending = false
+	
+	
+func can_be_collected_by(body: Node) -> bool:
+	return body.is_in_group("player") and body.has_method("receive_pickup")
+	
+func finalize_collection() -> void:
+	remove_from_group("pickups")
+	set_deferred("monitoring", false)
+	set_deferred("monitorable", false)
+	set_deferred("collision_layer", 0)
+	set_deferred("collision_mask", 0)
 	queue_free()
+	
+func try_collect(body: Node) -> bool:
+	return on_collected(body)
 
-func on_collected(body: Node) -> void:
+func on_collected(body: Node) -> bool:
 	# meant to be overridden
-	pass
+	return false
