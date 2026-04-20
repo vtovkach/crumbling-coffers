@@ -29,14 +29,16 @@ static void net_receive_packets(FILE *log_file,
     for(size_t i = 0; i < players_num; i++)
     {
         uint8_t recv_data[UDP_DATAGRAM_SIZE];
-        struct sockaddr_in incoming_addr; 
+        struct sockaddr_in incoming_addr;
 
         int res = udp_read(fd, &incoming_addr, recv_data, UDP_DATAGRAM_SIZE);
 
+        if(res < 0)  break;
+
         if(res != UDP_DATAGRAM_SIZE)
         {
-            // Incorrect packet
-            continue; 
+            // Incorrect packet size
+            continue;
         }
 
         // Retrieve header 
@@ -93,9 +95,9 @@ static void net_receive_packets(FILE *log_file,
             continue;
         }
 
-        // Validate sequence number 
+        // Validate sequence number (skip for INIT — first packet from this player)
         uint32_t *seq_num = players_registry_seq_get_by_index(players_reg, idx);
-        if(!seq_num || header.seq_num <= *seq_num)
+        if(!seq_num || (!(header.control & CTRL_FLAG_INIT) && header.seq_num <= *seq_num))
         {
             // Sequence number does not exist or existing is bigger then incoming
             // Drop packet 
@@ -165,9 +167,9 @@ void *run_net_t(void *t_args)
         players_num, 
         players_ids
     );
-    if(!players_reg) 
+    if(!players_reg)
     {
-        log_error(log_file, "[run_net_t] epoll_create1 failed.", errno);
+        log_error(log_file, "[run_net_t] players_registry_create failed.", errno);
         goto exit;
     }
 
@@ -201,7 +203,7 @@ void *run_net_t(void *t_args)
     {   
         // Check Herald 
         uint8_t server_packet[UDP_DATAGRAM_SIZE];
-        if(herald_read(herald, &server_packet, UDP_DATAGRAM_SIZE) == 0)
+        if(herald_read(herald, server_packet, UDP_DATAGRAM_SIZE) == 0)
         {
             // Broadcast packet to all clients
             net_broadcast_state(
