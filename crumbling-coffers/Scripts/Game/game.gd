@@ -161,5 +161,5 @@ func _send_local_player_data() -> void:
 
 func _on_end_match() -> void:
 	MatchManager.end_match()
-	await get_tree().create_timer(3).timeout
+	await get_tree().create_timer(2).timeout
 	MatchManager.go_to_score_page();
