@@ -10,6 +10,9 @@
 #include <sys/types.h>
 
 #include "server-config.h"
+#include "log_system.h"
+#include "game.h"
+#include "player.h"
 #include "game_thread.h"
 #include "post_office.h"
 #include "herald.h"
@@ -50,6 +53,51 @@ static void sleep_ms(long ms)
     nanosleep(&ts, NULL);
 }
 
+static void handle_init_packet( FILE *log_file, 
+                                struct Game *game, 
+                                uint32_t *players_connected,
+                                size_t players_num,
+                                uint8_t *players_ids, 
+                                struct InitPacket *pkt
+                            )
+{
+    bool valid_player = false;
+    for(size_t i = 0; i < players_num; i++)
+    {
+        int rc = memcmp(
+            players_ids + (i * PLAYER_ID_SIZE), 
+            pkt->header.player_id, 
+            PLAYER_ID_SIZE
+        );
+
+        if(rc == 0)
+        {
+            valid_player = true;
+            break;
+        }
+    }
+
+    if(!valid_player) 
+    {
+        log_message(
+            log_file, 
+            "[handle_init_packet] drop INIT packet nauthorized player"
+        );
+        return;
+    }
+
+    struct Player *player = create_player(
+        pkt->header.player_id, 
+        (uint8_t)*players_connected, 
+        log_file
+    );
+
+    if(!player) return; 
+
+    add_player(game, player);
+    (*players_connected)++;
+}
+
 void *run_game_t(void *t_args)
 {   
     uint8_t *game_id = ((struct GameArgs *) t_args)->game_id; 
@@ -64,13 +112,18 @@ void *run_game_t(void *t_args)
 
     FILE *log_file = ((struct GameArgs *) t_args)->log_file;
 
-    // Silence the compiler warnings for now 
-    (void)log_file;
-    (void)players_ids;
 
     uint32_t server_tick = 0;
     uint32_t players_connected = 0; 
-    
+
+    struct Game *game = create_game(game_id, 0, players_num, log_file);
+    if(!game) 
+    {
+        atomic_store(game_stop, true);
+        atomic_store(net_stop, true);
+        return 0; 
+    }
+
     while(!atomic_load(game_stop) && !atomic_load(net_stop))
     {   
         // Process all reliable packets 
@@ -93,7 +146,18 @@ void *run_game_t(void *t_args)
 
             if(ret < 0) break; // no more packets 
 
-            display_udp_packet(udp_packet);
+            struct Packet *pkt = (struct Packet *)udp_packet;
+            if(pkt->header.control & CTRL_FLAG_INIT)
+            {
+                handle_init_packet(
+                    log_file,
+                    game,
+                    &players_connected,
+                    players_num,
+                    players_ids,
+                    (struct InitPacket *)udp_packet
+                );
+            }
         }
 
         for (size_t i = 0; i < players_num; i++)
@@ -135,3 +199,6 @@ void *run_game_t(void *t_args)
 
     return 0;
 }
+
+// Iterate through reliable packets 
+// For each reliable packet check if packet is INIT if so invoke create player routine and add it to the game 
