@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/Game/game.gd" id="1_game"]
+[ext_resource type="PackedScene" uid="uid://mx43qsb2wt0g" path="res://Scenes/Maps/castle_dungeon.tscn" id="2_map"]
+
+[node name="Game" type="Node2D"]
+script = ExtResource("1_game")
+
+[node name="Map" parent="." instance=ExtResource("2_map")]
+
