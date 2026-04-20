@@ -17,6 +17,8 @@ struct Game *create_game(uint8_t *game_id, uint16_t map_id, size_t players_num, 
     game->players_num = players_num;
     game->status      = NOT_READY;
 
+    game->status = NOT_READY;
+
     game->players = calloc(players_num, sizeof(struct Player *));
     if (!game->players)
     {
