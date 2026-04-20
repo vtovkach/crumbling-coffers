@@ -13,15 +13,23 @@
 #include <stdbool.h>
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define INIT_POSITIONS_COUNT 7
 
 =======
 >>>>>>> 4ff7ed2 (Squash in PROJ-151-create-packetization-utility-for-game-server (pull request #70))
+=======
+#define INIT_POSITIONS_COUNT 7
+
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
 enum GameStatus
 {
     NOT_READY,
     INIT,
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
     STARTED,
     FINISHED
 };
@@ -30,6 +38,7 @@ struct InitPos
 {
     float pos_x;
     float pos_y;
+<<<<<<< HEAD
 };
 
 struct Game
@@ -47,22 +56,30 @@ struct Game
     HashTable *items;
 =======
     STARTED
+=======
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
 };
 
 struct Game
 {
     uint8_t game_id[GAME_ID_SIZE];
+    uint32_t game_tick;
+    enum GameStatus status;
     uint16_t map_id;
+    struct InitPos initial_positions[INIT_POSITIONS_COUNT];
 
     size_t players_num;
-    struct Player *players;
+    struct Player **players;
 
     size_t items_num;
     HashTable *items;
+<<<<<<< HEAD
 
     uint32_t game_tick;
     enum GameStatus status; 
 >>>>>>> 4ff7ed2 (Squash in PROJ-151-create-packetization-utility-for-game-server (pull request #70))
+=======
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
 };
 
 struct Game *create_game(uint8_t *game_id, uint16_t map_id, size_t players_num, FILE *log_file);
@@ -72,14 +89,20 @@ void destroy_game(struct Game *game, FILE *log_file);
 void add_player(struct Game *game, struct Player *player);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
 void update_game(struct Game *game, const struct Packet *pkt);
 
 void update_game_tick(struct Game *game, uint32_t game_tick);
 
 void update_game_status(struct Game *game, enum GameStatus status);
+<<<<<<< HEAD
 =======
 void update_game(struct Game *game);
 >>>>>>> 4ff7ed2 (Squash in PROJ-151-create-packetization-utility-for-game-server (pull request #70))
+=======
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
 
 void form_auth_packet(struct Game *game, uint32_t start_tick, uint32_t stop_tick, struct AuthPacket *dst);
 

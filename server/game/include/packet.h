@@ -62,16 +62,22 @@ struct __attribute__((packed)) ClientRegularPacket
 {
     struct Header header;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
     float         pos_x;
     float         pos_y;
     float         vel_x;
     float         vel_y;
+<<<<<<< HEAD
 =======
     int32_t       pos_x;
     int32_t       pos_y;
     int32_t       vel_x;
     int32_t       vel_y;
 >>>>>>> 4ff7ed2 (Squash in PROJ-151-create-packetization-utility-for-game-server (pull request #70))
+=======
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
     uint32_t      score;
 };
 
@@ -81,16 +87,22 @@ struct __attribute__((packed)) AuthPlayerRecord
 {
     uint8_t  player_id[PLAYER_ID_SIZE];
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
     float    pos_x;
     float    pos_y;
     float    vel_x;
     float    vel_y;
+<<<<<<< HEAD
 =======
     int32_t  pos_x;
     int32_t  pos_y;
     int32_t  vel_x;
     int32_t  vel_y;
 >>>>>>> 4ff7ed2 (Squash in PROJ-151-create-packetization-utility-for-game-server (pull request #70))
+=======
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
     uint32_t score;
 };
 
@@ -98,12 +110,17 @@ struct __attribute__((packed)) InitPlayerRecord
 {
     uint8_t player_id[PLAYER_ID_SIZE];
 <<<<<<< HEAD
+<<<<<<< HEAD
     float   x;
     float   y;
 =======
     int32_t x;
     int32_t y;
 >>>>>>> 4ff7ed2 (Squash in PROJ-151-create-packetization-utility-for-game-server (pull request #70))
+=======
+    float   x;
+    float   y;
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
 };
 
 struct __attribute__((packed)) AuthPacket

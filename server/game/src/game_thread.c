@@ -11,16 +11,23 @@
 
 #include "server-config.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "log_system.h"
 #include "game.h"
 #include "player.h"
 =======
 >>>>>>> 4ff7ed2 (Squash in PROJ-151-create-packetization-utility-for-game-server (pull request #70))
+=======
+#include "log_system.h"
+#include "game.h"
+#include "player.h"
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
 #include "game_thread.h"
 #include "post_office.h"
 #include "herald.h"
 #include "packet.h"
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 #define TICK_RATE_MS              16
 #define CONNECTION_DEADLINE_TICKS 1875   /* 30 s  — max wait for all players to connect */
@@ -54,6 +61,12 @@ static void display_udp_packet(const uint8_t *udp_packet)
     printf("--------\n");
 }
 >>>>>>> 4ff7ed2 (Squash in PROJ-151-create-packetization-utility-for-game-server (pull request #70))
+=======
+#define TICK_RATE_MS              16
+#define CONNECTION_DEADLINE_TICKS 1875   /* 30 s  — max wait for all players to connect */
+#define GAME_INIT_TICKS           312    /* 5 s   — lobby/countdown before game starts  */
+#define GAME_DURATION_TICKS       7500   /* 2 min — total game duration                 */
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
 
 static void sleep_ms(long ms)
 {
@@ -64,6 +77,9 @@ static void sleep_ms(long ms)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
 static void handle_init_packet( FILE *log_file, 
                                 struct Game *game, 
                                 uint32_t *players_connected,
@@ -80,6 +96,7 @@ static void handle_init_packet( FILE *log_file,
             pkt->header.player_id, 
             PLAYER_ID_SIZE
         );
+<<<<<<< HEAD
 
         if(rc == 0)
         {
@@ -131,22 +148,52 @@ void *run_game_t(void *t_args)
     uint8_t *game_id = ((struct GameArgs *) t_args)->game_id; 
     uint8_t *players_ids = ((struct GameArgs *) t_args)->players_ids;
     size_t players_num = ((struct GameArgs *) t_args)->players_num;
+=======
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
 
-    struct PostOffice *post_office = ((struct GameArgs *) t_args)->post_office;
-    struct Herald *herald = ((struct GameArgs *) t_args)->herald;
+        if(rc == 0)
+        {
+            valid_player = true;
+            break;
+        }
+    }
 
-    atomic_bool *game_stop = ((struct GameArgs *) t_args)->game_stop_flag;
-    atomic_bool *net_stop = ((struct GameArgs *) t_args)->net_stop_flag;
+    if(!valid_player) 
+    {
+        log_message(
+            log_file, 
+            "[handle_init_packet] drop INIT packet unauthorized player"
+        );
+        return;
+    }
 
-    FILE *log_file = ((struct GameArgs *) t_args)->log_file;
+    struct Player *player = create_player(
+        pkt->header.player_id, 
+        (uint8_t)*players_connected, 
+        log_file
+    );
 
-    // Silence the compiler warnings for now 
-    (void)log_file;
-    (void)players_ids;
+    if(!player) return; 
 
-    uint32_t server_tick = 0;
+    add_player(game, player);
+    (*players_connected)++;
+}
+
+static bool run_connection_loop(FILE *log_file,
+                                struct Game *game,
+                                struct PostOffice *post_office,
+                                atomic_bool *game_stop,
+                                atomic_bool *net_stop,
+                                uint8_t *players_ids,
+                                size_t players_num,
+                                uint32_t *server_tick,
+                                uint32_t *start_tick,
+                                uint32_t *stop_tick)
+{
+    uint32_t players_connected = 0;
 
     while(!atomic_load(game_stop) && !atomic_load(net_stop))
+<<<<<<< HEAD
     {   
         // Process all reliable packets 
         //      -- retrieve all packets from the mail drop 
@@ -157,10 +204,15 @@ void *run_game_t(void *t_args)
         // Form Authoritive Packet 
         //      - place into herald  
 >>>>>>> 4ff7ed2 (Squash in PROJ-151-create-packetization-utility-for-game-server (pull request #70))
+=======
+    {
+        update_game_tick(game, *server_tick);
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
 
         for (;;)
         {
             uint8_t udp_packet[UDP_DATAGRAM_SIZE];
+<<<<<<< HEAD
 <<<<<<< HEAD
             int ret = post_office_mail_drop_pop(post_office, udp_packet, UDP_DATAGRAM_SIZE);
             if(ret < 0) break;
@@ -289,49 +341,132 @@ cleanup:
                 udp_packet, 
                 UDP_DATAGRAM_SIZE
             );
+=======
+            int ret = post_office_mail_drop_pop(post_office, udp_packet, UDP_DATAGRAM_SIZE);
+            if(ret < 0) break;
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
 
-            if(ret < 0) break; // no more packets 
-
-            display_udp_packet(udp_packet);
+            struct Packet *pkt = (struct Packet *)udp_packet;
+            if(pkt->header.control & CTRL_FLAG_INIT)
+            {
+                handle_init_packet(
+                    log_file, game, &players_connected,
+                    players_num, players_ids,
+                    (struct InitPacket *)udp_packet
+                );
+            }
         }
 
-        for (size_t i = 0; i < players_num; i++)
+        if(players_connected == (uint32_t)players_num)
         {
-            uint8_t udp_packet[UDP_DATAGRAM_SIZE];
-
-            int ret = post_office_read(
-                post_office, 
-                i, 
-                udp_packet, 
-                UDP_DATAGRAM_SIZE
-            );
-
-            if (ret != 0) continue;
-
-            display_udp_packet(udp_packet);
+            *start_tick = *server_tick + GAME_INIT_TICKS;
+            *stop_tick  = *start_tick  + GAME_DURATION_TICKS;
+            update_game_status(game, INIT);
+            return true;
         }
 
-        /*
-            Prepare and send authoritative
-            packet to all clients 
-        */
-       
-        uint8_t packet[UDP_DATAGRAM_SIZE];
-        struct Header *outgoing_header = (struct Header *)packet;
+        if(*server_tick >= CONNECTION_DEADLINE_TICKS)
+        {
+            log_message(log_file, "[run_connection_loop] connection deadline reached, terminating\n");
+            return false;
+        }
 
-        memset(packet, 0, UDP_DATAGRAM_SIZE);
-        memcpy(outgoing_header->game_id, game_id, GAME_ID_SIZE);
-        memset(outgoing_header->player_id, 1, PLAYER_ID_SIZE);
-        outgoing_header->control = CTRL_FLAG_AUTH;
-        outgoing_header->seq_num = server_tick; 
-        outgoing_header->payload_size = 0;
-
-        herald_write(herald, packet, UDP_DATAGRAM_SIZE);
-
-        server_tick++;
-        sleep_ms(10);
+        (*server_tick)++;
+        sleep_ms(TICK_RATE_MS);
     }
 
+<<<<<<< HEAD
 >>>>>>> 4ff7ed2 (Squash in PROJ-151-create-packetization-utility-for-game-server (pull request #70))
+=======
+    return false;
+}
+
+static void run_game_loop(FILE *log_file,
+                          struct Game *game,
+                          struct PostOffice *post_office,
+                          struct Herald *herald,
+                          atomic_bool *game_stop,
+                          atomic_bool *net_stop,
+                          size_t players_num,
+                          uint32_t *server_tick,
+                          uint32_t start_tick,
+                          uint32_t stop_tick)
+{
+    while(!atomic_load(game_stop) && !atomic_load(net_stop))
+    {
+        update_game_tick(game, *server_tick);
+
+        if(game->status == INIT && *server_tick >= start_tick)
+            update_game_status(game, STARTED);
+
+        if(game->status == STARTED && *server_tick >= stop_tick)
+        {
+            update_game_status(game, FINISHED);
+            break;
+        }
+
+        if(game->status == STARTED)
+        {
+            for(size_t i = 0; i < players_num; i++)
+            {
+                uint8_t udp_packet[UDP_DATAGRAM_SIZE];
+                int ret = post_office_read(post_office, i, udp_packet, UDP_DATAGRAM_SIZE);
+                if(ret != 0) continue;
+                update_game(game, (struct Packet *)udp_packet);
+            }
+        }
+
+        struct Packet pkt = {0};
+
+        if(game->status == INIT)
+            form_init_packet(game, start_tick, stop_tick, (struct InitPacket *)&pkt);
+        else if(game->status == STARTED)
+            form_auth_packet(game, start_tick, stop_tick, (struct AuthPacket *)&pkt);
+
+        herald_write(herald, &pkt, UDP_DATAGRAM_SIZE);
+
+        (*server_tick)++;
+        sleep_ms(TICK_RATE_MS);
+    }
+
+    (void)log_file;
+}
+
+void *run_game_t(void *t_args)
+{
+    uint8_t *game_id      = ((struct GameArgs *)t_args)->game_id;
+    uint8_t *players_ids  = ((struct GameArgs *)t_args)->players_ids;
+    size_t   players_num  = ((struct GameArgs *)t_args)->players_num;
+
+    struct PostOffice *post_office = ((struct GameArgs *)t_args)->post_office;
+    struct Herald     *herald      = ((struct GameArgs *)t_args)->herald;
+
+    atomic_bool *game_stop = ((struct GameArgs *)t_args)->game_stop_flag;
+    atomic_bool *net_stop  = ((struct GameArgs *)t_args)->net_stop_flag;
+
+    FILE *log_file = ((struct GameArgs *)t_args)->log_file;
+
+    uint32_t server_tick = 0;
+    uint32_t start_tick  = 0;
+    uint32_t stop_tick   = 0;
+
+    struct Game *game = create_game(game_id, 0, players_num, log_file);
+    if(!game)
+        goto cleanup;
+
+    bool rs = run_connection_loop(log_file, game, post_office, game_stop, net_stop,
+                            players_ids, players_num,
+                            &server_tick, &start_tick, &stop_tick);
+
+    if(!rs) goto cleanup;
+    
+    run_game_loop(log_file, game, post_office, herald, game_stop, net_stop,
+                  players_num, &server_tick, start_tick, stop_tick);
+
+cleanup:
+    destroy_game(game, log_file);
+    atomic_store(game_stop, true);
+    atomic_store(net_stop, true);
+>>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
     return 0;
 }
