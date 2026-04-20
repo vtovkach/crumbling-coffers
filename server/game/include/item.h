@@ -7,8 +7,8 @@ struct Item
 {
     uint8_t item_id;
 
-    uint32_t pos_x;
-    uint32_t pos_y;
+    float pos_x;
+    float pos_y;
 };
 
 #endif
