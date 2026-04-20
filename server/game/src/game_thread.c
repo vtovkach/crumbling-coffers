@@ -23,33 +23,6 @@
 #define GAME_INIT_TICKS           312    /* 5 s   — lobby/countdown before game starts  */
 #define GAME_DURATION_TICKS       7500   /* 2 min — total game duration                 */
 
-static void display_udp_packet(const uint8_t *udp_packet)
-{
-    struct Header header;
-    memcpy(&header, udp_packet, sizeof(header));
-
-    // ---- Print Game ID ----
-    printf("Game ID: ");
-    for (size_t j = 0; j < GAME_ID_SIZE; j++)
-        printf("%02x ", header.game_id[j]);
-    printf("\n");
-
-    // ---- Print Player ID ----
-    printf("Player ID: ");
-    for (size_t j = 0; j < PLAYER_ID_SIZE; j++)
-        printf("%02x ", header.player_id[j]);
-    printf("\n");
-
-    // ---- Print Payload ----
-    const char *payload = (const char *)(udp_packet + sizeof(header));
-
-    printf("Payload: %.*s\n",
-           header.payload_size,
-           payload);
-
-    printf("--------\n");
-}
-
 static void sleep_ms(long ms)
 {
     struct timespec ts;
@@ -103,40 +76,22 @@ static void handle_init_packet( FILE *log_file,
     (*players_connected)++;
 }
 
-void *run_game_t(void *t_args)
-{   
-    uint8_t *game_id = ((struct GameArgs *) t_args)->game_id; 
-    uint8_t *players_ids = ((struct GameArgs *) t_args)->players_ids;
-    size_t players_num = ((struct GameArgs *) t_args)->players_num;
-
-    struct PostOffice *post_office = ((struct GameArgs *) t_args)->post_office;
-    struct Herald *herald = ((struct GameArgs *) t_args)->herald;
-
-    atomic_bool *game_stop = ((struct GameArgs *) t_args)->game_stop_flag;
-    atomic_bool *net_stop = ((struct GameArgs *) t_args)->net_stop_flag;
-
-    FILE *log_file = ((struct GameArgs *) t_args)->log_file;
-
-
-    uint32_t server_tick = 0;
-    uint32_t players_connected = 0; 
-    uint32_t start_tick = 0; 
-    uint32_t stop_tick = 0;
-
-    struct Game *game = create_game(game_id, 0, players_num, log_file);
-    if(!game) 
-    {
-        atomic_store(game_stop, true);
-        atomic_store(net_stop, true);
-        return 0; 
-    }
-
-    // ── Connection loop ───────────────────────────────────────────────────────
-    // Runs until all players connect or deadline is reached.
+static bool run_connection_loop(FILE *log_file,
+                                struct Game *game,
+                                struct PostOffice *post_office,
+                                atomic_bool *game_stop,
+                                atomic_bool *net_stop,
+                                uint8_t *players_ids,
+                                size_t players_num,
+                                uint32_t *server_tick,
+                                uint32_t *start_tick,
+                                uint32_t *stop_tick)
+{
+    uint32_t players_connected = 0;
 
     while(!atomic_load(game_stop) && !atomic_load(net_stop))
     {
-        update_game_tick(game, server_tick);
+        update_game_tick(game, *server_tick);
 
         for (;;)
         {
@@ -157,41 +112,49 @@ void *run_game_t(void *t_args)
 
         if(players_connected == (uint32_t)players_num)
         {
-            start_tick = server_tick + GAME_INIT_TICKS;
-            stop_tick  = start_tick  + GAME_DURATION_TICKS;
+            *start_tick = *server_tick + GAME_INIT_TICKS;
+            *stop_tick  = *start_tick  + GAME_DURATION_TICKS;
             update_game_status(game, INIT);
-            break;
+            return true;
         }
 
-        if(server_tick >= CONNECTION_DEADLINE_TICKS)
+        if(*server_tick >= CONNECTION_DEADLINE_TICKS)
         {
-            log_message(log_file, "[run_game_t] connection deadline reached, terminating\n");
-            goto cleanup;
+            log_message(log_file, "[run_connection_loop] connection deadline reached, terminating\n");
+            return false;
         }
 
-        server_tick++;
+        (*server_tick)++;
         sleep_ms(TICK_RATE_MS);
     }
 
-    // ── Game loop ─────────────────────────────────────────────────────────────
-    // Runs from INIT through STARTED until FINISHED.
+    return false;
+}
 
+static void run_game_loop(FILE *log_file,
+                          struct Game *game,
+                          struct PostOffice *post_office,
+                          struct Herald *herald,
+                          atomic_bool *game_stop,
+                          atomic_bool *net_stop,
+                          size_t players_num,
+                          uint32_t *server_tick,
+                          uint32_t start_tick,
+                          uint32_t stop_tick)
+{
     while(!atomic_load(game_stop) && !atomic_load(net_stop))
     {
-        update_game_tick(game, server_tick);
+        update_game_tick(game, *server_tick);
 
-        // INIT -> STARTED
-        if(game->status == INIT && server_tick >= start_tick)
+        if(game->status == INIT && *server_tick >= start_tick)
             update_game_status(game, STARTED);
 
-        // STARTED -> FINISHED
-        if(game->status == STARTED && server_tick >= stop_tick)
+        if(game->status == STARTED && *server_tick >= stop_tick)
         {
             update_game_status(game, FINISHED);
             break;
         }
 
-        // Process regular packets
         if(game->status == STARTED)
         {
             for(size_t i = 0; i < players_num; i++)
@@ -203,7 +166,6 @@ void *run_game_t(void *t_args)
             }
         }
 
-        // Form and broadcast authoritative packet
         struct Packet pkt = {0};
 
         if(game->status == INIT)
@@ -213,9 +175,43 @@ void *run_game_t(void *t_args)
 
         herald_write(herald, &pkt, UDP_DATAGRAM_SIZE);
 
-        server_tick++;
+        (*server_tick)++;
         sleep_ms(TICK_RATE_MS);
     }
+
+    (void)log_file;
+}
+
+void *run_game_t(void *t_args)
+{
+    uint8_t *game_id      = ((struct GameArgs *)t_args)->game_id;
+    uint8_t *players_ids  = ((struct GameArgs *)t_args)->players_ids;
+    size_t   players_num  = ((struct GameArgs *)t_args)->players_num;
+
+    struct PostOffice *post_office = ((struct GameArgs *)t_args)->post_office;
+    struct Herald     *herald      = ((struct GameArgs *)t_args)->herald;
+
+    atomic_bool *game_stop = ((struct GameArgs *)t_args)->game_stop_flag;
+    atomic_bool *net_stop  = ((struct GameArgs *)t_args)->net_stop_flag;
+
+    FILE *log_file = ((struct GameArgs *)t_args)->log_file;
+
+    uint32_t server_tick = 0;
+    uint32_t start_tick  = 0;
+    uint32_t stop_tick   = 0;
+
+    struct Game *game = create_game(game_id, 0, players_num, log_file);
+    if(!game)
+        goto cleanup;
+
+    bool rs = run_connection_loop(log_file, game, post_office, game_stop, net_stop,
+                            players_ids, players_num,
+                            &server_tick, &start_tick, &stop_tick);
+
+    if(!rs) goto cleanup;
+    
+    run_game_loop(log_file, game, post_office, herald, game_stop, net_stop,
+                  players_num, &server_tick, start_tick, stop_tick);
 
 cleanup:
     destroy_game(game, log_file);
