@@ -16,6 +16,9 @@ func _ready() -> void:
 	# Connect signals that decrement time and signal the match end.
 	MatchManager.time_updated.connect(self.update_game_timer)
 	MatchManager.match_ended.connect(self._on_match_ended)
+	MatchManager.prematch_updated.connect(self._on_prematch_updated)
+	MatchManager.prematch_ended.connect(self.hide_countdown)
+	MatchManager.match_started.connect(self._on_match_started)
 	
 	#Have main inventory toggled off by default.
 	inventory.close()
@@ -66,6 +69,14 @@ func _input(event):
 		if MatchManager.current_state == MatchManager.MatchState.RUNNING:
 			if event.is_action_pressed("hotbar_slot_%d" %(i+1)):
 				hotbar.set_active_slot(i)
+
+func _on_match_started() -> void:
+	update_countdown_text("GO!")
+	await get_tree().create_timer(2.0).timeout
+	hide_countdown()
+
+func _on_prematch_updated(seconds: int) -> void:
+	update_countdown_text("Starts In %d" % seconds)
 
 func set_player_to_indicators(p: Player) -> void:
 	item_indicator_manager.set_player(p)
