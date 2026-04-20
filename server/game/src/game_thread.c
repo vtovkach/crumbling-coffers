@@ -131,81 +131,74 @@ void *run_game_t(void *t_args)
         return 0; 
     }
 
+    // ── Connection loop ───────────────────────────────────────────────────────
+    // Runs until all players connect or deadline is reached.
+
     while(!atomic_load(game_stop) && !atomic_load(net_stop))
     {
         update_game_tick(game, server_tick);
 
-        // Drain reliable packets (mail drop)
         for (;;)
         {
             uint8_t udp_packet[UDP_DATAGRAM_SIZE];
-            int ret = post_office_mail_drop_pop(
-                post_office,
-                udp_packet,
-                UDP_DATAGRAM_SIZE
-            );
-
+            int ret = post_office_mail_drop_pop(post_office, udp_packet, UDP_DATAGRAM_SIZE);
             if(ret < 0) break;
 
             struct Packet *pkt = (struct Packet *)udp_packet;
             if(pkt->header.control & CTRL_FLAG_INIT)
             {
                 handle_init_packet(
-                    log_file,
-                    game,
-                    &players_connected,
-                    players_num,
-                    players_ids,
+                    log_file, game, &players_connected,
+                    players_num, players_ids,
                     (struct InitPacket *)udp_packet
                 );
             }
         }
 
-        // All players connected — transition to INIT
-        if(game->status == NOT_READY && players_connected == (uint32_t)players_num)
+        if(players_connected == (uint32_t)players_num)
         {
             start_tick = server_tick + GAME_INIT_TICKS;
             stop_tick  = start_tick  + GAME_DURATION_TICKS;
             update_game_status(game, INIT);
+            break;
         }
 
-        if(game->status == NOT_READY)
+        if(server_tick >= CONNECTION_DEADLINE_TICKS)
         {
-            if(server_tick >= CONNECTION_DEADLINE_TICKS)
-            {
-                log_message(log_file, "[run_game_t] connection deadline reached, terminating\n");
-                break;
-            }
-            goto advance_tick;
+            log_message(log_file, "[run_game_t] connection deadline reached, terminating\n");
+            goto cleanup;
         }
 
-        // INIT → STARTED
+        server_tick++;
+        sleep_ms(TICK_RATE_MS);
+    }
+
+    // ── Game loop ─────────────────────────────────────────────────────────────
+    // Runs from INIT through STARTED until FINISHED.
+
+    while(!atomic_load(game_stop) && !atomic_load(net_stop))
+    {
+        update_game_tick(game, server_tick);
+
+        // INIT -> STARTED
         if(game->status == INIT && server_tick >= start_tick)
             update_game_status(game, STARTED);
 
-        // STARTED → FINISHED
+        // STARTED -> FINISHED
         if(game->status == STARTED && server_tick >= stop_tick)
+        {
             update_game_status(game, FINISHED);
-
-        if(game->status == FINISHED)
             break;
+        }
 
-        // Process regular packets only during active game
+        // Process regular packets
         if(game->status == STARTED)
         {
             for(size_t i = 0; i < players_num; i++)
             {
                 uint8_t udp_packet[UDP_DATAGRAM_SIZE];
-
-                int ret = post_office_read(
-                    post_office,
-                    i,
-                    udp_packet,
-                    UDP_DATAGRAM_SIZE
-                );
-
+                int ret = post_office_read(post_office, i, udp_packet, UDP_DATAGRAM_SIZE);
                 if(ret != 0) continue;
-
                 update_game(game, (struct Packet *)udp_packet);
             }
         }
@@ -220,11 +213,11 @@ void *run_game_t(void *t_args)
 
         herald_write(herald, &pkt, UDP_DATAGRAM_SIZE);
 
-        advance_tick:
         server_tick++;
         sleep_ms(TICK_RATE_MS);
     }
 
+cleanup:
     destroy_game(game, log_file);
     atomic_store(game_stop, true);
     atomic_store(net_stop, true);
