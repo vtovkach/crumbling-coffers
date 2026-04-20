@@ -14,8 +14,8 @@ struct Player
     uint8_t player_id[PLAYER_ID_SIZE];
     uint8_t player_idx; 
     
-    uint32_t pos_x;
-    uint32_t pos_y;
+    float pos_x;
+    float pos_y;
     uint32_t vel_x;
     uint32_t vel_y;
 
