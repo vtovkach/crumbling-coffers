@@ -65,6 +65,8 @@ func _update_game_status() -> void:
 	if game_status == GameStatus.PREMATCH and server_tick >= start_tick:
 		game_status = GameStatus.RUNNING
 		MatchManager.set_state(MatchManager.MatchState.RUNNING)
+		MatchManager.hide_prematch_countdown()
+		MatchManager.show_match_started()
 		local_player.set_physics_process(true)
 
 	if game_status == GameStatus.RUNNING and server_tick >= stop_tick:
@@ -76,7 +78,7 @@ func _sync_match_time() -> void:
 	if game_status == GameStatus.PREMATCH:
 		var t := (start_tick - server_tick) / SERVER_TICK_RATE
 		if t > 0:
-			MatchManager.set_time(t)
+			MatchManager.show_prematch_countdown(t)
 	elif game_status == GameStatus.RUNNING:
 		MatchManager.set_time((stop_tick - server_tick) / SERVER_TICK_RATE)
 
