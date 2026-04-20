@@ -74,7 +74,9 @@ func _update_game_status() -> void:
 
 func _sync_match_time() -> void:
 	if game_status == GameStatus.PREMATCH:
-		MatchManager.set_time((start_tick - server_tick) / SERVER_TICK_RATE)
+		var t := (start_tick - server_tick) / SERVER_TICK_RATE
+		if t > 0:
+			MatchManager.set_time(t)
 	elif game_status == GameStatus.RUNNING:
 		MatchManager.set_time((stop_tick - server_tick) / SERVER_TICK_RATE)
 
