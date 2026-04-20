@@ -18,7 +18,8 @@ enum GameStatus
 {
     NOT_READY,
     INIT,
-    STARTED
+    STARTED,
+    FINISHED
 };
 
 struct InitPos
