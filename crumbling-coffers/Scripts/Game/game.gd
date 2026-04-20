@@ -14,7 +14,8 @@ enum GameStatus { PREMATCH, RUNNING, FINISHED }
 const UserPlayerScene:  PackedScene = preload("res://Scenes/Player/user_player.tscn")
 const RemotePlayerScene: PackedScene = preload("res://Scenes/Player/remote_player.tscn")
 
-const SEND_INTERVAL: float = 0.0167  # ~60 Hz
+const SEND_INTERVAL:    float = 0.0167  # ~60 Hz
+const SERVER_TICK_RATE: int   = 60
 
 # ============================================================
 # STATE
@@ -48,6 +49,8 @@ func _process(delta: float) -> void:
 	render_time += delta
 	_process_network(delta)
 
+	_sync_match_time()
+
 	if game_status == GameStatus.RUNNING:
 		for player_id in remote_players:
 			var r_player = remote_players[player_id]
@@ -57,6 +60,12 @@ func _process(delta: float) -> void:
 		if _send_accumulator >= SEND_INTERVAL:
 			_send_accumulator -= SEND_INTERVAL
 			_send_local_player_data()
+
+func _sync_match_time() -> void:
+	if game_status == GameStatus.PREMATCH:
+		MatchManager.set_time((start_tick - server_tick) / SERVER_TICK_RATE)
+	elif game_status == GameStatus.RUNNING:
+		MatchManager.set_time((stop_tick - server_tick) / SERVER_TICK_RATE)
 
 # ============================================================
 # INIT
