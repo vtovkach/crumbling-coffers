@@ -199,6 +199,3 @@ void *run_game_t(void *t_args)
 
     return 0;
 }
-
-// Iterate through reliable packets 
-// For each reliable packet check if packet is INIT if so invoke create player routine and add it to the game 
