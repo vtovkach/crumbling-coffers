@@ -69,7 +69,8 @@ void *run_game_t(void *t_args)
     (void)players_ids;
 
     uint32_t server_tick = 0;
-
+    uint32_t players_connected = 0; 
+    
     while(!atomic_load(game_stop) && !atomic_load(net_stop))
     {   
         // Process all reliable packets 
