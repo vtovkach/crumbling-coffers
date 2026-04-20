@@ -48,7 +48,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	render_time += delta
 	_process_network(delta)
-
+	_update_game_status()
 	_sync_match_time()
 
 	if game_status == GameStatus.RUNNING:
@@ -60,6 +60,17 @@ func _process(delta: float) -> void:
 		if _send_accumulator >= SEND_INTERVAL:
 			_send_accumulator -= SEND_INTERVAL
 			_send_local_player_data()
+
+func _update_game_status() -> void:
+	if game_status == GameStatus.PREMATCH and server_tick >= start_tick:
+		game_status = GameStatus.RUNNING
+		MatchManager.set_state(MatchManager.MatchState.RUNNING)
+		local_player.set_physics_process(true)
+
+	if game_status == GameStatus.RUNNING and server_tick >= stop_tick:
+		game_status = GameStatus.FINISHED
+		local_player.set_physics_process(false)
+		_on_end_match()
 
 func _sync_match_time() -> void:
 	if game_status == GameStatus.PREMATCH:
@@ -96,7 +107,6 @@ func init(local_player_id: String, p_game_id: String, port: int, udp_response: P
 			add_child(remote)
 			remote_players[player_id] = remote
 
-
 # ============================================================
 # NETWORK
 # ============================================================
@@ -115,16 +125,6 @@ func _process_network(_delta: float) -> void:
 		if response.packet_type == PacketizationManager.UDPPacketType.SERVER_INIT:
 			raw = NetworkManager.receive_udp()
 			continue
-
-		if game_status == GameStatus.PREMATCH and response.server_cur_tick >= start_tick:
-			game_status = GameStatus.RUNNING
-			MatchManager.set_state(MatchManager.MatchState.RUNNING)
-			local_player.set_physics_process(true)
-
-		if game_status == GameStatus.RUNNING and response.server_cur_tick >= stop_tick:
-			game_status = GameStatus.FINISHED
-			local_player.set_physics_process(false)
-			_on_end_match()
 
 		if response.packet_type == PacketizationManager.UDPPacketType.SERVER_AUTH:
 			var now := Time.get_ticks_msec()
