@@ -18,6 +18,11 @@
 #include "herald.h"
 #include "packet.h"
 
+#define TICK_RATE_MS              16
+#define CONNECTION_DEADLINE_TICKS 1875   /* 30 s  — max wait for all players to connect */
+#define GAME_INIT_TICKS           312    /* 5 s   — lobby/countdown before game starts  */
+#define GAME_DURATION_TICKS       7500   /* 2 min — total game duration                 */
+
 static void display_udp_packet(const uint8_t *udp_packet)
 {
     struct Header header;
@@ -115,6 +120,8 @@ void *run_game_t(void *t_args)
 
     uint32_t server_tick = 0;
     uint32_t players_connected = 0; 
+    uint32_t start_tick = 0; 
+    uint32_t stop_tick = 0;
 
     struct Game *game = create_game(game_id, 0, players_num, log_file);
     if(!game) 
@@ -125,26 +132,20 @@ void *run_game_t(void *t_args)
     }
 
     while(!atomic_load(game_stop) && !atomic_load(net_stop))
-    {   
-        // Process all reliable packets 
-        //      -- retrieve all packets from the mail drop 
+    {
+        update_game_tick(game, server_tick);
 
-        // Process all regular packets
-        //      - retrieve valid packets from each mailbox 
-
-        // Form Authoritive Packet 
-        //      - place into herald  
-
+        // Drain reliable packets (mail drop)
         for (;;)
         {
             uint8_t udp_packet[UDP_DATAGRAM_SIZE];
             int ret = post_office_mail_drop_pop(
-                post_office, 
-                udp_packet, 
+                post_office,
+                udp_packet,
                 UDP_DATAGRAM_SIZE
             );
 
-            if(ret < 0) break; // no more packets 
+            if(ret < 0) break;
 
             struct Packet *pkt = (struct Packet *)udp_packet;
             if(pkt->header.control & CTRL_FLAG_INIT)
@@ -160,42 +161,72 @@ void *run_game_t(void *t_args)
             }
         }
 
-        for (size_t i = 0; i < players_num; i++)
+        // All players connected — transition to INIT
+        if(game->status == NOT_READY && players_connected == (uint32_t)players_num)
         {
-            uint8_t udp_packet[UDP_DATAGRAM_SIZE];
-
-            int ret = post_office_read(
-                post_office, 
-                i, 
-                udp_packet, 
-                UDP_DATAGRAM_SIZE
-            );
-
-            if (ret != 0) continue;
-
-            display_udp_packet(udp_packet);
+            start_tick = server_tick + GAME_INIT_TICKS;
+            stop_tick  = start_tick  + GAME_DURATION_TICKS;
+            update_game_status(game, INIT);
         }
 
-        /*
-            Prepare and send authoritative
-            packet to all clients 
-        */
-       
-        uint8_t packet[UDP_DATAGRAM_SIZE];
-        struct Header *outgoing_header = (struct Header *)packet;
+        if(game->status == NOT_READY)
+        {
+            if(server_tick >= CONNECTION_DEADLINE_TICKS)
+            {
+                log_message(log_file, "[run_game_t] connection deadline reached, terminating\n");
+                break;
+            }
+            goto advance_tick;
+        }
 
-        memset(packet, 0, UDP_DATAGRAM_SIZE);
-        memcpy(outgoing_header->game_id, game_id, GAME_ID_SIZE);
-        memset(outgoing_header->player_id, 1, PLAYER_ID_SIZE);
-        outgoing_header->control = CTRL_FLAG_AUTH;
-        outgoing_header->seq_num = server_tick; 
-        outgoing_header->payload_size = 0;
+        // INIT → STARTED
+        if(game->status == INIT && server_tick >= start_tick)
+            update_game_status(game, STARTED);
 
-        herald_write(herald, packet, UDP_DATAGRAM_SIZE);
+        // STARTED → FINISHED
+        if(game->status == STARTED && server_tick >= stop_tick)
+            update_game_status(game, FINISHED);
 
+        if(game->status == FINISHED)
+            break;
+
+        // Process regular packets only during active game
+        if(game->status == STARTED)
+        {
+            for(size_t i = 0; i < players_num; i++)
+            {
+                uint8_t udp_packet[UDP_DATAGRAM_SIZE];
+
+                int ret = post_office_read(
+                    post_office,
+                    i,
+                    udp_packet,
+                    UDP_DATAGRAM_SIZE
+                );
+
+                if(ret != 0) continue;
+
+                update_game(game, (struct Packet *)udp_packet);
+            }
+        }
+
+        // Form and broadcast authoritative packet
+        struct Packet pkt = {0};
+
+        if(game->status == INIT)
+            form_init_packet(game, start_tick, stop_tick, (struct InitPacket *)&pkt);
+        else if(game->status == STARTED)
+            form_auth_packet(game, start_tick, stop_tick, (struct AuthPacket *)&pkt);
+
+        herald_write(herald, &pkt, UDP_DATAGRAM_SIZE);
+
+        advance_tick:
         server_tick++;
-        sleep_ms(10);
+        sleep_ms(TICK_RATE_MS);
     }
 
+    destroy_game(game, log_file);
+    atomic_store(game_stop, true);
+    atomic_store(net_stop, true);
     return 0;
 }
