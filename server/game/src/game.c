@@ -26,6 +26,7 @@ void form_auth_packet(struct Game *game, uint32_t start_tick, uint32_t stop_tick
     memcpy(dst->header.game_id, game->game_id, GAME_ID_SIZE);
     dst->header.control      = CTRL_FLAG_AUTH;
     dst->header.payload_size = UDP_DATAGRAM_PAYLOAD_SIZE;
+    dst->header.seq_num      = game->game_tick;
 
     dst->start_tick = start_tick;
     dst->stop_tick  = stop_tick;
@@ -50,6 +51,7 @@ void form_init_packet(struct Game *game, uint32_t start_tick, uint32_t stop_tick
     memcpy(dst->header.game_id, game->game_id, GAME_ID_SIZE);
     dst->header.control      = CTRL_FLAG_INIT;
     dst->header.payload_size = UDP_DATAGRAM_PAYLOAD_SIZE;
+    dst->header.seq_num      = game->game_tick;
 
     dst->start_tick = start_tick;
     dst->stop_tick  = stop_tick;
