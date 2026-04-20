@@ -43,11 +43,37 @@ struct __attribute__((packed)) Header
     uint32_t seq_num;
 };
 
-struct Packet
+/* ── Generic (used by network layer to receive any packet) ───────────────── */
+
+struct __attribute__((packed)) Packet
 {
     struct Header header;
-    uint8_t payload[UDP_DATAGRAM_PAYLOAD_SIZE];
+    uint8_t       payload[UDP_DATAGRAM_PAYLOAD_SIZE];
 };
+
+/* ── Client → Server ──────────────────────────────────────────────────────── */
+
+struct __attribute__((packed)) ClientInitPacket
+{
+    struct Header header;
+};
+
+struct __attribute__((packed)) ClientRegularPayload
+{
+    int32_t  pos_x;
+    int32_t  pos_y;
+    int32_t  vel_x;
+    int32_t  vel_y;
+    uint32_t score;
+};
+
+struct __attribute__((packed)) ClientRegularPacket
+{
+    struct Header               header;
+    struct ClientRegularPayload payload;
+};
+
+/* ── Server → Client ──────────────────────────────────────────────────────── */
 
 struct __attribute__((packed)) AuthPlayerRecord
 {
