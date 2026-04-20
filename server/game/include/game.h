@@ -10,6 +10,14 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdbool.h>
+
+enum GameStatus
+{
+    NOT_READY,
+    INIT,
+    STARTED
+};
 
 struct Game
 {
@@ -21,6 +29,9 @@ struct Game
 
     size_t items_num;
     HashTable *items;
+
+    uint32_t game_tick;
+    enum GameStatus status; 
 };
 
 struct Game *create_game(uint8_t *game_id, uint16_t map_id, size_t players_num, FILE *log_file);
@@ -31,6 +42,6 @@ void add_player(struct Game *game, struct Player *player);
 
 void update_game(struct Game *game);
 
-struct Packet *form_auth_packet(struct Game *game);
+struct Packet *form_packet(struct Game *game);
 
 #endif
