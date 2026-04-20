@@ -31,6 +31,9 @@ TEST_PORT_REAPER_OBJS := test/supervisor/matchmaker/obj/test_port_reaper.o \
                          common/obj/log_system.o \
                          common/obj/util.o
 
+TEST_GAME_BIN  := bin/test_game
+TEST_GAME_OBJS := test/game/obj/test_game.o
+
 all: common supervisor game link link-game
 
 common:
@@ -55,7 +58,7 @@ run: all
 
 test: all test-build link-test
 
-test-build: test-build-orchestrator test-build-matchmaker test-build-port-reaper
+test-build: test-build-orchestrator test-build-matchmaker test-build-port-reaper test-build-game
 
 test-build-orchestrator:
 	$(MAKE) -C test/supervisor/orchestrator
@@ -66,7 +69,10 @@ test-build-matchmaker:
 test-build-port-reaper:
 	$(MAKE) -C test/supervisor/matchmaker
 
-link-test: link-test-orchestrator link-test-matchmaker link-test-port-reaper
+test-build-game:
+	$(MAKE) -C test/game
+
+link-test: link-test-orchestrator link-test-matchmaker link-test-port-reaper link-test-game
 
 link-test-orchestrator: test-build-orchestrator
 	mkdir -p bin
@@ -84,6 +90,10 @@ link-test-matchmaking-queue: test-build-matchmaker
 link-test-port-reaper: test-build-port-reaper
 	mkdir -p bin
 	$(CC) $(CFLAGS) $(TEST_PORT_REAPER_OBJS) -o $(TEST_PORT_REAPER_BIN) -lpthread
+
+link-test-game: test-build-game
+	mkdir -p bin
+	$(CC) $(CFLAGS) $(TEST_GAME_OBJS) -o $(TEST_GAME_BIN)
 
 test-orchestrator: test
 	@FIFO=$$(mktemp -u /tmp/sv_stdin_XXXXXX); \
@@ -124,12 +134,16 @@ test-matchmaking-queue-remote: link-test-matchmaking-queue
 test-port-reaper: all test-build-port-reaper link-test-port-reaper
 	@./$(TEST_PORT_REAPER_BIN)
 
+test-game: all test-build-game link-test-game
+	@./$(TEST_GAME_BIN)
+
 clean:
 	$(MAKE) -C common clean
 	$(MAKE) -C supervisor clean
 	$(MAKE) -C game clean
 	$(MAKE) -C test/supervisor/orchestrator clean
 	$(MAKE) -C test/supervisor/matchmaker clean
+	$(MAKE) -C test/game clean
 	rm -f $(TEST_PORT_REAPER_BIN)
 	rm -rf bin
 
@@ -139,4 +153,4 @@ clean:
         test-orchestrator test-orchestrator-remote \
         test-matchmaker test-matchmaker-remote \
         link-test-matchmaking-queue test-matchmaking-queue-remote \
-        test-port-reaper clean
+        test-port-reaper test-game test-build-game link-test-game clean
