@@ -110,7 +110,7 @@ static void net_receive_packets(FILE *log_file,
         else
         {
             // Place packet inside mailbox  
-            post_office_write(po, (size_t)idx, &recv_data, UDP_DATAGRAM_SIZE);
+            post_office_write(po, (size_t)idx, recv_data, UDP_DATAGRAM_SIZE);
         }
 
         // Update seq number      
