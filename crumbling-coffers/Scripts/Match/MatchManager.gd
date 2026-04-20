@@ -23,6 +23,18 @@ signal state_changed(new_state: MatchState)
 signal match_ready
 signal countdown_tick(number: int)
 signal countdown_finished
+signal prematch_updated(seconds: int)
+signal prematch_ended
+signal match_started
+
+func show_prematch_countdown(seconds: int) -> void:
+	prematch_updated.emit(seconds)
+
+func hide_prematch_countdown() -> void:
+	prematch_ended.emit()
+
+func show_match_started() -> void:
+	match_started.emit()
 
 # Broadcasts end of match to all clients
 @rpc("authority", "call_local", "reliable")
