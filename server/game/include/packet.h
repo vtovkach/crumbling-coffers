@@ -58,19 +58,14 @@ struct __attribute__((packed)) ClientInitPacket
     struct Header header;
 };
 
-struct __attribute__((packed)) ClientRegularPayload
-{
-    int32_t  pos_x;
-    int32_t  pos_y;
-    int32_t  vel_x;
-    int32_t  vel_y;
-    uint32_t score;
-};
-
 struct __attribute__((packed)) ClientRegularPacket
 {
-    struct Header               header;
-    struct ClientRegularPayload payload;
+    struct Header header;
+    int32_t       pos_x;
+    int32_t       pos_y;
+    int32_t       vel_x;
+    int32_t       vel_y;
+    uint32_t      score;
 };
 
 /* ── Server → Client ──────────────────────────────────────────────────────── */
