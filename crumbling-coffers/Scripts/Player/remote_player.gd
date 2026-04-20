@@ -26,22 +26,19 @@ func _ready() -> void:
 
 func init(id: String, init_x: int, init_y: int) -> void:
 	player_id = id
-	server_update(init_x, init_y, 0, 0, 0)
+	position.x = init_x
+	position.y = init_y 
+	velocity.x = 0
+	velocity.y = 0
+	score = 0
 
-func push_packet(packet: PlayerPacket) -> void:
+# Called in Game's _process() to push new player data
+# Note for Nicholas — it is a rough draft, feel free to change (Array to heap/queue if needed)
+# I know you might not like class PlayerPacket inside this script but feel free to change it as you want, but don't break other code
+func push_data_packet(packet: PlayerPacket) -> void:
 	packet_queue.push_back(packet)
 
-# Populate with fields from PlayerInfo
-func server_update(x: int, y: int, vx: int, vy: int, points: int) -> void:
-	position.x = x
-	position.y = y
-	velocity.x = vx
-	velocity.y = vy
-	score = points
-	_internal_update()
-
-# update based on latest server values
-# may include interpolation / extrapolation (Future Task)
-# or animation (Future Task)
-func _internal_update() -> void:
-	direction = sign(velocity.x)
+# Called inside Game's _process(), gets render time
+# Do interpolation/extrapolation using packet_queue and all other player's updates like score animations etc... 
+func render_remote_player(render_time: float) -> void:
+	pass
