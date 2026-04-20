@@ -17,10 +17,10 @@ void update_game(struct Game *game)
 {
 }
 
-void form_auth_packet(struct Game *game, uint32_t start_tick, uint32_t stop_tick, struct Packet *dst)
+void form_auth_packet(struct Game *game, uint32_t start_tick, uint32_t stop_tick, struct AuthPacket *dst)
 {
 }
 
-void form_init_packet(struct Game *game, uint32_t start_tick, uint32_t stop_tick, struct Packet *dst)
+void form_init_packet(struct Game *game, uint32_t start_tick, uint32_t stop_tick, struct InitPacket *dst)
 {
 }
