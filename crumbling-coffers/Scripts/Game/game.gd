@@ -5,7 +5,7 @@ class_name Game
 # ENUMS
 # ============================================================
 
-enum GameStatus { PREMATCH, RUNNING, FINISHED }
+enum GameStatus { NOT_READY, PREMATCH, RUNNING, FINISHED }
 
 # ============================================================
 # CONSTANTS
@@ -43,9 +43,11 @@ var remote_players: Dictionary = {}  # player_id (String) -> RemotePlayer
 # ============================================================
 
 func _ready() -> void:
-	pass
+	game_status = GameStatus.NOT_READY
 
 func _process(delta: float) -> void:
+	if game_status == GameStatus.NOT_READY:
+		return
 	render_time += delta
 	_process_network(delta)
 	_update_game_status()
