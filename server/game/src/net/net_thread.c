@@ -95,12 +95,12 @@ static void net_receive_packets(FILE *log_file,
             continue;
         }
 
-        // Validate sequence number (skip for INIT — first packet from this player)
+        // For reliable packets only: drop if seq_num is older than last seen
         uint32_t *seq_num = players_registry_seq_get_by_index(players_reg, idx);
-        if(!seq_num || (!(header.control & CTRL_FLAG_INIT) && header.seq_num <= *seq_num))
+        if(!seq_num || ((header.control & CTRL_FLAG_RELIABLE) && header.seq_num < *seq_num))
         {
-            // Sequence number does not exist or existing is bigger then incoming
-            // Drop packet 
+            // seq_num slot missing or reliable packet is outdated
+            // Drop packet
             continue;
         }
 
