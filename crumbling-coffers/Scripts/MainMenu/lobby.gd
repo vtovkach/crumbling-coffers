@@ -37,7 +37,7 @@ func _process(delta: float) -> void:
 		_handle_tcp_response(raw)
 
 func _handle_tcp_response(raw: PackedByteArray) -> void:
-	var response := PacketizationManager.interpret_tcp_packet(raw)
+	var response: PacketizationManager.TCP_Response = PacketizationManager.interpret_tcp_packet(raw)
 	if response.response_type == PacketizationManager.TYPE_GAME_NOT_FOUND:
 		_on_game_not_found()
 	elif response.response_type == PacketizationManager.TYPE_GAME_FOUND:
