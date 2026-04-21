@@ -16,6 +16,7 @@ const RemotePlayerScene: PackedScene = preload("res://Scenes/Player/remote_playe
 
 const SEND_INTERVAL:    float = 0.0167  # ~60 Hz
 const SERVER_TICK_RATE: int   = 60
+const INTERPOL_DELAY:	float = 0.05
 
 # ============================================================
 # STATE
@@ -28,7 +29,7 @@ var stop_tick:   int = 0
 var game_status: GameStatus
 
 var _send_accumulator: float = 0.0
-var render_time:       float = 0.0
+var render_time:       float = 0
 var server_tick:       int   = 0
 
 # ============================================================
@@ -56,7 +57,7 @@ func _process(delta: float) -> void:
 	if game_status == GameStatus.RUNNING:
 		for player_id in remote_players:
 			var r_player = remote_players[player_id]
-			r_player.render_remote_player(render_time)
+			r_player.render_remote_player(render_time - INTERPOL_DELAY)
 
 		_send_accumulator += delta
 		if _send_accumulator >= SEND_INTERVAL:
@@ -133,7 +134,6 @@ func _process_network(_delta: float) -> void:
 			continue
 
 		if response.packet_type == PacketizationManager.UDPPacketType.SERVER_AUTH:
-			var now := Time.get_ticks_msec()
 			for player_id in response.players:
 				if player_id in remote_players:
 					var info: PacketizationManager.PlayerInfo = response.players[player_id]
@@ -141,7 +141,7 @@ func _process_network(_delta: float) -> void:
 						RemotePlayer.PlayerPacket.new(
 							info.pos_x, info.pos_y,
 							info.vel_x, info.vel_y,
-							info.score, now
+							info.score, render_time
 						)
 					)
 
