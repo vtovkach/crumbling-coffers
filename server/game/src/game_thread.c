@@ -32,7 +32,7 @@
 #define TICK_RATE_MS              16
 #define CONNECTION_DEADLINE_TICKS 1875   /* 30 s  — max wait for all players to connect */
 #define GAME_INIT_TICKS           312    /* 5 s   — lobby/countdown before game starts  */
-#define GAME_DURATION_TICKS       2500   /* 2 min — total game duration                 */
+#define GAME_DURATION_TICKS       2500   /* 2 min — total game duration (7200ticks)     */
 
 static void sleep_ms(long ms)
 {
