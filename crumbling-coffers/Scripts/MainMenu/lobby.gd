@@ -32,7 +32,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	if not searching:
 		return
-	var raw := NetworkManager.receive_tcp()
+	var raw: PackedByteArray = NetworkManager.receive_tcp()
 	if not raw.is_empty():
 		_handle_tcp_response(raw)
 
@@ -68,7 +68,7 @@ func _on_back_button_pressed() -> void:
 # ========== SEARCH CONTROL ===========
 func start_search() -> void:
 
-	var search_packet := PacketizationManager.form_tcp_packet(PacketizationManager.TYPE_SEARCH_GAME, 0)
+	var search_packet: PackedByteArray = PacketizationManager.form_tcp_packet(PacketizationManager.TYPE_SEARCH_GAME, 0)
 	if NetworkManager.send_tcp(search_packet) != 0:
 		push_error("lobby: failed to send SEARCH_GAME request")
 		return
@@ -77,7 +77,7 @@ func start_search() -> void:
 	_start_search_ui()
 	
 func stop_search() -> void:
-	var stop_packet := PacketizationManager.form_tcp_packet(PacketizationManager.TYPE_STOP_SEARCH, 0)
+	var stop_packet: PackedByteArray = PacketizationManager.form_tcp_packet(PacketizationManager.TYPE_STOP_SEARCH, 0)
 	if NetworkManager.send_tcp(stop_packet) != 0:
 		push_error("lobby: failed to send STOP_SEARCH request")
 		return
