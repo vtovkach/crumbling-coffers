@@ -137,7 +137,7 @@ func _process_network(_delta: float) -> void:
 			for player_id in response.players:
 				if player_id in remote_players:
 					var info: PacketizationManager.PlayerInfo = response.players[player_id]
-					remote_players[player_id].push_packet(
+					remote_players[player_id].push_data_packet(
 						RemotePlayer.PlayerPacket.new(
 							info.pos_x, info.pos_y,
 							info.vel_x, info.vel_y,
