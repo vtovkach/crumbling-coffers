@@ -41,4 +41,15 @@ func push_data_packet(packet: PlayerPacket) -> void:
 # Called inside Game's _process(), gets render time
 # Do interpolation/extrapolation using packet_queue and all other player's updates like score animations etc... 
 func render_remote_player(render_time: float) -> void:
-	pass
+	while packet_queue.size() >= 2 and packet_queue[1].timestamp <= render_time:
+		packet_queue.pop_front()
+
+	if packet_queue.size() >= 2:
+		var from: PlayerPacket = packet_queue[0]
+		var to:   PlayerPacket = packet_queue[1]
+		var alpha: float = clamp((render_time - from.timestamp) / (to.timestamp - from.timestamp), 0.0, 1.0)
+		position = lerp(Vector2(from.x, from.y), Vector2(to.x, to.y), alpha)
+		score = from.score
+	elif packet_queue.size() == 1:
+		position = Vector2(packet_queue[0].x, packet_queue[0].y)
+		score = packet_queue[0].score
