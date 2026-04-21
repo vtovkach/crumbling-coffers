@@ -72,7 +72,7 @@ func _update_game_status() -> void:
 		MatchManager.show_match_started()
 		local_player.set_physics_process(true)
 
-	if game_status == GameStatus.RUNNING and server_tick >= stop_tick:
+	if game_status == GameStatus.RUNNING and (server_tick >= stop_tick or MatchManager.current_state == MatchManager.MatchState.ENDED):
 		game_status = GameStatus.FINISHED
 		local_player.set_physics_process(false)
 		_on_end_match()
