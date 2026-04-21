@@ -139,6 +139,7 @@ func _process_network(_delta: float) -> void:
 			for player_id in response.players:
 				if player_id in remote_players:
 					var info: PacketizationManager.PlayerInfo = response.players[player_id]
+					print("game: REMOTE player_id=%s x=%.2f y=%.2f vx=%.2f vy=%.2f score=%d" % [player_id, info.pos_x, info.pos_y, info.vel_x, info.vel_y, info.score])
 					remote_players[player_id].push_data_packet(
 						RemotePlayer.PlayerPacket.new(
 							info.pos_x, info.pos_y,
@@ -150,6 +151,7 @@ func _process_network(_delta: float) -> void:
 		raw = NetworkManager.receive_udp()
 
 func _send_local_player_data() -> void:
+	#print("game: LOCAL  player_id=%s x=%.2f y=%.2f vx=%.2f vy=%.2f score=%d" % [local_player.player_id, local_player.position.x, local_player.position.y, local_player.velocity.x, local_player.velocity.y, local_player.score])
 	NetworkManager.send_udp(
 		PacketizationManager.form_udp_reg_packet(
 			game_id,
