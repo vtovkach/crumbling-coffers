@@ -30,7 +30,26 @@ func _ready() -> void:
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	pass
+	if not searching:
+		return
+	var raw := NetworkManager.receive_tcp()
+	if raw.is_empty():
+		return
+	var response := PacketizationManager.interpret_tcp_packet(raw)
+	if response.response_type == PacketizationManager.TYPE_GAME_NOT_FOUND:
+		print("lobby: game not found, stopping search")
+		searching = false
+		search_timer.stop()
+		elapsed_time = 0
+		search_panel.visible = false
+		timer_label.visible = false
+		timer_label.text = "00:00"
+		search_cancel_button.text = "Find Match"
+		search_cancel_button.add_theme_stylebox_override("hover", hover_search_style)
+		search_cancel_button.add_theme_stylebox_override("pressed", pressed_search_style)
+	elif response.response_type == PacketizationManager.TYPE_GAME_FOUND:
+		# TODO: handle game found
+		pass
 
 # =========== BUTTON HANDLERS =============
 func _on_find_match_button_pressed() -> void:
@@ -73,19 +92,6 @@ func stop_search() -> void:
 		push_error("lobby: failed to send STOP_SEARCH request")
 		return
 	print("lobby: STOP_SEARCH request sent")
-
-	searching = false
-
-	search_timer.stop()
-	elapsed_time = 0
-
-	search_panel.visible = false
-	timer_label.visible = false
-	timer_label.text = "00:00"
-
-	search_cancel_button.text = "Find Match"
-	search_cancel_button.add_theme_stylebox_override("hover", hover_search_style)
-	search_cancel_button.add_theme_stylebox_override("pressed", pressed_search_style)
 
 # TIMER UPDATE
 func _on_search_timer_timeout() -> void:
