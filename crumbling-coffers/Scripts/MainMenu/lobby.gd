@@ -33,23 +33,24 @@ func _process(delta: float) -> void:
 	if not searching:
 		return
 	var raw := NetworkManager.receive_tcp()
-	if raw.is_empty():
-		return
+	if not raw.is_empty():
+		_handle_tcp_response(raw)
+
+func _handle_tcp_response(raw: PackedByteArray) -> void:
 	var response := PacketizationManager.interpret_tcp_packet(raw)
 	if response.response_type == PacketizationManager.TYPE_GAME_NOT_FOUND:
-		print("lobby: game not found, stopping search")
-		searching = false
-		search_timer.stop()
-		elapsed_time = 0
-		search_panel.visible = false
-		timer_label.visible = false
-		timer_label.text = "00:00"
-		search_cancel_button.text = "Find Match"
-		search_cancel_button.add_theme_stylebox_override("hover", hover_search_style)
-		search_cancel_button.add_theme_stylebox_override("pressed", pressed_search_style)
+		_on_game_not_found()
 	elif response.response_type == PacketizationManager.TYPE_GAME_FOUND:
-		# TODO: handle game found
-		pass
+		_on_game_found(response)
+
+func _on_game_not_found() -> void:
+	print("lobby: game not found, stopping search")
+	_reset_search_ui()
+
+func _on_game_found(response: PacketizationManager.TCP_Response) -> void:
+	print("lobby: game found!")
+	_reset_search_ui()
+	# TODO: transition to game scene using response data
 
 # =========== BUTTON HANDLERS =============
 func _on_find_match_button_pressed() -> void:
@@ -73,18 +74,7 @@ func start_search() -> void:
 		return
 	print("lobby: SEARCH_GAME request sent")
 
-	searching = true
-	elapsed_time = 0
-	
-	search_panel.visible = true
-	timer_label.visible = true
-	timer_label.text = "Searching... 00:00"
-	
-	search_cancel_button.text = "Cancel"
-	search_cancel_button.add_theme_stylebox_override("hover", hover_cancel_style)
-	search_cancel_button.add_theme_stylebox_override("pressed", pressed_cancel_style)
-	
-	search_timer.start()
+	_start_search_ui()
 	
 func stop_search() -> void:
 	var stop_packet := PacketizationManager.form_tcp_packet(PacketizationManager.TYPE_STOP_SEARCH, 0)
@@ -92,6 +82,28 @@ func stop_search() -> void:
 		push_error("lobby: failed to send STOP_SEARCH request")
 		return
 	print("lobby: STOP_SEARCH request sent")
+
+func _start_search_ui() -> void:
+	searching = true
+	elapsed_time = 0
+	search_panel.visible = true
+	timer_label.visible = true
+	timer_label.text = "Searching... 00:00"
+	search_cancel_button.text = "Cancel"
+	search_cancel_button.add_theme_stylebox_override("hover", hover_cancel_style)
+	search_cancel_button.add_theme_stylebox_override("pressed", pressed_cancel_style)
+	search_timer.start()
+
+func _reset_search_ui() -> void:
+	searching = false
+	search_timer.stop()
+	elapsed_time = 0
+	search_panel.visible = false
+	timer_label.visible = false
+	timer_label.text = "00:00"
+	search_cancel_button.text = "Find Match"
+	search_cancel_button.add_theme_stylebox_override("hover", hover_search_style)
+	search_cancel_button.add_theme_stylebox_override("pressed", pressed_search_style)
 
 # TIMER UPDATE
 func _on_search_timer_timeout() -> void:
