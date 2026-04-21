@@ -72,7 +72,11 @@ func _update_game_status() -> void:
 		MatchManager.show_match_started()
 		local_player.set_physics_process(true)
 
+<<<<<<< HEAD
 	if game_status == GameStatus.RUNNING and (server_tick >= stop_tick or MatchManager.current_state == MatchManager.MatchState.ENDED):
+=======
+	if game_status == GameStatus.RUNNING and server_tick >= stop_tick:
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 		game_status = GameStatus.FINISHED
 		local_player.set_physics_process(false)
 		_on_end_match()
@@ -100,7 +104,10 @@ func init(local_player_id: String, p_game_id: String, port: int, udp_response: P
 	for player_id in udp_response.player_init_positions:
 		var pos: PacketizationManager.PlayerInitPos = udp_response.player_init_positions[player_id]
 		if player_id == local_player_id:
+<<<<<<< HEAD
 			print("game: LOCAL  player_id=%s x=%.2f y=%.2f vx=0.00 vy=0.00" % [player_id, pos.x, pos.y])
+=======
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 			local_player            = UserPlayerScene.instantiate()
 			local_player.player_id  = local_player_id
 			local_player.position   = Vector2(pos.x, pos.y)
@@ -110,7 +117,10 @@ func init(local_player_id: String, p_game_id: String, port: int, udp_response: P
 			hud.set_player_to_indicators(local_player)
 			local_player.set_physics_process(false)
 		else:
+<<<<<<< HEAD
 			print("game: REMOTE player_id=%s x=%.2f y=%.2f vx=0.00 vy=0.00" % [player_id, pos.x, pos.y])
+=======
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 			var remote: RemotePlayer = RemotePlayerScene.instantiate()
 			remote.init(player_id, pos.x, pos.y)
 			add_child(remote)
@@ -139,7 +149,10 @@ func _process_network(_delta: float) -> void:
 			for player_id in response.players:
 				if player_id in remote_players:
 					var info: PacketizationManager.PlayerInfo = response.players[player_id]
+<<<<<<< HEAD
 					print("game: REMOTE player_id=%s x=%.2f y=%.2f vx=%.2f vy=%.2f score=%d" % [player_id, info.pos_x, info.pos_y, info.vel_x, info.vel_y, info.score])
+=======
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 					remote_players[player_id].push_data_packet(
 						RemotePlayer.PlayerPacket.new(
 							info.pos_x, info.pos_y,
@@ -151,7 +164,10 @@ func _process_network(_delta: float) -> void:
 		raw = NetworkManager.receive_udp()
 
 func _send_local_player_data() -> void:
+<<<<<<< HEAD
 	#print("game: LOCAL  player_id=%s x=%.2f y=%.2f vx=%.2f vy=%.2f score=%d" % [local_player.player_id, local_player.position.x, local_player.position.y, local_player.velocity.x, local_player.velocity.y, local_player.score])
+=======
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	NetworkManager.send_udp(
 		PacketizationManager.form_udp_reg_packet(
 			game_id,

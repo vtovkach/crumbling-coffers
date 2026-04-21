@@ -102,15 +102,20 @@ func _make_server_auth_raw(seq_num: int, players: Array, start_tick: int = 0, st
 
 func test_init_packet_is_correct_size() -> void:
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var udp_pkt: Object = PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
 =======
 	var udp_pkt := PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var udp_pkt: Object = PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	assert_eq(udp_pkt.payload.size(), PacketizationManager.PACKET_SIZE,
 		"INIT packet payload must be PACKET_SIZE bytes")
 
 func test_init_packet_port() -> void:
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var udp_pkt: Object = PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
 	assert_eq(udp_pkt.port, TEST_PORT, "UDPPacket.port must match the port argument")
 
@@ -123,44 +128,67 @@ func test_init_packet_game_id_bytes() -> void:
 func test_init_packet_game_id_bytes() -> void:
 	var udp_pkt := PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var udp_pkt: Object = PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
+	assert_eq(udp_pkt.port, TEST_PORT, "UDPPacket.port must match the port argument")
+
+func test_init_packet_game_id_bytes() -> void:
+	var udp_pkt: Object = PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	assert_true(_hex_bytes_match(udp_pkt.payload, PacketizationManager.UDP_HDR_GAME_ID_OFFSET, GAME_ID),
 		"game_id must be encoded at the correct header offset")
 
 func test_init_packet_player_id_bytes() -> void:
 <<<<<<< HEAD
-	var udp_pkt: Object = PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
-=======
-	var udp_pkt := PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
->>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
-	assert_true(_hex_bytes_match(udp_pkt.payload, PacketizationManager.UDP_HDR_PLAYER_ID_OFFSET, PLAYER_ID),
-		"player_id must be encoded at the correct header offset")
-
-func test_init_packet_ctrl_field() -> void:
 <<<<<<< HEAD
 	var udp_pkt: Object = PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
 =======
 	var udp_pkt := PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var udp_pkt: Object = PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
+	assert_true(_hex_bytes_match(udp_pkt.payload, PacketizationManager.UDP_HDR_PLAYER_ID_OFFSET, PLAYER_ID),
+		"player_id must be encoded at the correct header offset")
+
+func test_init_packet_ctrl_field() -> void:
+<<<<<<< HEAD
+<<<<<<< HEAD
+	var udp_pkt: Object = PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
+=======
+	var udp_pkt := PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
+>>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var udp_pkt: Object = PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	var ctrl := _decode_u16_le(udp_pkt.payload, PacketizationManager.UDP_HDR_CTRL_OFFSET)
 	assert_eq(ctrl, PacketizationManager.UDP_CTRL_INIT,
 		"ctrl field must be UDP_CTRL_INIT")
 
 func test_init_packet_payload_size_field() -> void:
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var udp_pkt: Object = PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
 =======
 	var udp_pkt := PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var udp_pkt: Object = PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	var payload_size := _decode_u16_le(udp_pkt.payload, PacketizationManager.UDP_HDR_PAYLOAD_SIZE_OFFSET)
 	assert_eq(payload_size, PacketizationManager.UDP_INIT_PAYLOAD_SIZE,
 		"payload_size field must be UDP_INIT_PAYLOAD_SIZE")
 
 func test_init_packet_seq_num_is_zero() -> void:
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var udp_pkt: Object = PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
 =======
 	var udp_pkt := PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var udp_pkt: Object = PacketizationManager.form_udp_init_packet(GAME_ID, PLAYER_ID, TEST_PORT)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	var seq := _decode_u32_le(udp_pkt.payload, PacketizationManager.UDP_HDR_SEQ_NUM_OFFSET)
 	assert_eq(seq, 0, "seq_num must be 0 for INIT packet")
 
@@ -169,6 +197,9 @@ func test_init_packet_seq_num_is_zero() -> void:
 
 func test_reg_packet_is_correct_size() -> void:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	var udp_pkt: Object = PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
 		Vector2(10, 20), Vector2(3, -4), 99)
 =======
@@ -180,6 +211,9 @@ func test_reg_packet_is_correct_size() -> void:
 
 func test_reg_packet_ctrl_field() -> void:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	var udp_pkt: Object = PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
 		Vector2.ZERO, Vector2.ZERO, 0)
 =======
@@ -192,6 +226,9 @@ func test_reg_packet_ctrl_field() -> void:
 
 func test_reg_packet_payload_size_field() -> void:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	var udp_pkt: Object = PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
 		Vector2.ZERO, Vector2.ZERO, 0)
 =======
@@ -216,6 +253,9 @@ func test_reg_packet_seq_num() -> void:
 
 func test_reg_packet_game_id_bytes() -> void:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	var udp_pkt: Object = PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
 		Vector2.ZERO, Vector2.ZERO, 0)
 =======
@@ -227,6 +267,9 @@ func test_reg_packet_game_id_bytes() -> void:
 
 func test_reg_packet_player_id_bytes() -> void:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	var udp_pkt: Object = PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
 		Vector2.ZERO, Vector2.ZERO, 0)
 =======
@@ -238,6 +281,9 @@ func test_reg_packet_player_id_bytes() -> void:
 
 func test_reg_packet_position_x() -> void:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	var udp_pkt: Object = PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
 		Vector2(123, 0), Vector2.ZERO, 0)
 =======
@@ -249,6 +295,9 @@ func test_reg_packet_position_x() -> void:
 
 func test_reg_packet_position_y() -> void:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	var udp_pkt: Object = PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
 		Vector2(0, 456), Vector2.ZERO, 0)
 =======
@@ -260,6 +309,9 @@ func test_reg_packet_position_y() -> void:
 
 func test_reg_packet_negative_velocity() -> void:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	var udp_pkt: Object = PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
 		Vector2.ZERO, Vector2(-7, -8), 0)
 =======
@@ -273,6 +325,9 @@ func test_reg_packet_negative_velocity() -> void:
 
 func test_reg_packet_score() -> void:
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	var udp_pkt: Object = PacketizationManager.form_udp_reg_packet(GAME_ID, PLAYER_ID, TEST_PORT,
 		Vector2.ZERO, Vector2.ZERO, 42)
 =======
@@ -290,10 +345,14 @@ func test_wrong_size_returns_error_status() -> void:
 	raw.resize(PacketizationManager.PACKET_SIZE - 1)
 	raw.fill(0)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 =======
 	var resp := PacketizationManager.interpret_udp_packet(raw)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	assert_eq(resp.status, PacketizationManager.UDPStatus.ERROR,
 		"A packet of wrong size must yield ERROR status")
 
@@ -306,10 +365,14 @@ func test_unknown_ctrl_returns_error_status() -> void:
 	raw.fill(0)
 	raw[PacketizationManager.UDP_HDR_CTRL_OFFSET] = 0x01
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 =======
 	var resp := PacketizationManager.interpret_udp_packet(raw)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	assert_eq(resp.status, PacketizationManager.UDPStatus.ERROR,
 		"An unrecognised ctrl field must yield ERROR status")
 
@@ -319,48 +382,68 @@ func test_unknown_ctrl_returns_error_status() -> void:
 func test_server_init_packet_type() -> void:
 	var raw := _make_server_init_raw(100, 200, [])
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 =======
 	var resp := PacketizationManager.interpret_udp_packet(raw)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	assert_eq(resp.packet_type, PacketizationManager.UDPPacketType.SERVER_INIT,
 		"packet_type must be SERVER_INIT")
 
 func test_server_init_status_is_normal() -> void:
 	var raw := _make_server_init_raw(100, 200, [])
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 =======
 	var resp := PacketizationManager.interpret_udp_packet(raw)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	assert_eq(resp.status, PacketizationManager.UDPStatus.NORMAL,
 		"Valid SERVER_INIT must have NORMAL status")
 
 func test_server_init_server_cur_tick() -> void:
 	var raw := _make_server_init_raw(100, 200, [])
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 =======
 	var resp := PacketizationManager.interpret_udp_packet(raw)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	assert_eq(resp.server_cur_tick, 42, "server_cur_tick must equal seq_num from header")
 
 func test_server_init_start_tick() -> void:
 	var raw := _make_server_init_raw(100, 200, [])
 <<<<<<< HEAD
-	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
-=======
-	var resp := PacketizationManager.interpret_udp_packet(raw)
->>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
-	assert_eq(resp.start_tick, 100, "start_tick must be decoded correctly")
-
-func test_server_init_stop_tick() -> void:
-	var raw := _make_server_init_raw(100, 200, [])
 <<<<<<< HEAD
 	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 =======
 	var resp := PacketizationManager.interpret_udp_packet(raw)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
+	assert_eq(resp.start_tick, 100, "start_tick must be decoded correctly")
+
+func test_server_init_stop_tick() -> void:
+	var raw := _make_server_init_raw(100, 200, [])
+<<<<<<< HEAD
+<<<<<<< HEAD
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+=======
+	var resp := PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	assert_eq(resp.stop_tick, 200, "stop_tick must be decoded correctly")
 
 func test_server_init_num_players() -> void:
@@ -370,20 +453,28 @@ func test_server_init_num_players() -> void:
 	]
 	var raw := _make_server_init_raw(1, 2, players)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 =======
 	var resp := PacketizationManager.interpret_udp_packet(raw)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	assert_eq(resp.num_players, 2, "num_players must match encoded count")
 
 func test_server_init_player_positions_populated() -> void:
 	var players := [{id = GAME_ID, x = 77, y = -33}]
 	var raw := _make_server_init_raw(1, 2, players)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 =======
 	var resp := PacketizationManager.interpret_udp_packet(raw)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	assert_true(resp.player_init_positions.has(GAME_ID),
 		"player_init_positions must contain entry for the encoded player id")
 
@@ -391,10 +482,14 @@ func test_server_init_player_position_values() -> void:
 	var players := [{id = GAME_ID, x = 77, y = -33}]
 	var raw := _make_server_init_raw(1, 2, players)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 =======
 	var resp := PacketizationManager.interpret_udp_packet(raw)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	var pos: PacketizationManager.PlayerInitPos = resp.player_init_positions[GAME_ID]
 	assert_eq(pos.x, 77,  "PlayerInitPos.x must decode correctly")
 	assert_eq(pos.y, -33, "PlayerInitPos.y must decode correctly (negative)")
@@ -405,30 +500,42 @@ func test_server_init_player_position_values() -> void:
 func test_server_auth_packet_type() -> void:
 	var raw := _make_server_auth_raw(500, [])
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 =======
 	var resp := PacketizationManager.interpret_udp_packet(raw)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	assert_eq(resp.packet_type, PacketizationManager.UDPPacketType.SERVER_AUTH,
 		"packet_type must be SERVER_AUTH")
 
 func test_server_auth_status_is_normal() -> void:
 	var raw := _make_server_auth_raw(500, [])
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 =======
 	var resp := PacketizationManager.interpret_udp_packet(raw)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	assert_eq(resp.status, PacketizationManager.UDPStatus.NORMAL,
 		"Valid SERVER_AUTH must have NORMAL status")
 
 func test_server_auth_server_cur_tick() -> void:
 	var raw := _make_server_auth_raw(500, [])
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 =======
 	var resp := PacketizationManager.interpret_udp_packet(raw)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	assert_eq(resp.server_cur_tick, 500, "server_cur_tick must equal seq_num from header")
 
 func test_server_auth_num_players() -> void:
@@ -438,10 +545,14 @@ func test_server_auth_num_players() -> void:
 	]
 	var raw := _make_server_auth_raw(1, players)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 =======
 	var resp := PacketizationManager.interpret_udp_packet(raw)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	assert_eq(resp.num_players, 2, "num_players must match encoded count")
 
 func test_server_auth_players_populated() -> void:
@@ -449,10 +560,14 @@ func test_server_auth_players_populated() -> void:
 					 vel_x = -1, vel_y = -2, score = 99}]
 	var raw := _make_server_auth_raw(1, players)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 =======
 	var resp := PacketizationManager.interpret_udp_packet(raw)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	assert_true(resp.players.has(GAME_ID),
 		"players dict must contain entry for the encoded player id")
 
@@ -461,10 +576,14 @@ func test_server_auth_player_info_values() -> void:
 					 vel_x = -1, vel_y = -2, score = 99}]
 	var raw := _make_server_auth_raw(1, players)
 <<<<<<< HEAD
+<<<<<<< HEAD
 	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 =======
 	var resp := PacketizationManager.interpret_udp_packet(raw)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	var info: PacketizationManager.PlayerInfo = resp.players[GAME_ID]
 	assert_eq(info.pos_x,  10, "PlayerInfo.pos_x must decode correctly")
 	assert_eq(info.pos_y,  20, "PlayerInfo.pos_y must decode correctly")
@@ -475,17 +594,25 @@ func test_server_auth_player_info_values() -> void:
 func test_server_auth_start_tick() -> void:
 	var raw := _make_server_auth_raw(1, [], 100, 200)
 <<<<<<< HEAD
-	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
-=======
-	var resp := PacketizationManager.interpret_udp_packet(raw)
->>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
-	assert_eq(resp.start_tick, 100, "start_tick must decode correctly from SERVER_AUTH")
-
-func test_server_auth_stop_tick() -> void:
-	var raw := _make_server_auth_raw(1, [], 100, 200)
 <<<<<<< HEAD
 	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 =======
 	var resp := PacketizationManager.interpret_udp_packet(raw)
 >>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
+	assert_eq(resp.start_tick, 100, "start_tick must decode correctly from SERVER_AUTH")
+
+func test_server_auth_stop_tick() -> void:
+	var raw := _make_server_auth_raw(1, [], 100, 200)
+<<<<<<< HEAD
+<<<<<<< HEAD
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+=======
+	var resp := PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> 5e76335 (Squashed in PROJ-156-implement-packetization-utility (pull request #61))
+=======
+	var resp: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
+>>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 	assert_eq(resp.stop_tick, 200, "stop_tick must decode correctly from SERVER_AUTH")
