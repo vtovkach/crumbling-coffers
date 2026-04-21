@@ -85,14 +85,14 @@ func _launch_game(udp_response: PacketizationManager.UDP_Response) -> void:
 	_loading_game = false
 	var game_scene: PackedScene = load("res://Scenes/Game/game.tscn")
 	var game: Game = game_scene.instantiate()
+	get_tree().root.add_child(game)
+	get_tree().current_scene = game
 	game.init(
 		_pending_tcp_response.player_id,
 		_pending_tcp_response.game_id,
 		_pending_tcp_response.port,
 		udp_response
 	)
-	get_tree().root.add_child(game)
-	get_tree().current_scene = game
 	queue_free()
 
 # =========== BUTTON HANDLERS =============
