@@ -100,6 +100,7 @@ func init(local_player_id: String, p_game_id: String, port: int, udp_response: P
 	for player_id in udp_response.player_init_positions:
 		var pos: PacketizationManager.PlayerInitPos = udp_response.player_init_positions[player_id]
 		if player_id == local_player_id:
+			print("game: LOCAL  player_id=%s x=%.2f y=%.2f vx=0.00 vy=0.00" % [player_id, pos.x, pos.y])
 			local_player            = UserPlayerScene.instantiate()
 			local_player.player_id  = local_player_id
 			local_player.position   = Vector2(pos.x, pos.y)
@@ -109,6 +110,7 @@ func init(local_player_id: String, p_game_id: String, port: int, udp_response: P
 			hud.set_player_to_indicators(local_player)
 			local_player.set_physics_process(false)
 		else:
+			print("game: REMOTE player_id=%s x=%.2f y=%.2f vx=0.00 vy=0.00" % [player_id, pos.x, pos.y])
 			var remote: RemotePlayer = RemotePlayerScene.instantiate()
 			remote.init(player_id, pos.x, pos.y)
 			add_child(remote)

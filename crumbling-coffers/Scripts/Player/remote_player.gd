@@ -2,14 +2,14 @@ extends Player
 class_name RemotePlayer
 
 class PlayerPacket:
-	var x:         int
-	var y:         int
-	var vx:        int
-	var vy:        int
+	var x:         float
+	var y:         float
+	var vx:        float
+	var vy:        float
 	var score:     int
-	var timestamp: int  # timestamp is obtained by Time.get_ticks_msec() when packet was received in Game 
+	var timestamp: float  # timestamp is obtained by Time.get_ticks_msec() when packet was received in Game
 
-	func _init(px: int, py: int, pvx: int, pvy: int, pscore: int, ts: int) -> void:
+	func _init(px: float, py: float, pvx: float, pvy: float, pscore: int, ts: float) -> void:
 		x         = px
 		y         = py
 		vx        = pvx
@@ -24,7 +24,7 @@ var packet_queue: Array[PlayerPacket] = []
 func _ready() -> void:
 	add_to_group("remote")
 
-func init(id: String, init_x: int, init_y: int) -> void:
+func init(id: String, init_x: float, init_y: float) -> void:
 	player_id = id
 	position.x = init_x
 	position.y = init_y 
