@@ -120,7 +120,7 @@ func init(local_player_id: String, p_game_id: String, port: int, udp_response: P
 func _process_network(_delta: float) -> void:
 	var raw := NetworkManager.receive_udp()
 	while raw.size() > 0:
-		var response := PacketizationManager.interpret_udp_packet(raw)
+		var response: PacketizationManager.UDP_Response = PacketizationManager.interpret_udp_packet(raw)
 
 		if response.status == PacketizationManager.UDPStatus.ERROR:
 			raw = NetworkManager.receive_udp()
