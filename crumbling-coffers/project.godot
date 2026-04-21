@@ -17,10 +17,10 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-NetworkManager="*uid://c1njv2hxbdkey"
-MusicManager="*uid://cpq6rllo7t00h"
-MatchManager="*uid://44bni4pqql6c"
-PacketizationManager="*uid://dse5778ypbdvi"
+NetworkManager="*res://Netcode/NetworkManager.gd"
+MusicManager="*res://Scenes/Audio/MusicManager.tscn"
+MatchManager="*res://Scripts/Match/MatchManager.gd"
+PacketizationManager="*res://Netcode/PacketizationManager.gd"
 
 [display]
 
