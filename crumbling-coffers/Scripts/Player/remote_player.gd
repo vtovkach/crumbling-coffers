@@ -2,7 +2,6 @@ extends Player
 class_name RemotePlayer
 
 class PlayerPacket:
-<<<<<<< HEAD
 	var x:         float
 	var y:         float
 	var vx:        float
@@ -11,16 +10,6 @@ class PlayerPacket:
 	var timestamp: float  # timestamp is obtained by Time.get_ticks_msec() when packet was received in Game
 
 	func _init(px: float, py: float, pvx: float, pvy: float, pscore: int, ts: float) -> void:
-=======
-	var x:         int
-	var y:         int
-	var vx:        int
-	var vy:        int
-	var score:     int
-	var timestamp: int  # timestamp is obtained by Time.get_ticks_msec() when packet was received in Game 
-
-	func _init(px: int, py: int, pvx: int, pvy: int, pscore: int, ts: int) -> void:
->>>>>>> f022cc2 (Squash in PROJ-160-add-the-game-class-to-client (pull request #72))
 		x         = px
 		y         = py
 		vx        = pvx

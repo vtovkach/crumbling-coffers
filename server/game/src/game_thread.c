@@ -33,40 +33,6 @@
 #define CONNECTION_DEADLINE_TICKS 1875   /* 30 s  — max wait for all players to connect */
 #define GAME_INIT_TICKS           312    /* 5 s   — lobby/countdown before game starts  */
 #define GAME_DURATION_TICKS       1200   /* 2 min — total game duration                 */
-=======
-static void display_udp_packet(const uint8_t *udp_packet)
-{
-    struct Header header;
-    memcpy(&header, udp_packet, sizeof(header));
-
-    // ---- Print Game ID ----
-    printf("Game ID: ");
-    for (size_t j = 0; j < GAME_ID_SIZE; j++)
-        printf("%02x ", header.game_id[j]);
-    printf("\n");
-
-    // ---- Print Player ID ----
-    printf("Player ID: ");
-    for (size_t j = 0; j < PLAYER_ID_SIZE; j++)
-        printf("%02x ", header.player_id[j]);
-    printf("\n");
-
-    // ---- Print Payload ----
-    const char *payload = (const char *)(udp_packet + sizeof(header));
-
-    printf("Payload: %.*s\n",
-           header.payload_size,
-           payload);
-
-    printf("--------\n");
-}
->>>>>>> 4ff7ed2 (Squash in PROJ-151-create-packetization-utility-for-game-server (pull request #70))
-=======
-#define TICK_RATE_MS              16
-#define CONNECTION_DEADLINE_TICKS 1875   /* 30 s  — max wait for all players to connect */
-#define GAME_INIT_TICKS           312    /* 5 s   — lobby/countdown before game starts  */
-#define GAME_DURATION_TICKS       7500   /* 2 min — total game duration                 */
->>>>>>> 71d9445 (Squash in PROJ-150-implement-server-internal-game-structure (pull request #71))
 
 static void sleep_ms(long ms)
 {

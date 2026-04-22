@@ -95,15 +95,9 @@ static void net_receive_packets(FILE *log_file,
             continue;
         }
 
-<<<<<<< HEAD
         // For reliable packets only: drop if seq_num is older than last seen
         uint32_t *seq_num = players_registry_seq_get_by_index(players_reg, idx);
         if(!seq_num || ((header.control & CTRL_FLAG_RELIABLE) && header.seq_num < *seq_num))
-=======
-        // Validate sequence number (skip for INIT — first packet from this player)
-        uint32_t *seq_num = players_registry_seq_get_by_index(players_reg, idx);
-        if(!seq_num || (!(header.control & CTRL_FLAG_INIT) && header.seq_num <= *seq_num))
->>>>>>> 4ff7ed2 (Squash in PROJ-151-create-packetization-utility-for-game-server (pull request #70))
         {
             // seq_num slot missing or reliable packet is outdated
             // Drop packet
